@@ -129,8 +129,8 @@ High-level phases or workstreams (not broken into tasks yet).
 ## Project Lifecycle
 
 - **idea** → captured, not yet evaluated
-- **evaluating** → business model and market validated (run `/validate-project`, `/lean-canvas`, `/competitive-analysis`)
-- **ready** → risks assessed, stories decomposed, launch planned (run `/pre-mortem`, `/gtm-plan`, `/user-stories`)
+- **evaluating** → business model and market validated (run `/validate-project`, `/lean-canvas`, `/competitive-analysis`, `/gtm-plan`)
+- **ready** → risks assessed and stories decomposed (run `/pre-mortem`, `/user-stories`)
 - **active** → committed and building; tasks decomposed into `Tasks/`, sprint planned
 - **paused** → on hold, reason noted in Progress Log
 - **archived** → abandoned or completed at project level
@@ -140,21 +140,21 @@ High-level phases or workstreams (not broken into tasks yet).
 Move projects through these checkpoints before committing to build:
 
 ```
-idea ──→ evaluating ──→ ready ──→ active
-  │         │              │         │
-  │    /validate-project   │    /user-stories --tasks
-  │    /lean-canvas        │    /sprint-plan
-  │    /competitive-analysis   /gtm-plan
-  │         │              │
-  │    Business viable?    │    Risks acceptable?
-  │    Market exists?      │    Stories decomposed?
-  │         │              │    Launch plan ready?
-  │         ▼              │
-  │    If weak → /prioritize → consider archiving
-  │                        ▼
-  │                   /pre-mortem
-  │                   Go / No-Go?
-  ▼
+idea ──→ evaluating ──────→ ready ──→ active
+  │         │                 │         │
+  │    /validate-project      │    /user-stories --tasks
+  │    /lean-canvas           │    /sprint-plan
+  │    /competitive-analysis  │
+  │    /gtm-plan              │
+  │         │                 │
+  │    Business viable?       │
+  │    Market exists?         ▼
+  │    Can reach customers?  /pre-mortem
+  │         │               Go / No-Go?
+  │         ▼                 │
+  │    If weak → /prioritize  │
+  │         → consider kill   │
+  ▼                           ▼
   One project/day through pipeline (15 min habit)
 ```
 
@@ -201,6 +201,7 @@ For complex tasks, delegate to workflow files in `examples/workflows/`. Read the
 | Validate a project idea | `/validate-project` skill | "Validate this project", "is this idea viable", "market research for" |
 | Deep competitive analysis | `/competitive-analysis` skill | "Analyze competitors", "competitive landscape", "who are the competitors" |
 | Research a topic | `/research-topic` skill | "Research", "look into", "investigate", "find out about" |
+| Sync Granola meetings | `/meeting-sync` skill | "Sync my meetings", "check for new meetings", triggered during morning standup |
 | **Evaluation & Strategy** | | |
 | Create detailed PRD for project | `/PRD` skill (MUST use Skill tool) | When user asks for PRD. NEVER write PRD content manually. |
 | Evaluate business model | `/lean-canvas` skill | "Business model for", "is this viable as a business", "lean canvas" |

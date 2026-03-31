@@ -26,10 +26,11 @@ Check all projects and suggest **one project to advance** through the evaluation
 Pipeline stages and the next skill to run:
 - `idea` with no validation → suggest `/validate-project <name>`
 - `idea` with validation but no lean canvas → suggest `/lean-canvas <name>`
+- `evaluating` with lean canvas but no competitive analysis → suggest `/competitive-analysis <name>` (optional)
 - `evaluating` with lean canvas but no GTM plan → suggest `/gtm-plan <name>`
-- `evaluating` with GTM plan but no pre-mortem → suggest `/pre-mortem <name>`
+- `evaluating` with GTM plan but no pre-mortem → suggest `/pre-mortem <name>` (moves to `ready`)
 - `ready` with pre-mortem but no user stories → suggest `/user-stories <name>`
-- `active` with no tasks in Tasks/ → flag for decomposition
+- `active` with no tasks in Tasks/ → flag for decomposition via `/user-stories <name> --tasks`
 
 Pick the highest-priority project that needs the least work to advance.
 
