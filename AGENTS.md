@@ -10,6 +10,9 @@ project/
 │       ├── idea.md   # Lightweight capture (Context, Scope, Progress Log)
 │       └── prd.md    # Full PRD (created via PRD skill during backlog processing)
 ├── Knowledge/    # Briefs, research, specs, meeting notes
+│   └── research/
+│       ├── projects/  # /validate output — market research briefs per project
+│       └── topics/    # /research output — general topic research briefs
 ├── Library/      # Catalog of reusable AI artifacts (not runtime — reference only)
 │   ├── prompts/  # Standalone, copy-paste-ready prompts
 │   ├── systems/  # System-level instructions (CLAUDE.md, rules, personas)
@@ -27,12 +30,12 @@ project/
 |---|---|---|
 | **What goes here** | Discrete, actionable items | Multi-step initiatives, ideas, exploratory work |
 | **Size heuristic** | Single outcome, usually < 2 hrs | Multiple phases or > ~2 hrs total |
-| **Status values** | `n` `s` `b` `d` | `idea` `evaluating` `active` `paused` `archived` |
+| **Status values** | `n` `s` `b` `d` | `idea` `evaluating` `ready` `active` `paused` `archived` |
 | **Daily planning** | Primary focus source | Surface only `active` projects needing task decomposition |
 
 **Promotion flow:**
 ```
-BACKLOG.md → Projects/ (idea/evaluating) → Tasks/ (when actively working)
+BACKLOG.md → Projects/ (idea → evaluating → ready) → Tasks/ (when active)
 ```
 
 When a project becomes `active`, decompose it into discrete task files in `Tasks/`.
@@ -42,6 +45,10 @@ When a project becomes `active`, decompose it into discrete task files in `Tasks
 Each project lives in `Projects/<project-name>/`:
 - **idea.md** — Lightweight capture using the Project Template. Created when the project is first added from backlog.
 - **prd.md** — Full Product Requirements Document. Created immediately when the project is first added (during backlog processing); save to `Projects/<project-name>/prd.md`.
+- **lean-canvas.md** — Business model evaluation (created via `/lean-canvas` skill during evaluation).
+- **gtm-plan.md** — Go-to-market strategy (created via `/gtm-plan` skill when planning launch).
+- **pre-mortem.md** — Risk analysis (created via `/pre-mortem` skill before building).
+- **user-stories.md** — Decomposed user stories with acceptance criteria (created via `/user-stories` skill when activating).
 
 > **MANDATORY: PRD Generation Rule**
 >
@@ -100,7 +107,7 @@ Tie to goals and reference material.
 title: [Project name]
 category: [see categories]
 priority: [P0|P1|P2|P3]
-project_status: idea  # idea | evaluating | active | paused | archived
+project_status: idea  # idea | evaluating | ready | active | paused | archived
 created_date: [YYYY-MM-DD]
 estimated_time: [minutes]  # rough total estimate, optional
 resource_refs:
@@ -122,12 +129,38 @@ High-level phases or workstreams (not broken into tasks yet).
 ## Project Lifecycle
 
 - **idea** → captured, not yet evaluated
-- **evaluating** → scoped out, deciding whether to pursue
-- **active** → committed; decompose into tasks in `Tasks/`
+- **evaluating** → business model and market validated (run `/validate-project`, `/lean-canvas`, `/competitive-analysis`)
+- **ready** → risks assessed, stories decomposed, launch planned (run `/pre-mortem`, `/gtm-plan`, `/user-stories`)
+- **active** → committed and building; tasks decomposed into `Tasks/`, sprint planned
 - **paused** → on hold, reason noted in Progress Log
 - **archived** → abandoned or completed at project level
 
-When activating a project (moving to `active`), always decompose its Scope into discrete task files in `Tasks/`. PRDs are created during backlog processing; if a project was added before this flow and lacks a PRD, invoke the `/PRD` skill (via the Skill tool) to generate one and save to `Projects/<project-name>/prd.md`.
+### Evaluation Pipeline
+
+Move projects through these checkpoints before committing to build:
+
+```
+idea ──→ evaluating ──→ ready ──→ active
+  │         │              │         │
+  │    /validate-project   │    /user-stories --tasks
+  │    /lean-canvas        │    /sprint-plan
+  │    /competitive-analysis   /gtm-plan
+  │         │              │
+  │    Business viable?    │    Risks acceptable?
+  │    Market exists?      │    Stories decomposed?
+  │         │              │    Launch plan ready?
+  │         ▼              │
+  │    If weak → /prioritize → consider archiving
+  │                        ▼
+  │                   /pre-mortem
+  │                   Go / No-Go?
+  ▼
+  One project/day through pipeline (15 min habit)
+```
+
+**Daily pipeline habit:** Each morning, advance one project by one step through this pipeline. This turns 105 ideas into a methodical evaluation process instead of decision paralysis.
+
+When activating a project (moving to `active`), always decompose its Scope into discrete task files in `Tasks/` via `/user-stories --tasks`. PRDs are created during backlog processing; if a project was added before this flow and lacks a PRD, invoke the `/PRD` skill (via the Skill tool) to generate one and save to `Projects/<project-name>/prd.md`.
 
 ## Goals Alignment
 - During backlog work, make sure each task and project references the relevant goal inside the **Context** section (cite headings or bullets from `GOALS.md`).
@@ -136,10 +169,12 @@ When activating a project (moving to `active`), always decompose its Scope into 
 
 ## Daily Guidance
 - Answer prompts like "What should I work on today?" by inspecting priorities, statuses, and goal alignment.
-- Pull focus tasks from `Tasks/` (status `n` or `s`).
-- Also check `Projects/*/idea.md` for any `active` projects with no corresponding tasks — flag these as needing decomposition.
-- Suggest no more than three focus tasks unless the user insists.
+- **Layer 1 — Execution:** Pull focus tasks from `Tasks/` (status `n` or `s`). Suggest no more than three focus tasks unless the user insists.
+- **Layer 2 — Pipeline Movement:** Check `Projects/*/idea.md` for projects that need to advance through the evaluation pipeline. Suggest one project to move forward today (run the next skill in the pipeline). This is the daily 15-minute evaluation habit.
+- **Layer 3 — OKR Check:** If OKRs exist in `GOALS.md`, briefly note which OKR today's tasks advance.
+- Also check for `active` projects with no corresponding tasks — flag these as needing `/user-stories --tasks` decomposition.
 - Flag blocked tasks and propose next steps or follow-up questions.
+- At the end of daily guidance, suggest natural follow-up actions (e.g., "Run `/sprint-plan` to plan your week" or "Run `/lean-canvas project-name` to evaluate that idea").
 
 ## Categories (adjust as needed)
 - **technical**: build, fix, configure
@@ -155,13 +190,30 @@ When activating a project (moving to `active`), always decompose its Scope into 
 
 For complex tasks, delegate to workflow files in `examples/workflows/`. Read the workflow file and follow its instructions.
 
-| Trigger | Workflow File | When to Use |
-|---------|---------------|-------------|
+| Trigger | Workflow / Skill | When to Use |
+|---------|-----------------|-------------|
 | Content generation, writing in user's voice | `examples/workflows/content-generation.md` | Any writing, marketing, or content task |
 | Morning planning | `examples/workflows/morning-standup.md` | "What should I work on today?" |
 | Processing backlog | `examples/workflows/backlog-processing.md` | Reference for backlog flow |
-| Create detailed PRD for project | `/PRD` skill (MUST use Skill tool) | When user asks for PRD, or when evaluating/activating a project. NEVER write PRD content manually. |
 | Weekly reflection | `examples/workflows/weekly-review.md` | Weekly review prompts |
+| **Discovery & Research** | | |
+| Discover project ideas | `/discover-ideas` skill | "Find ideas", "discover opportunities", "what should I build", "scan for trends" |
+| Validate a project idea | `/validate-project` skill | "Validate this project", "is this idea viable", "market research for" |
+| Deep competitive analysis | `/competitive-analysis` skill | "Analyze competitors", "competitive landscape", "who are the competitors" |
+| Research a topic | `/research-topic` skill | "Research", "look into", "investigate", "find out about" |
+| **Evaluation & Strategy** | | |
+| Create detailed PRD for project | `/PRD` skill (MUST use Skill tool) | When user asks for PRD. NEVER write PRD content manually. |
+| Evaluate business model | `/lean-canvas` skill | "Business model for", "is this viable as a business", "lean canvas" |
+| Plan go-to-market launch | `/gtm-plan` skill | "How do I launch this", "GTM strategy", "who should I sell to" |
+| Risk analysis before building | `/pre-mortem` skill | "What could go wrong", "stress test", "risk analysis" |
+| Prioritize projects or tasks | `/prioritize` skill | "Prioritize my projects", "rank these", "which should I work on" |
+| **Execution & Planning** | | |
+| Break PRD into user stories | `/user-stories` skill | "Create user stories", "decompose this PRD", "break this into stories" |
+| Plan weekly sprint | `/sprint-plan` skill | "Plan my sprint", "what should I build this week", "weekly plan" |
+| Set quarterly OKRs | `/plan-okrs` skill | "Create OKRs", "set quarterly goals", "make my goals measurable" |
+| View outcome-focused roadmap | `/outcome-roadmap` skill | "Show my roadmap", "what outcomes am I working toward" |
+| **Analysis** | | |
+| Analyze A/B test results | `/ab-test` skill | "Analyze this test", "is this significant", "A/B test analysis" |
 
 **How to use workflows:**
 1. When a task matches a trigger, read the corresponding workflow file
@@ -169,14 +221,32 @@ For complex tasks, delegate to workflow files in `examples/workflows/`. Read the
 3. The workflow may reference files in `Knowledge/` for context (e.g., voice samples)
 
 ## Helpful Prompts to Encourage
-- "Clear my backlog"
-- "Show my project pipeline"
-- "Activate [project name]" — promote to active and decompose into tasks
-- "Create PRD for [project name]" — invoke the `/PRD` skill (Skill tool) to generate full PRD, save to `Projects/<project-name>/prd.md` (e.g., for projects added before PRD-on-create flow, or to refresh an existing PRD)
+
+**Daily:**
+- "What should I work on today?" — morning standup with execution tasks + pipeline movement
+- "Plan my sprint" — weekly sprint planning at 70% capacity
+
+**Pipeline:**
+- "Clear my backlog" — process BACKLOG.md into tasks and projects
+- "Show my project pipeline" — overview of all projects by status
+- "Show my roadmap" — outcome-focused view of all projects
+- "Prioritize my projects" — rank using ICE/RICE/Opportunity Score
+- "Validate [project]" → "Lean canvas for [project]" → "GTM plan for [project]" → "Pre-mortem for [project]" → "Create user stories for [project]" — the full evaluation pipeline
+
+**Strategy:**
+- "Create OKRs" — formalize quarterly objectives with measurable key results
+- "Activate [project name]" — promote to active, decompose into stories and tasks
+- "Create PRD for [project name]" — invoke `/PRD` skill for full PRD
+- "Analyze competitors for [project]" — deep competitive analysis
+
+**Review:**
+- "What moved me closer to my goals this week?" — weekly OKR progress check
 - "Show tasks supporting goal [goal name]"
-- "What moved me closer to my goals this week?"
 - "List tasks still blocked"
 - "Archive tasks finished last week"
+
+**Analysis:**
+- "Analyze this A/B test" — statistical analysis of experiment results
 
 ## Interaction Style
 - Be direct, friendly, and concise.
