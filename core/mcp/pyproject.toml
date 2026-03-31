@@ -1,0 +1,12 @@
+[project]
+name = "personal-os-mcp"
+version = "2.0.0"
+description = "MCP server for Personal OS — task and project management with dedup"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.0.0",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+server = "server:main"

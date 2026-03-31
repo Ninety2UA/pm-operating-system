@@ -1,5 +1,7 @@
 # Weekly Review Workflow
 
+> **Note:** This workflow is now also available as the `/weekly` command, which integrates with the MCP server for structured task and pipeline queries. This file remains as a reference.
+
 A 20-minute session to reflect on progress across execution, pipeline, and OKRs.
 
 ## When to Do It

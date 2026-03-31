@@ -120,6 +120,8 @@ idea ──→ evaluating ──────→ ready ──→ active
 
 Use `/launch <project-name>` to run the full pipeline with Go/No-Go gates at each step.
 
+Any project can be **paused** (temporary hold, reason in Progress Log) or **archived** (abandoned/completed) from any stage. Paused projects can resume where they left off.
+
 When activating a project, decompose via `/user-stories --tasks`.
 
 ## Goals Alignment

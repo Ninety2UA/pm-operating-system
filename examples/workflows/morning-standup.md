@@ -1,5 +1,7 @@
 # Morning Standup Workflow
 
+> **Note:** This workflow is now also available as the `/morning` command, which integrates with the MCP server for structured task and pipeline queries. This file remains as a reference.
+
 A 5-minute check-in to set your daily focus across execution and pipeline movement.
 
 ## The Prompt
