@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash -c 'mkdir -p \"$CLAUDE_PROJECT_DIR\"/{Tasks,Projects,\"Knowledge/research/projects\",\"Knowledge/research/topics\",Knowledge/Transcripts,\"Library/{prompts,systems,skills,agents,commands}\"} 2>/dev/null; exit 0'"
+      }
+    ]
+  }
+}
