@@ -72,12 +72,39 @@ Apply these voice principles (override with user's voice guide if available):
 - Confident without being salesy
 - Specific over vague
 
-**Avoid:**
-- "Key insight" / "Here's the thing" / "Let's be real"
+**Avoid — The Worst Offenders:**
+
+*Corrective reframing / false dichotomies (NEVER use):*
+- "This isn't about X. It's about Y."
+- "You think this is X. It's actually Y."
+- "Everyone sees X. The reality is Y."
+- "That's not X. That's Y."
+- "Remember... the goal is not to X but Y"
+
+*Cliched AI phrases:*
+- "The key insight..." / "Here's the thing" / "Let's be real"
+- "This is where X gets interesting/powerful"
+- "Here's where X shines"
+- "X isn't just Y" formations
+- "The [adjective] truth" constructions
+
+*Rhetorical patterns:*
+- "When I asked X to do Y, it didn't just Z. It [list]"
+- "The difference? [Answer]" as rhetorical device
+- "Those [thing]? They're [explanation]"
+- "They didn't X. They Y" false contrast
+- Starting sentences with "This is where..." or "Here's where..."
+- Rhetorical questions followed by explanations
+
+*Style violations:*
 - "I hope this email finds you well"
-- Em dashes (use commas or periods)
-- Excessive emojis or bullet points
-- Rhetorical questions followed by answers
+- Em dashes — use commas or periods instead
+- Excessive emojis or bullet points in emails
+- Unnecessary adjectives like "critical", "comprehensive", "powerful"
+- Fluff transitions and throat-clearing
+- Making up fake examples or statistics
+- LinkedIn-style breathless writing
+- Fake suspense building
 
 ### Step 5: Present Draft with Options
 

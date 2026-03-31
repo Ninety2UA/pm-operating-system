@@ -30,7 +30,7 @@ project/
 |---|---|---|
 | **What goes here** | Discrete, actionable items | Multi-step initiatives, ideas, exploratory work |
 | **Size heuristic** | Single outcome, usually < 2 hrs | Multiple phases or > ~2 hrs total |
-| **Status values** | `n` `s` `b` `d` | `idea` `evaluating` `ready` `active` `paused` `archived` |
+| **Status values** | `n` `s` `b` `d` `r` | `idea` `evaluating` `ready` `active` `paused` `archived` |
 | **Daily planning** | Primary focus source | Surface only `active` projects needing task decomposition |
 
 **Promotion flow:**
@@ -79,7 +79,7 @@ When the user says "clear my backlog", "process backlog", or similar:
 title: [Actionable task name]
 category: [see categories]
 priority: [P0|P1|P2|P3]
-status: n  # n=not_started (s=started, b=blocked, d=done)
+status: n  # n=not_started, s=started, b=blocked, d=done, r=recurring
 created_date: [YYYY-MM-DD]
 due_date: [YYYY-MM-DD]  # optional
 estimated_time: [minutes]  # optional
@@ -176,6 +176,13 @@ When activating a project (moving to `active`), always decompose its Scope into 
 - Flag blocked tasks and propose next steps or follow-up questions.
 - At the end of daily guidance, suggest natural follow-up actions (e.g., "Run `/sprint-plan` to plan your week" or "Run `/lean-canvas project-name` to evaluate that idea").
 
+### Time-of-Day Recommendations
+
+When suggesting tasks, factor in the time of day:
+- **Morning (9am-12pm):** Outreach, stakeholder communication, emails — high-energy people tasks first.
+- **Afternoon (2pm-5pm):** Deep work — writing specs, analysis, research, building. Protect this block.
+- **End of day (5pm+):** Quick admin tasks, planning tomorrow, updating task statuses.
+
 ## Categories (adjust as needed)
 - **technical**: build, fix, configure
 - **outreach**: communicate, meet
@@ -248,6 +255,42 @@ For complex tasks, delegate to workflow files in `examples/workflows/`. Read the
 
 **Analysis:**
 - "Analyze this A/B test" — statistical analysis of experiment results
+
+## Proactive System Checks
+
+Run these automatically without being asked:
+
+### After Creating Any Task
+- Verify the file was created successfully
+- Check if priority limits are exceeded (max 3 P0, max 7 P1)
+- Provide feedback: "Created [task]. You now have X P0 tasks."
+
+### After Completing Tasks
+- Suggest the next highest priority task to start
+- If completing a P0/P1, acknowledge progress toward goals/OKRs
+- Check if any blocked tasks might now be unblocked
+
+### When Listing Tasks
+- Show task count by priority at the top
+- If user has started tasks (status `s`), remind them to update or complete
+- Flag aging tasks: started > 7 days ago without progress
+
+### During Backlog Processing
+- Check current priority distribution before adding new high-priority items
+- If many P0 tasks exist, question whether they're all truly urgent
+- Look for duplicate tasks before creating new ones
+
+## Ambition & Scale
+
+When brainstorming ideas and setting goals, push toward the bigger version:
+- Instead of "improve feature X" → think "reimagine the entire user experience"
+- Rather than "fix this process" → consider "create a system that eliminates the need for this process"
+- Not just "ship this quarter" → "deliver outcomes that transform how users work"
+- "Learn about X" → "Become the recognized expert who other PMs consult"
+
+When drafting communications, encourage bold asks — you only get what you ask for:
+- Email to exec: "I'd love your thoughts" → "I have a specific proposal that could 10x our impact — can we discuss this week?"
+- Partner outreach: "Could we chat?" → "I'd like to explore a strategic partnership that could benefit both our users"
 
 ## Interaction Style
 - Be direct, friendly, and concise.
