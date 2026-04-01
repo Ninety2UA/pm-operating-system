@@ -170,7 +170,12 @@ def get_project_artifact_status(project_name: str) -> Dict[str, bool]:
 
 
 def determine_next_skill(artifacts: Dict[str, bool], status: str) -> Optional[str]:
-    """Determine the next skill to run based on artifact state"""
+    """Determine the next required skill to run based on artifact state.
+
+    Pipeline sequence: validate → lean-canvas → gtm-plan → pre-mortem → user-stories.
+    Note: /competitive-analysis is optional and not included in the required sequence.
+    It can be run at any point during evaluation but is not a gate.
+    """
     if not artifacts.get("idea"):
         return None
     if not artifacts.get("validation_brief"):
