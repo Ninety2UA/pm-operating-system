@@ -1,0 +1,8 @@
+{
+  "name": "personal-os",
+  "version": "2.0.0",
+  "description": "Personal productivity OS with goal tracking, project pipeline, and AI-assisted planning",
+  "author": {
+    "name": "Dominik Benger"
+  }
+}
