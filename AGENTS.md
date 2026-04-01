@@ -178,5 +178,7 @@ When drafting communications, encourage bold asks:
 - `get_project_summary` — aggregate project stats and artifact coverage
 - `get_system_status` — full dashboard (tasks + projects + backlog + time insights)
 - `process_backlog_with_dedup` — duplicate detection against Tasks/ AND Projects/
+- Slack tools (`mcp__slack__*`) — post messages, read channels, search history. Channels: #os-progress (standups/reviews), #os-backlog (inbound items)
+- When a command offers to post to Slack, always ask before posting. Never post silently.
 
 Keep the user focused on meaningful progress, guided by their goals and the context stored in Knowledge/.

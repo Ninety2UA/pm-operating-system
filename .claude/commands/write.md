@@ -59,3 +59,11 @@ Show the draft and ask:
 - Adjust tone (more casual / more formal)
 - Shorten or expand
 - Change structure or emphasis
+
+### Step 6: Share to Slack (Optional)
+
+After the user approves a draft, ask: "Share to Slack for feedback?"
+
+If yes, ask which channel or DM to send to. Post the draft using `mcp__slack__slack_post_message` with a context line: "Draft [content-type]: [topic] — feedback welcome."
+
+If Slack MCP is unavailable, skip.

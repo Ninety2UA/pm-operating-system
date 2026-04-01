@@ -49,6 +49,18 @@ Read `GOALS.md`. If OKRs exist, briefly note which OKR today's suggested tasks a
 - No OKRs → "Run `/plan-okrs` to make goals measurable."
 - Many projects stuck at `idea` → "Run `/prioritize` to rank your project ideas."
 
+### Step 6: Post to Slack (Optional)
+
+After presenting the standup, ask: "Post this standup summary to #os-progress?"
+
+If yes, format a concise message and post using `mcp__slack__slack_post_message` to #os-progress:
+- Date
+- Top 3 focus tasks (one line each, with priority)
+- Pipeline project being advanced today
+- Blockers (if any)
+
+If Slack MCP is unavailable, skip silently.
+
 ### Time-of-Day Awareness
 
 Factor in time when suggesting tasks:

@@ -57,3 +57,15 @@ Suggest top priorities based on OKR gaps and pipeline state. Offer:
 ### Step 6: Update OKRs
 
 Offer to update the "Current" column in GOALS.md OKR tables with this week's actuals.
+
+### Step 7: Post to Slack (Optional)
+
+After the review, ask: "Post weekly review to #os-progress?"
+
+If yes, format a summary and post using `mcp__slack__slack_post_message` to #os-progress:
+- Tasks completed this week (count, grouped by goal)
+- Pipeline movement (projects advanced, projects killed)
+- OKR scores (if they exist)
+- Top 3 priorities for next week
+
+Use Slack message formatting (bold, bullet points). If Slack MCP is unavailable, skip silently.
