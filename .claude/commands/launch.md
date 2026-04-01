@@ -61,7 +61,7 @@ Execute each stage in order. After each, present the key findings and ask **Go /
 ### Step 4: Update Project Status
 
 After each Go decision, update the project's `idea.md` frontmatter:
-- After Stage 2 (Lean Canvas): `project_status: evaluating`
+- After Stage 1 (Validate): `project_status: evaluating`
 - After Stage 5 (Pre-mortem Go): `project_status: ready`
 - After Stage 6 (User Stories): `project_status: active`
 

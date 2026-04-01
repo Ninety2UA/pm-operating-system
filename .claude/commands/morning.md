@@ -32,7 +32,7 @@ Call `mcp__manager-ai__get_pipeline_status` to see project distribution. Then ca
 
 Suggest **one project** to advance today (15 min):
 - `idea` with no validation → `/validate-project <name>`
-- `idea` with validation, no lean canvas → `/lean-canvas <name>`
+- `evaluating` with validation, no lean canvas → `/lean-canvas <name>`
 - `evaluating` with lean canvas, no competitive analysis → `/competitive-analysis <name>` (optional)
 - `evaluating` with lean canvas, no GTM plan → `/gtm-plan <name>`
 - `evaluating` with GTM plan, no pre-mortem → `/pre-mortem <name>`
