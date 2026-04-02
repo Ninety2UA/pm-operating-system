@@ -11,6 +11,7 @@ description: >
   this skill applies.
 allowed-tools: Read Write Edit Glob Bash mcp__perplexity__*
 disable-model-invocation: true
+user-invocable: true
 argument-hint: "<project-name>"
 ---
 
@@ -32,6 +33,33 @@ practicality for a solo builder or small team.
    model insights.
 
 If no idea.md exists, ask the user to describe the project before proceeding.
+
+### Step 1b: Clarifying Questions
+
+If the project context is ambiguous, ask 3-5 essential questions with lettered options
+for quick iteration. Focus on gaps in the gathered context:
+
+```
+1. What's the primary goal?
+   A. Solve a specific user pain point
+   B. Generate revenue / monetize
+   C. Build portfolio / credibility
+   D. Other: [please specify]
+
+2. Who is the primary user?
+   A. [Segment from idea.md]
+   B. [Alternative segment]
+   C. Both
+   D. Not sure yet
+
+3. What scope feels right for v1?
+   A. Minimal — one core feature, ship fast
+   B. Moderate — 3-5 features, solid MVP
+   C. Full — comprehensive solution
+```
+
+This lets the user respond with "1A, 2B, 3A" for fast alignment. Skip this step if the
+idea.md and existing artifacts provide clear answers.
 
 ### Step 2: Research (if needed)
 
@@ -166,6 +194,12 @@ How will we know this worked? Link back to the Key Results in Section 3.
 |--------|----------|--------|-------------------|
 | [Metric 1] | [Current state] | [Goal] | [How to measure] |
 | [Metric 2] | [Current state] | [Goal] | [How to measure] |
+
+## 9. Open Questions
+
+Remaining questions or areas needing clarification before building:
+- [Question 1]
+- [Question 2]
 ```
 
 ### Step 5: Adapt Depth to Project Stage
@@ -207,6 +241,18 @@ After saving, present a concise summary:
   not "improve performance")
 - The MVP section is the most important — be opinionated about what's in and what's out
 - Keep the total PRD between 100-300 lines depending on project stage
+
+## Checklist
+
+Before saving the PRD, verify:
+
+- [ ] Asked clarifying questions if context was ambiguous
+- [ ] All 9 sections filled (or consciously skipped based on project stage)
+- [ ] Key Results are measurable with targets and timeframes
+- [ ] MVP scope is opinionated — clearly states what's in AND what's out
+- [ ] Assumptions are flagged explicitly with risk-if-wrong
+- [ ] Open questions capture genuine unknowns
+- [ ] Saved to `Projects/<project-name>/prd.md`
 
 ## Notes
 
