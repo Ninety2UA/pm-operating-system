@@ -160,12 +160,12 @@ Projects that need attention this week (from Projects/ with status `evaluating` 
 
 ---
 
-**End of sprint:** Run `/sprint-review` or update task statuses and review what shipped vs. planned.
+**End of sprint:** Update task statuses and review what shipped vs. planned.
 ```
 
 ### Step 6: Save the Sprint Plan
 
-Save to `Tasks/sprint-YYYY-MM-DD.md` (using the Monday date of the sprint week).
+Save to `Knowledge/sprint-YYYY-MM-DD.md` (using the Monday date of the sprint week).
 
 ### Step 7: Present Summary
 

@@ -7,7 +7,7 @@ description: >
   "research competitors for", "evaluate this project", "market research for",
   or wants to decide whether to pursue a project idea.
 disable-model-invocation: true
-allowed-tools: Read Write Edit Glob mcp__perplexity__*
+allowed-tools: Read Write Edit Glob Bash mcp__perplexity__*
 argument-hint: "<project-name> [--model quick|deep|reason]"
 ---
 

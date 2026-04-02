@@ -18,7 +18,7 @@ Call `mcp__manager-ai__get_task_summary` for aggregate stats.
 List tasks completed this week (status `d`). Group by goal/OKR alignment:
 - How many tasks per goal
 - Time invested vs estimated
-- Sprint completion rate (if sprint plan exists in Tasks/sprint-*.md)
+- Sprint completion rate (if sprint plan exists in Knowledge/sprint-*.md)
 
 ### Step 2: Pipeline Review
 

@@ -8,6 +8,7 @@ description: >
   "plan launch for", or when a project has a validated business model
   and needs a launch strategy.
 allowed-tools: Read Write Edit Glob mcp__perplexity__*
+disable-model-invocation: true
 argument-hint: "<project-name> [--model quick|deep|reason]"
 ---
 

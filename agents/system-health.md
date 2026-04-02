@@ -38,7 +38,7 @@ description: >
 
 model: sonnet
 color: yellow
-tools: ["Read", "Glob", "Grep", "mcp__manager-ai__list_tasks", "mcp__manager-ai__get_task_summary", "mcp__manager-ai__check_priority_limits", "mcp__manager-ai__list_projects", "mcp__manager-ai__get_pipeline_status", "mcp__manager-ai__get_project_summary", "mcp__manager-ai__get_system_status"]
+tools: ["Read", "Glob", "Grep", "Bash", "mcp__manager-ai__list_tasks", "mcp__manager-ai__get_task_summary", "mcp__manager-ai__check_priority_limits", "mcp__manager-ai__list_projects", "mcp__manager-ai__get_pipeline_status", "mcp__manager-ai__get_project_summary", "mcp__manager-ai__get_system_status"]
 ---
 
 You are a system health diagnostic agent that scans the personal OS for issues and produces actionable recommendations.

@@ -8,6 +8,7 @@ description: >
   "create lean canvas", "business model for", "is this viable as a business",
   or before committing to build — to validate the business model first.
 allowed-tools: Read Write Edit Glob mcp__perplexity__*
+disable-model-invocation: true
 argument-hint: "<project-name> [--model quick|deep|reason]"
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: "Process BACKLOG.md — classify items, detect duplicates, create tasks and projects"
-argument-hint: ""
+argument-hint: "(no arguments)"
 ---
 
 # Process Backlog

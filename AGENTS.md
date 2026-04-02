@@ -14,10 +14,18 @@ project/
 │       ├── pre-mortem.md    # Risk analysis (via /pre-mortem)
 │       └── user-stories.md  # Decomposed stories (via /user-stories)
 ├── Knowledge/    # Briefs, research, specs, meeting notes
-│   └── research/
-│       ├── projects/  # /validate-project and /competitive-analysis output
-│       └── topics/    # /research-topic output
+│   ├── research/
+│   │   ├── projects/  # /validate-project and /competitive-analysis output
+│   │   └── topics/    # /research-topic output
+│   ├── Transcripts/   # /meeting-sync output
+│   ├── outcome-roadmap.md  # /outcome-roadmap --save output
+│   └── sprint-*.md    # /sprint-plan output
 ├── Library/      # Catalog of reusable AI artifacts (reference only)
+│   ├── prompts/  # Standalone, copy-paste-ready prompts
+│   ├── systems/  # System-level instructions
+│   ├── skills/   # SKILL.md references
+│   ├── agents/   # Agent references
+│   └── commands/ # Command references
 ├── BACKLOG.md    # Raw capture inbox
 ├── GOALS.md      # Goals, themes, priorities, OKRs
 └── AGENTS.md     # Your instructions

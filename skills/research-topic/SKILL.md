@@ -6,7 +6,7 @@ description: >
   "look into", "find out about", "investigate", "deep dive into",
   or wants to understand a topic, technology, or market before making decisions.
 disable-model-invocation: true
-allowed-tools: Read Write Edit Glob mcp__perplexity__*
+allowed-tools: Read Write Edit Glob Bash mcp__perplexity__*
 argument-hint: "<topic> [--model quick|deep|reason]"
 ---
 

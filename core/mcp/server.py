@@ -169,7 +169,7 @@ def get_project_artifact_status(project_name: str) -> Dict[str, bool]:
     return result
 
 
-def determine_next_skill(artifacts: Dict[str, bool], status: str) -> Optional[str]:
+def determine_next_skill(artifacts: Dict[str, bool]) -> Optional[str]:
     """Determine the next required skill to run based on artifact state.
 
     Pipeline sequence: validate → lean-canvas → gtm-plan → pre-mortem → user-stories.
@@ -432,7 +432,7 @@ async def handle_call_tool(
     elif name == "check_priority_limits":
         tasks = [t for t in get_all_tasks() if t.get('status') != 'd']
         by_priority = Counter(t.get('priority', 'P2') for t in tasks)
-        thresholds = {'P0': 3, 'P1': 7, 'P2': 15}
+        thresholds = {'P0': 3, 'P1': 7}
         alerts = []
         for p, limit in thresholds.items():
             count = by_priority.get(p, 0)
@@ -502,7 +502,7 @@ async def handle_call_tool(
             result = {"success": False, "error": f"Project not found: {project}"}
         else:
             artifacts = get_project_artifact_status(project)
-            next_skill = determine_next_skill(artifacts, "")
+            next_skill = determine_next_skill(artifacts)
             result = {
                 "project": project,
                 "artifacts": artifacts,

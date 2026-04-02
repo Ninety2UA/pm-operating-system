@@ -7,6 +7,7 @@ description: >
   "competitive analysis", "who are the competitors", "competitive landscape",
   "how do I differentiate", or when deciding positioning for a project.
 allowed-tools: Read Write Edit Glob mcp__perplexity__*
+disable-model-invocation: true
 argument-hint: "<project-name> [--model quick|deep|reason]"
 ---
 
