@@ -24,3 +24,9 @@
 - **discover-ideas** — Scan for project opportunities
 - **research-topic** — Deep research briefs
 - **ab-test** — Statistical A/B test analysis
+
+## Agents
+
+- **deep-research** — Background multi-source research, saves briefs to Knowledge/
+- **batch-evaluator** — Parallel project evaluation with comparative ranking
+- **system-health** — Diagnostic scan of tasks, projects, goals, and backlog
