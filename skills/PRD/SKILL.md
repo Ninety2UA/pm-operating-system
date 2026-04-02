@@ -8,7 +8,8 @@ description: >
   proactively during backlog processing when a new project is created and needs a PRD,
   or when an existing project lacks a prd.md. Even if the user doesn't say "PRD"
   explicitly — if they're describing a product idea with enough detail to spec out,
-  this skill applies.
+  this skill applies. Do not use for early brainstorming or idea capture — use idea.md
+  for that. This skill applies when formalizing requirements, not exploring.
 allowed-tools: Read Write Edit Glob Bash mcp__perplexity__*
 disable-model-invocation: true
 user-invocable: true
@@ -20,6 +21,15 @@ argument-hint: "<project-name>"
 Create a comprehensive PRD that serves as the authoritative spec for a project — aligning
 stakeholder thinking and guiding what gets built. The PRD balances thoroughness with
 practicality for a solo builder or small team.
+
+## Quick Start
+
+User: `/PRD ad-spend-anomaly-detector`
+Result: Reads idea.md and existing artifacts, optionally asks clarifying questions,
+writes a 10-section PRD to `Projects/ad-spend-anomaly-detector/prd.md`, and presents
+a summary with suggested next pipeline step.
+
+For a complete example, read `${CLAUDE_SKILL_DIR}/references/example-prd.md`.
 
 ## Instructions
 
@@ -34,7 +44,10 @@ practicality for a solo builder or small team.
 
 If no idea.md exists, ask the user to describe the project before proceeding.
 
-### Step 1b: Clarifying Questions
+Reject any project name containing `..`, `/`, or characters besides letters, numbers,
+and hyphens.
+
+### Step 2: Clarifying Questions
 
 If the project context is ambiguous, ask 3-5 essential questions with lettered options
 for quick iteration. Focus on gaps in the gathered context:
@@ -61,7 +74,7 @@ for quick iteration. Focus on gaps in the gathered context:
 This lets the user respond with "1A, 2B, 3A" for fast alignment. Skip this step if the
 idea.md and existing artifacts provide clear answers.
 
-### Step 2: Research (if needed)
+### Step 3: Research (if needed)
 
 If the gathered context lacks market data or competitor insight, run a focused research
 query using `perplexity_search` or `perplexity_ask`:
@@ -72,7 +85,7 @@ query using `perplexity_search` or `perplexity_ask`:
 Keep research lightweight — the PRD captures what to build, not a full market analysis
 (that's what `/validate-project` is for).
 
-### Step 3: Think Before Writing
+### Step 4: Think Before Writing
 
 Before drafting, work through these questions:
 - What problem are we solving, and for whom?
@@ -81,156 +94,45 @@ Before drafting, work through these questions:
 - What's the smallest version that delivers value?
 - What assumptions are we making that could be wrong?
 
-### Step 4: Write the PRD
+### Step 5: Write the PRD
 
-Use the 8-section structure below. Be specific and data-driven where possible. Write for
-clarity — short sentences, no jargon, accessible to anyone who reads it.
+Read the PRD template at `${CLAUDE_SKILL_DIR}/references/prd-template.md` and fill in
+each section. The template has 10 sections — use all of them, adapting depth to the
+project's pipeline stage.
 
-```markdown
----
-title: "PRD: [Project Name]"
-project: <project-name>
-date: YYYY-MM-DD
-status: draft
-author: [User name from GOALS.md or git config]
----
+Write for clarity — short sentences, no jargon. Write so a non-technical reader can
+follow along. If a sentence requires domain knowledge to parse, rewrite it.
 
-# [Project Name] — Product Requirements Document
-
-## 1. Summary
-
-2-3 sentences: What is this product/feature? What does it do? Who is it for?
-
-## 2. Background
-
-- **Context:** What is this initiative about? What led to it?
-- **Why now:** Has something changed — new technology, market shift, user pain?
-- **Connection to goals:** Which goal or OKR from GOALS.md does this advance?
-
-## 3. Objective
-
-What's the objective and why does it matter?
-
-**Key Results** (SMART format):
-- KR1: [Measurable outcome with target and timeframe]
-- KR2: [Measurable outcome with target and timeframe]
-- KR3: [Measurable outcome with target and timeframe]
-
-## 4. Target Users
-
-Who are we building this for? Define by problem/job, not demographics.
-
-| Segment | Problem/Job | Current Workaround | Pain Level |
-|---------|------------|-------------------|------------|
-| [Segment 1] | [What they need] | [How they cope today] | [High/Med/Low] |
-| [Segment 2] | [What they need] | [How they cope today] | [High/Med/Low] |
-
-**Primary segment:** [Which segment to focus on first and why]
-
-## 5. Value Proposition
-
-- What customer jobs/needs does this address?
-- What will users gain that they don't have today?
-- Which pains will they avoid?
-- How is this better than existing alternatives?
-
-## 6. Solution
-
-### 6.1 Key Features
-
-| Feature | Description | Priority | Effort |
-|---------|------------|----------|--------|
-| [Feature 1] | [What it does] | Must-have | [S/M/L] |
-| [Feature 2] | [What it does] | Must-have | [S/M/L] |
-| [Feature 3] | [What it does] | Nice-to-have | [S/M/L] |
-
-### 6.2 User Flow
-
-Describe the primary user journey from entry to value:
-1. User arrives at [entry point]
-2. User does [action]
-3. System responds with [result]
-4. User achieves [outcome]
-
-### 6.3 Technical Considerations
-
-Only if relevant — stack choices, API dependencies, data requirements,
-infrastructure needs. Skip if not applicable for this project.
-
-### 6.4 Assumptions
-
-What we believe but haven't proven. Flag these clearly so they can be
-validated before or during building.
-
-- [Assumption 1] — risk if wrong: [impact]
-- [Assumption 2] — risk if wrong: [impact]
-
-## 7. Scope & Phases
-
-### MVP (Phase 1)
-What goes in the first shippable version? Be ruthless — the MVP should
-deliver the core value proposition with minimum features.
-
-- [Feature/capability included]
-- [Feature/capability included]
-- **Explicitly excluded:** [Things that feel important but aren't MVP]
-
-### Phase 2+
-What comes after the MVP proves the concept?
-
-- [Enhancement 1]
-- [Enhancement 2]
-
-### Non-Goals
-Things this project intentionally does NOT do:
-- [Non-goal 1]
-- [Non-goal 2]
-
-## 8. Success Criteria
-
-How will we know this worked? Link back to the Key Results in Section 3.
-
-| Metric | Baseline | Target | Measurement Method |
-|--------|----------|--------|-------------------|
-| [Metric 1] | [Current state] | [Goal] | [How to measure] |
-| [Metric 2] | [Current state] | [Goal] | [How to measure] |
-
-## 9. Open Questions
-
-Remaining questions or areas needing clarification before building:
-- [Question 1]
-- [Question 2]
-```
-
-### Step 5: Adapt Depth to Project Stage
+### Step 6: Adapt Depth to Project Stage
 
 Not every project needs the same level of detail:
 
-- **Idea stage** — Focus on sections 1-5 (problem, users, value). Keep solution high-level.
-  Features can be bullet points, not detailed specs.
-- **Evaluating stage** — Full PRD with all 8 sections. Solution section should be specific
-  enough that someone could start building.
-- **Active stage** — PRD should be complete and actionable. Features need acceptance
-  criteria. User flows need detail.
+- **Idea stage** — Focus on sections 1-5 (problem, users, value). Keep solution
+  high-level. Features can be bullet points. User stories and functional requirements
+  can be brief (2-3 each).
+- **Evaluating stage** — Full PRD with all 10 sections. Solution section should be
+  specific enough that someone could start building. Include 4-6 user stories.
+- **Active stage** — PRD should be complete and actionable. Features need detailed
+  acceptance criteria. User flows need specifics. Functional requirements should be
+  exhaustive.
 
-Match the depth to where the project is in the pipeline. A 200-line PRD for an idea-stage
-project is over-engineering. A 50-line PRD for an active project is under-specifying.
+Match the depth to where the project is in the pipeline.
 
-### Step 6: Save the PRD
+### Step 7: Save the PRD
 
 Save to `Projects/<project-name>/prd.md`.
 
 Ensure the `Projects/<project-name>/` directory exists (create with `mkdir -p` if needed).
 
-### Step 7: Present Summary
+### Step 8: Present Summary
 
 After saving, present a concise summary:
 - One-line project description
 - Primary target user segment
 - MVP scope (3-5 bullet points)
 - Key assumptions to validate
-- Suggested next step in the pipeline (e.g., "Run `/validate-project` to research the market"
-  or "Run `/lean-canvas` to evaluate the business model")
+- Suggested next step in the pipeline (e.g., "Run `/validate-project` to research
+  the market" or "Run `/lean-canvas` to evaluate the business model")
 
 ## Quality Standards
 
@@ -240,6 +142,11 @@ After saving, present a concise summary:
 - Use concrete numbers and specifics over vague language ("reduce load time by 50%"
   not "improve performance")
 - The MVP section is the most important — be opinionated about what's in and what's out
+- Write so a non-technical reader can follow — if a sentence requires domain knowledge
+  to parse, rewrite it
+- User stories must have verifiable acceptance criteria — "works correctly" is bad,
+  "shows confirmation dialog before deleting" is good
+- Functional requirements must be testable and unambiguous
 - Keep the total PRD between 100-300 lines depending on project stage
 
 ## Checklist
@@ -247,11 +154,14 @@ After saving, present a concise summary:
 Before saving the PRD, verify:
 
 - [ ] Asked clarifying questions if context was ambiguous
-- [ ] All 9 sections filled (or consciously skipped based on project stage)
+- [ ] All 10 sections filled (or consciously skipped based on project stage)
 - [ ] Key Results are measurable with targets and timeframes
+- [ ] User stories are small, specific, with verifiable acceptance criteria
+- [ ] Functional requirements are numbered and testable
 - [ ] MVP scope is opinionated — clearly states what's in AND what's out
 - [ ] Assumptions are flagged explicitly with risk-if-wrong
 - [ ] Open questions capture genuine unknowns
+- [ ] Contacts identified (even for solo projects: advisors, domain experts, early users)
 - [ ] Saved to `Projects/<project-name>/prd.md`
 
 ## Notes
@@ -261,3 +171,5 @@ Before saving the PRD, verify:
   repeating the research
 - The PRD complements but doesn't replace the idea.md — idea.md captures the original
   spark, the PRD formalizes the spec
+- User stories in the PRD are initial high-level stories — the `/user-stories` skill
+  later decomposes these into detailed buildable stories when the project is activated
