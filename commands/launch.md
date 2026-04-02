@@ -38,15 +38,15 @@ Execute each stage in order. After each, present the key findings and ask **Go /
 - Present: Business model strength? Revenue model? Key risk?
 - Go/No-Go: "Is this business model viable enough to plan a launch?"
 
-**Stage 3: Competitive Analysis** (optional)
-- Invoke `/competitive-analysis <project-name>`
-- Present: Top threats? Key gaps? Differentiation opportunity?
-- Go/No-Go: "Can you differentiate enough to compete?"
-
-**Stage 4: GTM Plan**
+**Stage 3: GTM Plan**
 - Invoke `/gtm-plan <project-name>`
 - Present: Beachhead segment? Top channels? Pricing?
 - Go/No-Go: "Is the go-to-market plan realistic for your resources?"
+
+**Stage 4: Competitive Analysis** (optional — skip if market is clearly uncontested)
+- Invoke `/competitive-analysis <project-name>`
+- Present: Top threats? Key gaps? Differentiation opportunity?
+- This stage does NOT have a blocking Go/No-Go. Present findings and continue.
 
 **Stage 5: Pre-mortem**
 - Invoke `/pre-mortem <project-name>`
@@ -80,7 +80,7 @@ After a final Go or No-Go decision, ask: "Post this decision to #os-progress?"
 If Go: Post "[Project Name] — GO. Moving to [status]. [One-line MVP scope]."
 If No-Go: Post "[Project Name] — NO-GO. [Archived/Paused]. Reason: [one line]."
 
-Use `mcp__slack__slack_post_message` to #os-progress. If Slack MCP is unavailable, skip.
+Use `mcp__slack__slack_post_message` to #os-progress. If Slack MCP is unavailable, skip silently.
 
 ## Notes
 

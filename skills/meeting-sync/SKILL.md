@@ -4,7 +4,7 @@ description: >
   Sync new Granola meetings to local Knowledge folder. Use during morning
   planning, when user asks "what should I do today", "sync my meetings",
   "check for new meetings", or asks to review recent meetings.
-allowed-tools: Read Write Edit Glob mcp__granola__*
+allowed-tools: Read Write Edit Glob Bash mcp__granola__*
 argument-hint: "[--all | --skip]"
 ---
 
@@ -59,7 +59,7 @@ For each meeting the user wants to sync:
 3. Write the meeting content to `Knowledge/Transcripts/YYYY-MM-DD_meeting-title.md` using the Write tool
 4. Update `Knowledge/.granola-sync.json` with the new last-sync timestamp
 
-Ensure `Knowledge/Transcripts/` directory exists before writing (SessionStart hook creates it).
+Ensure `Knowledge/Transcripts/` directory exists (create with `mkdir -p` if needed).
 
 ### Step 5: Continue with Morning Flow
 

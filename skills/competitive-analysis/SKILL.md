@@ -6,7 +6,7 @@ description: >
   differentiation strategy. Use when entering a market, "analyze competitors",
   "competitive analysis", "who are the competitors", "competitive landscape",
   "how do I differentiate", or when deciding positioning for a project.
-allowed-tools: Read Write Edit Glob mcp__perplexity__*
+allowed-tools: Read Write Edit Glob Bash mcp__perplexity__*
 disable-model-invocation: true
 argument-hint: "<project-name> [--model quick|deep|reason]"
 ---
@@ -171,6 +171,8 @@ competitors_analyzed: [N]
 ```
 
 ### Step 7: Save the Analysis
+
+Ensure `Knowledge/research/projects/` directory exists (create with `mkdir -p` if needed).
 
 Save to `Knowledge/research/projects/<project-name>-competitors.md`.
 

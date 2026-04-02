@@ -180,5 +180,5 @@ Present:
 
 - **No external calls:** Works entirely from local files.
 - **Overcommitment guard:** If the user tries to plan at 100% capacity, push back. "Planning at 100% guarantees you'll miss targets. Let's plan at 70% and use the buffer for reality."
-- **Re-planning:** It's fine to re-run mid-week if priorities shifted. The old plan stays in Tasks/ as a record.
+- **Re-planning:** It's fine to re-run mid-week if priorities shifted. The old plan stays in Knowledge/ as a record.
 - **Complement to morning standup:** Sprint plan sets the week; morning standup sets the day within that plan.
