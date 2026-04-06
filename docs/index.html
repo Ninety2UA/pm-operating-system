@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM Operating System — AI-Powered Productivity for Claude Code</title>
+  <meta name="description" content="A Claude Code plugin that gives your AI assistant a structured productivity layer. Goals, tasks, projects, pipeline evaluation, and compounding knowledge — all in markdown.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-root: #08090d;
+      --bg-section: #0c0d12;
+      --bg-card: #12141c;
+      --bg-card-hover: #181b25;
+      --bg-code: #0f1117;
+      --border: #1e2130;
+      --border-light: #2a2d40;
+      --text-primary: #e8eaf0;
+      --text-secondary: #9499b0;
+      --text-muted: #5d6280;
+      --accent: #3b82f6;
+      --accent-light: #60a5fa;
+      --accent-glow: rgba(59, 130, 246, 0.15);
+      --green: #34d399;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --rose: #fb7185;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --max-w: 1160px;
+      --nav-h: 64px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-root);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { color: var(--accent-light); text-decoration: none; transition: color .2s; }
+    a:hover { color: #93bbfd; }
+    code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+    /* ──── NAV ──── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--nav-h);
+      display: flex; align-items: center;
+      padding: 0 32px;
+      transition: background .3s, border-color .3s, backdrop-filter .3s;
+      border-bottom: 1px solid transparent;
+    }
+    nav.scrolled {
+      background: rgba(8, 9, 13, .85);
+      backdrop-filter: blur(16px) saturate(1.4);
+      -webkit-backdrop-filter: blur(16px) saturate(1.4);
+      border-bottom-color: var(--border);
+    }
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto; width: 100%;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-weight: 700; font-size: 15px; letter-spacing: -.02em;
+      color: var(--text-primary); display: flex; align-items: center; gap: 8px;
+    }
+    .nav-logo .logo-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: #fff;
+    }
+    .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; }
+    .nav-links a {
+      color: var(--text-secondary); font-size: 13px; font-weight: 500;
+      padding: 6px 12px; border-radius: 8px; transition: all .2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--text-primary); background: rgba(255,255,255,.05); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-gh {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 500; color: var(--text-secondary);
+      padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px;
+      transition: all .2s;
+    }
+    .nav-gh:hover { color: var(--text-primary); border-color: var(--border-light); background: rgba(255,255,255,.03); }
+    .nav-gh svg { width: 16px; height: 16px; fill: currentColor; }
+    .nav-cta {
+      font-size: 13px; font-weight: 600; color: #fff;
+      padding: 7px 18px; border-radius: 8px; border: none; cursor: pointer;
+      background: var(--accent); transition: all .2s; display: inline-block;
+    }
+    .nav-cta:hover { background: #2563eb; transform: translateY(-1px); }
+    .hamburger {
+      display: none; background: none; border: none; cursor: pointer; padding: 4px;
+      color: var(--text-secondary);
+    }
+    .hamburger svg { width: 24px; height: 24px; stroke: currentColor; fill: none; }
+
+    .mobile-menu {
+      display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
+      background: rgba(8, 9, 13, .97); z-index: 99;
+      padding: 24px; flex-direction: column; gap: 4px;
+      backdrop-filter: blur(20px);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      color: var(--text-secondary); font-size: 16px; font-weight: 500;
+      padding: 14px 16px; border-radius: 10px; transition: all .2s;
+    }
+    .mobile-menu a:hover { color: var(--text-primary); background: rgba(255,255,255,.05); }
+
+    /* ──── HERO ──── */
+    .hero {
+      padding: calc(var(--nav-h) + 80px) 0 80px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 800px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,130,246,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; color: var(--accent-light);
+      padding: 6px 16px; border-radius: 20px;
+      border: 1px solid rgba(59,130,246,.25); background: rgba(59,130,246,.08);
+      margin-bottom: 28px; letter-spacing: .03em;
+    }
+    .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.2rem); font-weight: 800;
+      letter-spacing: -.04em; line-height: 1.1; margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text-secondary);
+      max-width: 640px; margin: 0 auto 40px; line-height: 1.7;
+    }
+    .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+    .btn {
+      font-family: inherit; font-size: 14px; font-weight: 600; border-radius: 10px;
+      padding: 12px 24px; cursor: pointer; transition: all .2s; border: none;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(59,130,246,.3); }
+    .btn-secondary { background: transparent; color: var(--text-primary); border: 1px solid var(--border-light); }
+    .btn-secondary:hover { border-color: var(--text-muted); background: rgba(255,255,255,.03); }
+    .btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .terminal-wrap {
+      max-width: 640px; margin: 0 auto 56px; text-align: left;
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+      overflow: hidden; background: var(--bg-code);
+      box-shadow: 0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.03);
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+      border-bottom: 1px solid var(--border); background: rgba(255,255,255,.02);
+    }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-dot.r { background: #ef4444; } .terminal-dot.y { background: #eab308; } .terminal-dot.g { background: #22c55e; }
+    .terminal-title { font-size: 12px; color: var(--text-muted); margin-left: 8px; font-weight: 500; }
+    .terminal-body {
+      padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+      line-height: 1.8; min-height: 220px; color: var(--text-secondary);
+    }
+    .t-prompt { color: #34d399; }
+    .t-cmd { color: var(--text-primary); font-weight: 500; }
+    .t-out { color: var(--text-muted); }
+    .t-success { color: #34d399; }
+    .t-accent { color: #60a5fa; }
+    .terminal-cursor {
+      display: inline-block; width: 8px; height: 16px;
+      background: var(--accent-light); vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .stats-row { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-size: 2.4rem; font-weight: 800; letter-spacing: -.04em;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--text-muted); margin-top: 4px;
+    }
+
+    /* ──── SECTIONS ──── */
+    section { padding: 96px 0; position: relative; }
+    section:nth-child(even) { background: var(--bg-section); }
+    .section-label {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--accent); margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 800;
+      letter-spacing: -.03em; margin-bottom: 16px; line-height: 1.2;
+    }
+    .section-desc {
+      font-size: 1.05rem; color: var(--text-secondary); max-width: 600px;
+      line-height: 1.7; margin-bottom: 48px;
+    }
+    .section-desc.center { margin-left: auto; margin-right: auto; text-align: center; }
+    .text-center { text-align: center; }
+
+    /* ──── CARDS ──── */
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px; transition: all .3s ease;
+    }
+    .card:hover {
+      border-color: var(--border-light); background: var(--bg-card-hover);
+      transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,.3);
+    }
+    .card-icon {
+      width: 44px; height: 44px; border-radius: 10px; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .card-text { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+    /* ──── PHILOSOPHY ──── */
+    .quote-block {
+      border-left: 3px solid var(--accent); padding: 24px 28px; margin-bottom: 12px;
+      background: var(--accent-glow); border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .quote-block p { font-size: 1.1rem; font-style: italic; color: var(--text-primary); line-height: 1.7; }
+    .quote-attr { font-size: 14px; color: var(--text-muted); margin-bottom: 48px; padding-left: 32px; }
+    .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+
+    /* ──── ARCHITECTURE ──── */
+    .arch-sub { margin-bottom: 56px; }
+    .arch-sub h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+    .arch-sub .arch-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; max-width: 560px; }
+    .flow-row { display: flex; align-items: center; gap: 0; flex-wrap: wrap; justify-content: center; }
+    .flow-node {
+      padding: 14px 22px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
+      text-align: center; border: 1px solid var(--border); background: var(--bg-card); min-width: 130px;
+    }
+    .flow-node.highlight { border-color: var(--accent); background: var(--accent-glow); color: var(--accent-light); }
+    .flow-arrow { color: var(--text-muted); font-size: 18px; padding: 0 8px; display: flex; align-items: center; }
+    .pipeline-track { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+    .pipeline-stage {
+      flex: 0 0 auto; min-width: 150px; padding: 20px;
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+      background: var(--bg-card); text-align: center; transition: all .3s;
+    }
+    .pipeline-stage:hover { border-color: var(--accent); background: var(--accent-glow); }
+    .pipeline-num { font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 8px; letter-spacing: .06em; }
+    .pipeline-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .pipeline-out { font-size: 12px; color: var(--text-muted); }
+    .pipeline-gate {
+      display: inline-block; margin-top: 8px; font-size: 10px; font-weight: 700;
+      padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: .06em;
+      background: rgba(251,191,36,.12); color: var(--amber); border: 1px solid rgba(251,191,36,.2);
+    }
+    .loop-visual { display: flex; justify-content: center; gap: 24px; align-items: stretch; flex-wrap: wrap; }
+    .loop-card {
+      flex: 1; min-width: 200px; max-width: 300px; padding: 28px;
+      border-radius: var(--radius-lg); border: 1px solid var(--border);
+      background: var(--bg-card); text-align: center;
+    }
+    .loop-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .loop-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .loop-arrow-wrap { display: flex; align-items: center; color: var(--text-muted); font-size: 24px; flex: 0 0 auto; }
+
+    /* ──── FEATURES ──── */
+    .feature-card .card-icon.blue { background: rgba(59,130,246,.12); }
+    .feature-card .card-icon.green { background: rgba(52,211,153,.12); }
+    .feature-card .card-icon.purple { background: rgba(167,139,250,.12); }
+    .feature-card .card-icon.amber { background: rgba(251,191,36,.12); }
+    .feature-card .card-icon.rose { background: rgba(251,113,133,.12); }
+
+    /* ──── INSTALL ──── */
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn {
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      padding: 8px 20px; border-radius: 8px; cursor: pointer;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-secondary); transition: all .2s;
+    }
+    .tab-btn:hover { color: var(--text-primary); border-color: var(--border-light); }
+    .tab-btn.active { background: var(--accent-glow); color: var(--accent-light); border-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace; font-size: 13px;
+      line-height: 1.8; color: var(--text-secondary); white-space: pre;
+    }
+    .code-block .kw { color: var(--accent-light); }
+    .code-block .str { color: var(--green); }
+    .code-block .cmt { color: var(--text-muted); }
+    .prereqs {
+      width: 100%; border-collapse: separate; border-spacing: 0;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; margin-top: 24px; font-size: 14px;
+    }
+    .prereqs th {
+      text-align: left; padding: 12px 16px; background: rgba(255,255,255,.02);
+      font-weight: 600; font-size: 12px; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--text-muted); border-bottom: 1px solid var(--border);
+    }
+    .prereqs td { padding: 10px 16px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+    .prereqs tr:last-child td { border-bottom: none; }
+    .prereqs td:first-child { font-weight: 600; color: var(--text-primary); }
+
+    /* ──── SKILLS ──── */
+    .skills-group { margin-bottom: 32px; }
+    .skills-group-title {
+      font-size: 14px; font-weight: 700; color: var(--accent-light);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .skill-row {
+      display: flex; align-items: baseline; gap: 16px;
+      padding: 10px 16px; border-radius: 8px; transition: background .15s;
+    }
+    .skill-row:hover { background: rgba(255,255,255,.03); }
+    .skill-name {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px;
+      font-weight: 600; color: var(--text-primary); min-width: 180px; flex-shrink: 0;
+    }
+    .skill-desc { font-size: 13px; color: var(--text-secondary); }
+
+    /* ──── COMMANDS ──── */
+    .cmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .cmd-card {
+      display: flex; gap: 16px; padding: 20px; border-radius: var(--radius);
+      border: 1px solid var(--border); background: var(--bg-card); transition: all .3s;
+    }
+    .cmd-card:hover { border-color: var(--border-light); background: var(--bg-card-hover); }
+    .cmd-slash {
+      font-family: 'JetBrains Mono', monospace; font-size: 14px;
+      font-weight: 700; color: var(--accent-light); white-space: nowrap;
+    }
+    .cmd-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ──── AGENTS ──── */
+    .agent-card .agent-tag {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 12px; text-transform: uppercase;
+      letter-spacing: .06em; margin-bottom: 12px;
+    }
+    .tag-research { background: rgba(59,130,246,.12); color: var(--accent-light); }
+    .tag-eval { background: rgba(167,139,250,.12); color: var(--purple); }
+    .tag-diag { background: rgba(52,211,153,.12); color: var(--green); }
+    .agent-when {
+      font-size: 12px; color: var(--text-muted); margin-top: 12px;
+      padding-top: 12px; border-top: 1px solid var(--border);
+    }
+    .agent-when strong { color: var(--text-secondary); }
+
+    /* ──── MCP TOOLS ──── */
+    .tools-table {
+      width: 100%; border-collapse: separate; border-spacing: 0;
+      border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; font-size: 14px;
+    }
+    .tools-table th {
+      text-align: left; padding: 12px 16px; background: rgba(255,255,255,.02);
+      font-weight: 600; font-size: 12px; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--text-muted); border-bottom: 1px solid var(--border);
+    }
+    .tools-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+    .tools-table tr:last-child td { border-bottom: none; }
+    .tools-table td:first-child {
+      font-family: 'JetBrains Mono', monospace; font-weight: 600;
+      font-size: 13px; color: var(--text-primary); white-space: nowrap;
+    }
+    .tools-table tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ──── USAGE ──── */
+    .usage-content { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+    .usage-steps { list-style: none; counter-reset: step; }
+    .usage-steps li {
+      counter-increment: step; position: relative;
+      padding: 12px 0 12px 48px; font-size: 14px; color: var(--text-secondary); line-height: 1.6;
+    }
+    .usage-steps li::before {
+      content: counter(step); position: absolute; left: 0; top: 12px;
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--accent-glow); color: var(--accent-light);
+      font-size: 13px; font-weight: 700; display: flex; align-items: center;
+      justify-content: center; border: 1px solid rgba(59,130,246,.2);
+    }
+
+    /* ──── INTEGRATIONS ──── */
+    .integ-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .integ-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .integ-setup { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .integ-setup code { font-size: 12px; background: var(--bg-code); padding: 2px 6px; border-radius: 4px; color: var(--accent-light); }
+    .integ-setup .integ-step { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .integ-setup .integ-step strong { color: var(--text-secondary); }
+    .integ-cmd { display: block; margin: 6px 0; padding: 8px 12px; background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--green); overflow-x: auto; }
+    .integ-note { font-size: 11px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+
+    /* ──── CATALOG ──── */
+    .catalog-stats { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 24px; }
+    .catalog-stat {
+      padding: 12px 20px; border-radius: var(--radius);
+      border: 1px solid var(--border); background: var(--bg-card);
+      font-size: 14px; font-weight: 600;
+    }
+    .catalog-stat span { color: var(--accent-light); font-size: 20px; font-weight: 800; margin-right: 8px; }
+
+    /* ──── FAQ ──── */
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 0; background: none; border: none; cursor: pointer;
+      font-family: inherit; font-size: 15px; font-weight: 600;
+      color: var(--text-primary); text-align: left; transition: color .2s;
+    }
+    .faq-q:hover { color: var(--accent-light); }
+    .faq-q .faq-icon {
+      width: 24px; height: 24px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); transition: transform .3s; font-size: 18px;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0; overflow: hidden; transition: max-height .3s ease, padding .3s ease;
+      font-size: 14px; color: var(--text-secondary); line-height: 1.7;
+    }
+    .faq-item.open .faq-a { max-height: 400px; padding-bottom: 20px; }
+
+    /* ──── FOOTER ──── */
+    footer {
+      padding: 48px 0; border-top: 1px solid var(--border);
+      text-align: center; color: var(--text-muted); font-size: 13px;
+    }
+    footer a { color: var(--text-secondary); }
+    footer a:hover { color: var(--accent-light); }
+    .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+
+    /* ──── SCROLL ANIMATIONS ──── */
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
+    .reveal-delay-4 { transition-delay: .4s; }
+
+    /* ──── RESPONSIVE ──── */
+    @media (max-width: 900px) {
+      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .nav-links { display: none; }
+      .hamburger { display: block; }
+      .usage-content { grid-template-columns: 1fr; }
+      .stats-row { gap: 32px; }
+    }
+    @media (max-width: 640px) {
+      section { padding: 64px 0; }
+      .hero { padding: calc(var(--nav-h) + 48px) 0 48px; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .concept-grid { grid-template-columns: 1fr; }
+      .cmd-grid { grid-template-columns: 1fr; }
+      .flow-row { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+      .stats-row { gap: 20px; }
+      .stat-num { font-size: 1.8rem; }
+      .skill-row { flex-direction: column; gap: 4px; }
+      .skill-name { min-width: auto; }
+      nav { padding: 0 16px; }
+      .loop-visual { flex-direction: column; align-items: center; }
+      .loop-arrow-wrap { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="logo-icon">PM</div>
+      PM OS
+    </a>
+    <ul class="nav-links">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#philosophy">Philosophy</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#commands">Commands</a></li>
+      <li><a href="#agents">Agents</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="https://github.com/Ninety2UA/pm-operating-system" class="nav-gh" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+      <a href="#install" class="nav-cta">Get Started</a>
+      <button class="hamburger" aria-label="Menu" id="hamburgerBtn">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu"></div>
+
+<!-- HERO -->
+<section class="hero" id="overview">
+  <div class="container">
+    <div class="hero-badge reveal"><span class="dot"></span> Claude Code Plugin</div>
+    <h1 class="reveal">PM Operating<br>System</h1>
+    <p class="hero-sub reveal">A Claude Code plugin that gives your AI assistant a structured productivity layer. Goals, tasks, projects, pipeline evaluation, and compounding knowledge — all in plain markdown.</p>
+    <div class="hero-actions reveal">
+      <a href="#install" class="btn btn-primary">
+        <svg viewBox="0 0 16 16"><path d="M8 1a.5.5 0 0 1 .5.5v9.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 11.293V1.5A.5.5 0 0 1 8 1z"/></svg>
+        Get Started
+      </a>
+      <a href="https://github.com/Ninety2UA/pm-operating-system" class="btn btn-secondary" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" style="fill:currentColor;width:16px;height:16px"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+    </div>
+
+    <div class="terminal-wrap reveal">
+      <div class="terminal-bar">
+        <div class="terminal-dot r"></div>
+        <div class="terminal-dot y"></div>
+        <div class="terminal-dot g"></div>
+        <span class="terminal-title">claude</span>
+      </div>
+      <div class="terminal-body" id="terminal"></div>
+    </div>
+
+    <div class="stats-row reveal" id="statsRow">
+      <div class="stat-item">
+        <div class="stat-num" data-target="19">0</div>
+        <div class="stat-label">Skills</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="6">0</div>
+        <div class="stat-label">Commands</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="3">0</div>
+        <div class="stat-label">Agents</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="10">0</div>
+        <div class="stat-label">MCP Tools</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy">
+  <div class="container">
+    <div class="section-label reveal">Philosophy</div>
+    <div class="section-title reveal">The LLM as an Operating System</div>
+    <p class="section-desc reveal">Built on Andrej Karpathy's insight that large language models are best understood not as chatbots, but as the kernel of a new kind of operating system.</p>
+
+    <div class="quote-block reveal">
+      <p>"Think about it more like an operating system."</p>
+    </div>
+    <p class="quote-attr reveal">— Andrej Karpathy, <a href="https://www.youtube.com/watch?v=zjkBMFhNj_g" target="_blank" rel="noopener">Intro to Large Language Models (2023)</a></p>
+
+    <div class="concept-grid">
+      <div class="card reveal">
+        <div class="card-icon" style="background:rgba(59,130,246,.12)">&#x1f9e0;</div>
+        <div class="card-title">Strategic Memory</div>
+        <div class="card-text">GOALS.md is read every session to prioritize your work against your actual objectives.</div>
+      </div>
+      <div class="card reveal reveal-delay-1">
+        <div class="card-icon" style="background:rgba(167,139,250,.12)">&#x26a1;</div>
+        <div class="card-title">Specialized Capabilities</div>
+        <div class="card-text">19 skills the LLM can invoke — validation, risk analysis, sprint planning, and more.</div>
+      </div>
+      <div class="card reveal reveal-delay-2">
+        <div class="card-icon" style="background:rgba(52,211,153,.12)">&#x1f504;</div>
+        <div class="card-title">Recurring Workflows</div>
+        <div class="card-text">6 commands for daily standups, weekly reviews, and quarterly OKR scoring.</div>
+      </div>
+      <div class="card reveal reveal-delay-1">
+        <div class="card-icon" style="background:rgba(251,191,36,.12)">&#x1f916;</div>
+        <div class="card-title">Autonomous Agents</div>
+        <div class="card-text">3 agents that run in the background — deep research, batch evaluation, system diagnostics.</div>
+      </div>
+      <div class="card reveal reveal-delay-2">
+        <div class="card-icon" style="background:rgba(251,113,133,.12)">&#x1f527;</div>
+        <div class="card-title">Structured Tool Use</div>
+        <div class="card-text">MCP server with 10 tools for task management, project queries, and deduplication.</div>
+      </div>
+      <div class="card reveal reveal-delay-3">
+        <div class="card-icon" style="background:rgba(59,130,246,.12)">&#x1f4da;</div>
+        <div class="card-title">Long-term Memory</div>
+        <div class="card-text">Knowledge/ compounds from daily journals to session reviews to quarterly assessments.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="container">
+    <div class="section-label reveal">Architecture</div>
+    <div class="section-title reveal">How Everything Connects</div>
+    <p class="section-desc reveal">Three architectural views — system flow, project pipeline, and the compounding loop that makes each session smarter than the last.</p>
+
+    <div class="arch-sub">
+      <h3 class="reveal">System Overview</h3>
+      <p class="arch-desc reveal">Brain-dump into the backlog, process into tasks and projects, execute with goal alignment.</p>
+      <div class="flow-row reveal">
+        <div class="flow-node highlight">BACKLOG.md</div>
+        <div class="flow-arrow">&#x2192;</div>
+        <div class="flow-node highlight">/process-backlog</div>
+        <div class="flow-arrow">&#x2192;</div>
+        <div class="flow-node">Tasks/</div>
+        <div class="flow-arrow">&#x2192;</div>
+        <div class="flow-node">Projects/</div>
+        <div class="flow-arrow">&#x2192;</div>
+        <div class="flow-node highlight">MCP Server</div>
+      </div>
+    </div>
+
+    <div class="arch-sub">
+      <h3 class="reveal">Project Pipeline</h3>
+      <p class="arch-desc reveal">Each project passes through six evaluation stages with a Go/No-Go gate after each. Skip ahead with <code>--from</code>.</p>
+      <div class="pipeline-track reveal">
+        <div class="pipeline-stage"><div class="pipeline-num">STAGE 1</div><div class="pipeline-name">Validate</div><div class="pipeline-out">Market research brief</div><div class="pipeline-gate">Go / No-Go</div></div>
+        <div class="pipeline-stage"><div class="pipeline-num">STAGE 2</div><div class="pipeline-name">Lean Canvas</div><div class="pipeline-out">Business model</div><div class="pipeline-gate">Go / No-Go</div></div>
+        <div class="pipeline-stage"><div class="pipeline-num">STAGE 3</div><div class="pipeline-name">GTM Plan</div><div class="pipeline-out">Go-to-market strategy</div><div class="pipeline-gate">Go / No-Go</div></div>
+        <div class="pipeline-stage"><div class="pipeline-num">STAGE 4</div><div class="pipeline-name">Competitive</div><div class="pipeline-out">Competitor landscape</div><div class="pipeline-gate">Go / No-Go</div></div>
+        <div class="pipeline-stage"><div class="pipeline-num">STAGE 5</div><div class="pipeline-name">Pre-Mortem</div><div class="pipeline-out">Risk analysis</div><div class="pipeline-gate">Go / No-Go</div></div>
+        <div class="pipeline-stage"><div class="pipeline-num">STAGE 6</div><div class="pipeline-name">User Stories</div><div class="pipeline-out">Buildable stories</div><div class="pipeline-gate">Ready to Build</div></div>
+      </div>
+    </div>
+
+    <div class="arch-sub">
+      <h3 class="reveal">The Compounding Loop</h3>
+      <p class="arch-desc reveal">Three nested feedback loops. Each layer feeds the next — the system gets smarter over time.</p>
+      <div class="loop-visual reveal">
+        <div class="loop-card"><h4>Daily</h4><p><code>/morning</code> saves plans to journals. Next morning reads yesterday's actuals. Memories persist across sessions.</p></div>
+        <div class="loop-arrow-wrap">&#x2192;</div>
+        <div class="loop-card"><h4>Weekly</h4><p><code>/weekly</code> compiles shipping summaries, reads journals for plan-vs-actual patterns, proposes workflow improvements.</p></div>
+        <div class="loop-arrow-wrap">&#x2192;</div>
+        <div class="loop-card"><h4>Quarterly</h4><p><code>/quarterly</code> scores OKRs, archives stale projects, refreshes GOALS.md, cleans stale memories, audits AGENTS.md.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container text-center">
+    <div class="section-label reveal">Features</div>
+    <div class="section-title reveal">Everything You Get</div>
+    <p class="section-desc center reveal">A complete productivity system — from ideation to execution to compounding knowledge.</p>
+    <div class="grid-4">
+      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f3af;</div><div class="card-title">19 Skills</div><div class="card-text">Ideation, validation, planning, execution, and analysis — all invocable by your AI assistant.</div></div>
+      <div class="card feature-card reveal reveal-delay-1"><div class="card-icon green">&#x2318;</div><div class="card-title">6 Commands</div><div class="card-text">Daily standups, weekly reviews, quarterly scoring, backlog processing, and project launching.</div></div>
+      <div class="card feature-card reveal reveal-delay-2"><div class="card-icon purple">&#x1f916;</div><div class="card-title">3 Agents</div><div class="card-text">Deep research, batch evaluation, and system diagnostics — each runs autonomously in the background.</div></div>
+      <div class="card feature-card reveal reveal-delay-3"><div class="card-icon amber">&#x1f527;</div><div class="card-title">10 MCP Tools</div><div class="card-text">Fuzzy deduplication, task queries, project pipeline status, system dashboard, and priority alerts.</div></div>
+      <div class="card feature-card reveal"><div class="card-icon rose">&#x1f4cb;</div><div class="card-title">Prioritization</div><div class="card-text">Goal-driven P0-P3 levels tied to your strategic objectives. ICE/RICE framework scoring.</div></div>
+      <div class="card feature-card reveal reveal-delay-1"><div class="card-icon blue">&#x1f680;</div><div class="card-title">Pipeline</div><div class="card-text">6-stage project evaluation with Go/No-Go gates. Skip ahead or kill early with data.</div></div>
+      <div class="card feature-card reveal reveal-delay-2"><div class="card-icon green">&#x1f4d6;</div><div class="card-title">Knowledge</div><div class="card-text">Compounding loops from daily journals to session reviews to quarterly OKR assessments.</div></div>
+      <div class="card feature-card reveal reveal-delay-3"><div class="card-icon purple">&#x1f50c;</div><div class="card-title">Integrations</div><div class="card-text">Optional: Granola meetings, Slack messaging, Perplexity research, Google Workspace.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section id="install">
+  <div class="container">
+    <div class="section-label reveal">Quick Start</div>
+    <div class="section-title reveal">Install in Minutes</div>
+    <p class="section-desc reveal">Three ways to get started — pick what suits your workflow.</p>
+    <div class="tabs reveal" role="tablist">
+      <button class="tab-btn active" data-tab="tab-plugin" role="tab">Plugin Install</button>
+      <button class="tab-btn" data-tab="tab-clone" role="tab">Clone &amp; Bootstrap</button>
+      <button class="tab-btn" data-tab="tab-manual" role="tab">Manual Setup</button>
+    </div>
+    <div class="tab-panel active" id="tab-plugin">
+      <div class="code-block reveal"><span class="cmt"># Install as a Claude Code plugin</span>
+<span class="kw">/install</span> Ninety2UA/pm-operating-system
+
+<span class="cmt"># Then run setup to create your goals</span>
+<span class="kw">./setup.sh</span></div>
+    </div>
+    <div class="tab-panel" id="tab-clone">
+      <div class="code-block reveal"><span class="kw">git clone</span> <span class="str">https://github.com/Ninety2UA/pm-operating-system.git</span>
+<span class="kw">cd</span> pm-operating-system
+<span class="kw">./install.sh</span></div>
+      <p style="font-size:14px;color:var(--text-secondary);margin-top:16px;" class="reveal">The install script verifies Python 3.11+, installs <code>uv</code>, creates workspace directories, configures MCP, and walks you through an interactive goals setup.</p>
+    </div>
+    <div class="tab-panel" id="tab-manual">
+      <div class="code-block reveal"><span class="cmt"># Clone</span>
+<span class="kw">git clone</span> <span class="str">https://github.com/Ninety2UA/pm-operating-system.git</span>
+<span class="kw">cd</span> pm-operating-system
+
+<span class="cmt"># Install MCP server dependencies</span>
+<span class="kw">cd</span> core/mcp &amp;&amp; <span class="kw">uv sync</span> &amp;&amp; <span class="kw">cd</span> ../..
+
+<span class="cmt"># Create workspace directories</span>
+<span class="kw">mkdir -p</span> Tasks Projects Knowledge/{research/projects,research/topics,Transcripts,journals,session-reviews,decisions,People,Reference}
+
+<span class="cmt"># Configure MCP (edit paths to match your install)</span>
+<span class="kw">cp</span> .mcp.json.example .mcp.json
+
+<span class="cmt"># Set your goals</span>
+<span class="kw">./setup.sh</span></div>
+    </div>
+    <table class="prereqs reveal">
+      <thead><tr><th>Tool</th><th>Version</th><th>Required</th><th>Install</th></tr></thead>
+      <tbody>
+        <tr><td>Python</td><td>3.11+</td><td>Yes</td><td><code>brew install python@3.13</code></td></tr>
+        <tr><td>uv</td><td>latest</td><td>Yes</td><td><code>curl -LsSf https://astral.sh/uv/install.sh | sh</code></td></tr>
+        <tr><td>git</td><td>any</td><td>Yes</td><td><code>brew install git</code></td></tr>
+        <tr><td>Claude Code</td><td>latest</td><td>Yes</td><td><a href="https://claude.ai/download" target="_blank" rel="noopener">claude.ai/download</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="container">
+    <div class="section-label reveal">Skills</div>
+    <div class="section-title reveal">19 Specialized Skills</div>
+    <p class="section-desc reveal">Each skill teaches your AI assistant a focused capability — from market validation to sprint planning.</p>
+    <div class="skills-group reveal">
+      <div class="skills-group-title">Ideation &amp; Discovery</div>
+      <div class="skill-row"><span class="skill-name">/discover-ideas</span><span class="skill-desc">Search the web for project ideas and trending opportunities</span></div>
+      <div class="skill-row"><span class="skill-name">/research-topic</span><span class="skill-desc">Deep research on any topic with web and social media signals</span></div>
+    </div>
+    <div class="skills-group reveal">
+      <div class="skills-group-title">Project Evaluation Pipeline</div>
+      <div class="skill-row"><span class="skill-name">/validate-project</span><span class="skill-desc">Research and validate a project idea against market reality</span></div>
+      <div class="skill-row"><span class="skill-name">/lean-canvas</span><span class="skill-desc">Create a Lean Canvas business model for a project idea</span></div>
+      <div class="skill-row"><span class="skill-name">/gtm-plan</span><span class="skill-desc">Go-to-market plan with ICP, beachhead segment, and channels</span></div>
+      <div class="skill-row"><span class="skill-name">/competitive-analysis</span><span class="skill-desc">Map competitor landscape with strengths, gaps, and positioning</span></div>
+      <div class="skill-row"><span class="skill-name">/pre-mortem</span><span class="skill-desc">Risk analysis that imagines the project has failed and works backward</span></div>
+    </div>
+    <div class="skills-group reveal">
+      <div class="skills-group-title">Execution &amp; Planning</div>
+      <div class="skill-row"><span class="skill-name">/PRD</span><span class="skill-desc">Generate a Product Requirements Document for a project</span></div>
+      <div class="skill-row"><span class="skill-name">/user-stories</span><span class="skill-desc">Decompose a PRD into structured user stories with acceptance criteria</span></div>
+      <div class="skill-row"><span class="skill-name">/sprint-plan</span><span class="skill-desc">Create a weekly sprint plan from current tasks and user stories</span></div>
+      <div class="skill-row"><span class="skill-name">/plan-okrs</span><span class="skill-desc">Create or refresh measurable OKRs aligned to your goals</span></div>
+      <div class="skill-row"><span class="skill-name">/outcome-roadmap</span><span class="skill-desc">Generate an outcome-focused roadmap from active projects</span></div>
+      <div class="skill-row"><span class="skill-name">/prioritize</span><span class="skill-desc">Rank projects or tasks using ICE/RICE frameworks</span></div>
+    </div>
+    <div class="skills-group reveal">
+      <div class="skills-group-title">Analysis &amp; Review</div>
+      <div class="skill-row"><span class="skill-name">/ab-test</span><span class="skill-desc">Analyze A/B test results with statistical rigor</span></div>
+      <div class="skill-row"><span class="skill-name">/decision</span><span class="skill-desc">Document a decision with structured context, options, and rationale</span></div>
+      <div class="skill-row"><span class="skill-name">/session-review</span><span class="skill-desc">Capture session learnings, prompts, and patterns for weekly analysis</span></div>
+      <div class="skill-row"><span class="skill-name">/refresh-goals</span><span class="skill-desc">Review and fill gaps in GOALS.md through conversation</span></div>
+    </div>
+    <div class="skills-group reveal">
+      <div class="skills-group-title">Integrations</div>
+      <div class="skill-row"><span class="skill-name">/meeting-sync</span><span class="skill-desc">Sync Granola meetings to local Knowledge folder</span></div>
+      <div class="skill-row"><span class="skill-name">/meeting-prep</span><span class="skill-desc">Prepare context for an upcoming meeting from People, transcripts, and tasks</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDS -->
+<section id="commands">
+  <div class="container">
+    <div class="section-label reveal">Commands</div>
+    <div class="section-title reveal">6 Slash Commands</div>
+    <p class="section-desc reveal">Workflow automation at your fingertips — from daily standups to quarterly reviews.</p>
+    <div class="cmd-grid">
+      <div class="cmd-card reveal"><div class="cmd-slash">/morning</div><div class="cmd-desc">Daily standup with meeting sync, top tasks, pipeline project, OKR check, and journal save.</div></div>
+      <div class="cmd-card reveal reveal-delay-1"><div class="cmd-slash">/weekly</div><div class="cmd-desc">Weekly review with plan-vs-actual analysis, session patterns, and learning extraction.</div></div>
+      <div class="cmd-card reveal reveal-delay-2"><div class="cmd-slash">/quarterly</div><div class="cmd-desc">Quarterly review: OKR scoring, project purge, goals refresh, system audit.</div></div>
+      <div class="cmd-card reveal"><div class="cmd-slash">/process-backlog</div><div class="cmd-desc">Process BACKLOG.md with duplicate detection against existing tasks and projects.</div></div>
+      <div class="cmd-card reveal reveal-delay-1"><div class="cmd-slash">/launch</div><div class="cmd-desc">Full evaluation pipeline with Go/No-Go gates at each stage. Skip with <code>--from</code>.</div></div>
+      <div class="cmd-card reveal reveal-delay-2"><div class="cmd-slash">/write</div><div class="cmd-desc">Generate content — blog posts, emails, social media — in your authentic voice.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS -->
+<section id="agents">
+  <div class="container">
+    <div class="section-label reveal">Agents</div>
+    <div class="section-title reveal">3 Autonomous Agents</div>
+    <p class="section-desc reveal">Each runs in its own context window, autonomously performing focused tasks in the background.</p>
+    <div class="grid-3">
+      <div class="card agent-card reveal">
+        <span class="agent-tag tag-research">Research</span>
+        <div class="card-title">deep-research</div>
+        <div class="card-text">Multi-source background research using Perplexity. Saves structured briefs to Knowledge/research/.</div>
+        <div class="agent-when"><strong>When to use:</strong> Thorough investigation of a topic, market, or technology before making decisions.</div>
+      </div>
+      <div class="card agent-card reveal reveal-delay-1">
+        <span class="agent-tag tag-eval">Evaluation</span>
+        <div class="card-title">batch-evaluator</div>
+        <div class="card-text">Parallel project evaluation with comparative ranking across 5 criteria and weighted scoring.</div>
+        <div class="agent-when"><strong>When to use:</strong> Multiple project ideas to evaluate at once — get a ranked comparison.</div>
+      </div>
+      <div class="card agent-card reveal reveal-delay-2">
+        <span class="agent-tag tag-diag">Diagnostics</span>
+        <div class="card-title">system-health</div>
+        <div class="card-text">Diagnostic scan of tasks, projects, goals, and backlog for issues, staleness, and misalignment.</div>
+        <div class="agent-when"><strong>When to use:</strong> Things feel off and you want a system-wide health check across all dimensions.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MCP TOOLS -->
+<section id="tools">
+  <div class="container">
+    <div class="section-label reveal">MCP Server</div>
+    <div class="section-title reveal">10 Structured Tools</div>
+    <p class="section-desc reveal">The manager-ai MCP server provides programmatic access to tasks, projects, and system state — with fuzzy deduplication built in.</p>
+    <table class="tools-table reveal">
+      <thead><tr><th>Tool</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>list_tasks</td><td>Query tasks with filters (priority, status, category)</td></tr>
+        <tr><td>get_task_summary</td><td>Priority/category/status counts with time estimates</td></tr>
+        <tr><td>check_priority_limits</td><td>Alerts if P0 > 3 or P1 > 7</td></tr>
+        <tr><td>prune_completed_tasks</td><td>Archive done tasks older than 30 days to Tasks/archive/</td></tr>
+        <tr><td>list_projects</td><td>Query projects with filters (status, priority, category)</td></tr>
+        <tr><td>get_pipeline_status</td><td>Count of projects at each pipeline stage</td></tr>
+        <tr><td>get_project_artifacts</td><td>Check which evaluation artifacts exist for a project</td></tr>
+        <tr><td>get_project_summary</td><td>Aggregate project stats and artifact coverage</td></tr>
+        <tr><td>get_system_status</td><td>Full dashboard — tasks + projects + backlog + time insights</td></tr>
+        <tr><td>process_backlog_with_dedup</td><td>Deduplicate backlog items against existing work</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- USAGE -->
+<section id="usage">
+  <div class="container">
+    <div class="section-label reveal">Usage</div>
+    <div class="section-title reveal">How It Works in Practice</div>
+    <p class="section-desc reveal">The workflow is simple — brain dump, process, evaluate, execute, compound.</p>
+    <div class="tabs reveal" role="tablist">
+      <button class="tab-btn active" data-tab="usage-morning" role="tab">Morning Standup</button>
+      <button class="tab-btn" data-tab="usage-backlog" role="tab">Process Backlog</button>
+      <button class="tab-btn" data-tab="usage-launch" role="tab">Launch Pipeline</button>
+      <button class="tab-btn" data-tab="usage-weekly" role="tab">Weekly Review</button>
+    </div>
+    <div class="tab-panel active" id="usage-morning">
+      <div class="usage-content reveal">
+        <ol class="usage-steps">
+          <li>Syncs new meetings from Granola (if configured)</li>
+          <li>Shows your top 5 tasks sorted by priority</li>
+          <li>Flags blocked tasks and suggests unblocking actions</li>
+          <li>Recommends one project to advance through the pipeline</li>
+          <li>Notes which OKRs today's work advances</li>
+          <li>Saves the daily plan to Knowledge/journals/</li>
+        </ol>
+        <div class="code-block"><span class="t-prompt">$</span> <span class="t-cmd">claude</span>
+<span class="t-prompt">&gt;</span> <span class="t-cmd">/morning</span>
+
+<span class="t-out">Syncing 2 meetings from Granola...</span>
+<span class="t-out">Top tasks for today:</span>
+<span class="t-out">  1. [P0] Finalize client proposal</span>
+<span class="t-out">  2. [P1] Review campaign metrics</span>
+<span class="t-out">  3. [P1] Update sprint board</span>
+<span class="t-success">&#10003; Journal saved to journals/2026/04/06.md</span></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="usage-backlog">
+      <div class="usage-content reveal">
+        <ol class="usage-steps">
+          <li>Reads every item in BACKLOG.md</li>
+          <li>Checks for duplicates against existing tasks and projects</li>
+          <li>Classifies each item — task vs. project</li>
+          <li>Asks for clarification on anything ambiguous</li>
+          <li>Creates files and clears BACKLOG.md</li>
+        </ol>
+        <div class="code-block"><span class="t-prompt">&gt;</span> <span class="t-cmd">/process-backlog</span>
+
+<span class="t-out">Found 7 items in BACKLOG.md</span>
+<span class="t-out">Checking duplicates... 2 matched existing</span>
+<span class="t-out">Created 3 tasks, 2 projects</span>
+<span class="t-accent">? "Build newsletter tool" — need more context. What's the scope?</span>
+<span class="t-success">&#10003; Backlog cleared</span></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="usage-launch">
+      <div class="usage-content reveal">
+        <ol class="usage-steps">
+          <li>Stage 1: Market validation with web research</li>
+          <li>Stage 2: Lean Canvas business model</li>
+          <li>Stage 3: Go-to-market strategy</li>
+          <li>Stage 4: Competitive landscape analysis</li>
+          <li>Stage 5: Pre-mortem risk analysis</li>
+          <li>Stage 6: Decompose into buildable user stories</li>
+        </ol>
+        <div class="code-block"><span class="t-prompt">&gt;</span> <span class="t-cmd">/launch my-project</span>
+
+<span class="t-out">Running validation research...</span>
+<span class="t-success">&#10003; Stage 1 passed — market exists</span>
+<span class="t-out">Building lean canvas...</span>
+<span class="t-success">&#10003; Stage 2 passed — viable model</span>
+<span class="t-out">...</span>
+<span class="t-success">&#10003; All 6 stages complete. Ready to build.</span></div>
+      </div>
+    </div>
+    <div class="tab-panel" id="usage-weekly">
+      <div class="usage-content reveal">
+        <ol class="usage-steps">
+          <li>Compiles a shipping summary from completed tasks</li>
+          <li>Reads journals for plan-vs-actual patterns</li>
+          <li>Reviews session learnings for recurring prompts</li>
+          <li>Proposes workflow improvements</li>
+          <li>Suggests new commands or skills based on patterns</li>
+        </ol>
+        <div class="code-block"><span class="t-prompt">&gt;</span> <span class="t-cmd">/weekly</span>
+
+<span class="t-out">Shipped: 12 tasks, 2 projects advanced</span>
+<span class="t-out">Pattern: You consistently underestimate research tasks</span>
+<span class="t-accent">Suggestion: Add 30% buffer to research estimates</span>
+<span class="t-success">&#10003; Weekly summary saved</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTEGRATIONS -->
+<section id="integrations">
+  <div class="container">
+    <div class="section-label reveal">Integrations</div>
+    <div class="section-title reveal">Optional Power-Ups</div>
+    <p class="section-desc reveal">Connect external services to supercharge your workflows. All are optional — the core system works standalone.</p>
+    <div class="grid-4">
+      <div class="card reveal">
+        <div class="card-icon" style="background:rgba(59,130,246,.12)">&#x1f50d;</div>
+        <div class="integ-name">Perplexity</div>
+        <div class="integ-desc">Powers research for validation, competitive analysis, and topic research. Required for <code>/validate-project</code>, <code>/research-topic</code>, and <code>/discover-ideas</code>.</div>
+        <div class="integ-setup">
+          <div class="integ-step"><strong>1.</strong> Get an API key from <a href="https://www.perplexity.ai/settings/api" target="_blank" rel="noopener">perplexity.ai/settings/api</a></div>
+          <div class="integ-step"><strong>2.</strong> Add to your shell profile:</div>
+          <code class="integ-cmd">export PERPLEXITY_API_KEY="pplx-..."</code>
+          <div class="integ-step"><strong>3.</strong> Add to <code>.mcp.json</code>:</div>
+          <code class="integ-cmd">"perplexity": { "command": "npx", "args": ["-y", "@nicepkg/perplexity-mcp"] }</code>
+        </div>
+      </div>
+      <div class="card reveal reveal-delay-1">
+        <div class="card-icon" style="background:rgba(251,191,36,.12)">&#x1f4ac;</div>
+        <div class="integ-name">Slack</div>
+        <div class="integ-desc">Post standups to channels, read message history, search conversations, and draft announcements. Used by <code>/morning</code> and <code>/weekly</code>.</div>
+        <div class="integ-setup">
+          <div class="integ-step"><strong>Install</strong> via Claude Code plugin:</div>
+          <code class="integ-cmd">/plugin install slack</code>
+          <div class="integ-note">Includes MCP tools + skills like /slack:summarize-channel, /slack:standup. OAuth prompt on first use.</div>
+        </div>
+      </div>
+      <div class="card reveal reveal-delay-2">
+        <div class="card-icon" style="background:rgba(52,211,153,.12)">&#x1f4dd;</div>
+        <div class="integ-name">Granola</div>
+        <div class="integ-desc">Sync meeting notes and transcripts into Knowledge/Transcripts/ automatically via <code>/meeting-sync</code>.</div>
+        <div class="integ-setup">
+          <div class="integ-step"><strong>1.</strong> Install the <a href="https://granola.ai" target="_blank" rel="noopener">Granola</a> desktop app</div>
+          <div class="integ-step"><strong>2.</strong> Add to <code>.mcp.json</code>:</div>
+          <code class="integ-cmd">"granola": { "type": "http", "url": "https://mcp.granola.ai/mcp" }</code>
+        </div>
+      </div>
+      <div class="card reveal reveal-delay-3">
+        <div class="card-icon" style="background:rgba(251,113,133,.12)">&#x1f4e7;</div>
+        <div class="integ-name">Google Workspace</div>
+        <div class="integ-desc">Gmail and Calendar for enriching <code>/meeting-prep</code> with email history and checking your schedule.</div>
+        <div class="integ-setup">
+          <div class="integ-step"><strong>Install</strong> the gws CLI:</div>
+          <code class="integ-cmd">brew tap nicholasgasior/gws && brew install gws</code>
+          <div class="integ-note">CLI tool (not MCP). Requires Google Cloud OAuth setup. See README for full auth steps.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECT CATALOG -->
+<section id="catalog">
+  <div class="container">
+    <div class="section-label reveal">Project Catalog</div>
+    <div class="section-title reveal">105 Project Ideas</div>
+    <p class="section-desc reveal">A curated collection of project ideas spanning analytics, automation, developer tools, and personal utilities — each with an idea brief and full PRD.</p>
+    <div class="catalog-stats reveal">
+      <div class="catalog-stat"><span>88</span>Technical</div>
+      <div class="catalog-stat"><span>3</span>Research</div>
+      <div class="catalog-stat"><span>3</span>Content</div>
+      <div class="catalog-stat"><span>2</span>Writing</div>
+      <div class="catalog-stat"><span>9</span>Personal</div>
+    </div>
+    <div class="card reveal" style="padding:24px;">
+      <div class="card-text" style="margin-bottom:16px;">Every project includes a lightweight <strong>idea.md</strong> capture and a full <strong>prd.md</strong> generated by the /PRD skill. Browse the catalog to find inspiration or fork an idea for your own pipeline.</div>
+      <a href="https://github.com/Ninety2UA/pm-operating-system/tree/main/Projects" class="btn btn-secondary" target="_blank" rel="noopener">Browse All Projects on GitHub &#x2192;</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="section-label reveal">FAQ</div>
+    <div class="section-title reveal">Frequently Asked Questions</div>
+    <div style="max-width:720px;" class="reveal">
+      <div class="faq-item"><button class="faq-q">How do I get started with PM Operating System?<span class="faq-icon">+</span></button><div class="faq-a">Install the plugin with <code>/install Ninety2UA/pm-operating-system</code>, then run <code>./setup.sh</code> to configure your goals. The setup walks you through a 2-minute interactive questionnaire. After that, just say <code>/morning</code> to start your first standup.</div></div>
+      <div class="faq-item"><button class="faq-q">Does it modify my existing files?<span class="faq-icon">+</span></button><div class="faq-a">No. The system creates new directories (Tasks/, Projects/, Knowledge/) and markdown files. It never touches your existing code or documents. All personal data is gitignored by default.</div></div>
+      <div class="faq-item"><button class="faq-q">Do I need all the integrations?<span class="faq-icon">+</span></button><div class="faq-a">No. All integrations are optional. The core system works entirely with local markdown files and the MCP server. Granola, Slack, Perplexity, and Google Workspace add extra capabilities but aren't required.</div></div>
+      <div class="faq-item"><button class="faq-q">What AI assistants does it work with?<span class="faq-icon">+</span></button><div class="faq-a">It's built as a Claude Code plugin, but the underlying system is just markdown files and an MCP server. Any AI assistant that can read markdown and call MCP tools can use it — including ChatGPT, Cursor, and other MCP-compatible tools.</div></div>
+      <div class="faq-item"><button class="faq-q">How does the AI know what to prioritize?<span class="faq-icon">+</span></button><div class="faq-a">Every session, the assistant reads GOALS.md (your strategic objectives) and AGENTS.md (the instruction set). Tasks and projects reference goals in their context sections. The AI cross-references to suggest what advances your objectives most.</div></div>
+      <div class="faq-item"><button class="faq-q">Can I customize skills, commands, and agents?<span class="faq-icon">+</span></button><div class="faq-a">Yes. Skills live in skills/name/SKILL.md, commands in commands/name.md, and agents in agents/name.md. Each uses YAML frontmatter for configuration. You can modify existing ones or create new ones following the same patterns.</div></div>
+      <div class="faq-item"><button class="faq-q">What is knowledge compounding?<span class="faq-icon">+</span></button><div class="faq-a">The system learns through three loops: daily (journals), weekly (pattern detection + shipping summaries), and quarterly (OKR scoring + system audit). Each layer feeds the next — so your assistant gets smarter about your work patterns, estimates, and priorities over time.</div></div>
+      <div class="faq-item"><button class="faq-q">How is my data stored?<span class="faq-icon">+</span></button><div class="faq-a">Everything is plain markdown with YAML frontmatter, stored locally on your machine. No cloud sync, no databases, no external storage. Personal directories (Tasks/, Knowledge/, etc.) are gitignored by default. You control exactly what gets committed.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <a href="https://github.com/Ninety2UA/pm-operating-system" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/Ninety2UA/pm-operating-system/issues" target="_blank" rel="noopener">Issues</a>
+      <a href="https://github.com/Ninety2UA/pm-operating-system/releases" target="_blank" rel="noopener">Releases</a>
+      <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener">MIT License</a>
+    </div>
+    <p>PM Operating System — AI-powered productivity, built on markdown.</p>
+    <p style="margin-top:8px;">Inspired by <a href="https://karpathy.ai/" target="_blank" rel="noopener">Andrej Karpathy</a>'s LLM OS vision. Built on <a href="https://github.com/amanaiproduct" target="_blank" rel="noopener">Aman Khan</a>'s personal-os framework.</p>
+  </div>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  var nav = document.getElementById('navbar');
+  var sections = document.querySelectorAll('section[id]');
+  var navLinks = document.querySelectorAll('.nav-links a');
+
+  window.addEventListener('scroll', function() {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+    var current = '';
+    for (var i = 0; i < sections.length; i++) {
+      if (window.scrollY >= sections[i].offsetTop - 120) current = sections[i].id;
+    }
+    for (var j = 0; j < navLinks.length; j++) {
+      navLinks[j].classList.toggle('active', navLinks[j].getAttribute('href') === '#' + current);
+    }
+  }, { passive: true });
+
+  var mobileMenu = document.getElementById('mobileMenu');
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var menuLinks = ['overview','philosophy','architecture','features','install','skills','commands','agents','faq'];
+
+  menuLinks.forEach(function(id) {
+    var a = document.createElement('a');
+    a.href = '#' + id;
+    a.textContent = id.charAt(0).toUpperCase() + id.slice(1);
+    a.addEventListener('click', function() { mobileMenu.classList.remove('open'); });
+    mobileMenu.appendChild(a);
+  });
+
+  hamburgerBtn.addEventListener('click', function() {
+    mobileMenu.classList.toggle('open');
+  });
+
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var group = btn.closest('section') || btn.parentElement.parentElement;
+      group.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      group.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.faq-q').forEach(function(q) {
+    q.addEventListener('click', function() {
+      var item = q.parentElement;
+      var wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(function(i) { i.classList.remove('open'); });
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+  var counterDone = false;
+  var counterObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting && !counterDone) {
+        counterDone = true;
+        document.querySelectorAll('.stat-num[data-target]').forEach(function(el) {
+          var target = parseInt(el.dataset.target, 10);
+          var duration = 1200;
+          var start = performance.now();
+          function tick(now) {
+            var progress = Math.min((now - start) / duration, 1);
+            var ease = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.round(target * ease);
+            if (progress < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  var statsRow = document.getElementById('statsRow');
+  if (statsRow) counterObserver.observe(statsRow);
+
+  var terminalEl = document.getElementById('terminal');
+  var sequences = [
+    [
+      { text: '$ claude', cls: 't-prompt' },
+      { br: true },
+      { text: '> /morning', cls: 't-cmd' },
+      { br: true },
+      { text: '  Syncing 2 meetings from Granola...', cls: 't-out' },
+      { br: true },
+      { text: '  Top tasks for today:', cls: 't-out' },
+      { br: true },
+      { text: '    1. [P0] Finalize client proposal', cls: 't-out' },
+      { br: true },
+      { text: '    2. [P1] Review campaign metrics', cls: 't-out' },
+      { br: true },
+      { text: '    3. [P1] Update sprint board', cls: 't-out' },
+      { br: true },
+      { text: '  Pipeline: advance "ab-test-calculator"', cls: 't-accent' },
+      { br: true },
+      { text: '  \u2713 Journal saved', cls: 't-success' }
+    ],
+    [
+      { text: '> /launch my-saas-idea', cls: 't-cmd' },
+      { br: true },
+      { text: '  Stage 1: Validating market...', cls: 't-out' },
+      { br: true },
+      { text: '  \u2713 Market exists, TAM $2.1B', cls: 't-success' },
+      { br: true },
+      { text: '  Stage 2: Lean Canvas...', cls: 't-out' },
+      { br: true },
+      { text: '  \u2713 Viable model identified', cls: 't-success' },
+      { br: true },
+      { text: '  Stage 3: GTM Plan...', cls: 't-out' },
+      { br: true },
+      { text: '  \u2713 Channel: dev communities + content', cls: 't-success' },
+      { br: true },
+      { text: '  Stage 4-6: Running...', cls: 't-out' },
+      { br: true },
+      { text: '  \u2713 All 6 stages passed. Ready to build.', cls: 't-success' }
+    ],
+    [
+      { text: '> /process-backlog', cls: 't-cmd' },
+      { br: true },
+      { text: '  Found 5 items in BACKLOG.md', cls: 't-out' },
+      { br: true },
+      { text: '  Checking for duplicates...', cls: 't-out' },
+      { br: true },
+      { text: '  1 duplicate found, skipping', cls: 't-accent' },
+      { br: true },
+      { text: '  Created: 2 tasks, 2 projects', cls: 't-out' },
+      { br: true },
+      { text: '  \u2713 Backlog cleared', cls: 't-success' }
+    ]
+  ];
+
+  var seqIdx = 0;
+
+  function clearTerminal() {
+    while (terminalEl.firstChild) {
+      terminalEl.removeChild(terminalEl.firstChild);
+    }
+  }
+
+  function typeSequence(seq) {
+    clearTerminal();
+    var cursor = document.createElement('span');
+    cursor.className = 'terminal-cursor';
+    var itemIdx = 0;
+    var charIdx = 0;
+    var currentSpan = null;
+
+    function processNext() {
+      if (itemIdx >= seq.length) {
+        if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+        setTimeout(function() {
+          seqIdx = (seqIdx + 1) % sequences.length;
+          typeSequence(sequences[seqIdx]);
+        }, 3000);
+        return;
+      }
+
+      var item = seq[itemIdx];
+
+      if (item.br) {
+        if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+        terminalEl.appendChild(document.createElement('br'));
+        itemIdx++;
+        setTimeout(processNext, 150);
+        return;
+      }
+
+      if (!currentSpan || currentSpan._cls !== item.cls) {
+        currentSpan = document.createElement('span');
+        currentSpan.className = item.cls || '';
+        currentSpan._cls = item.cls;
+        terminalEl.appendChild(currentSpan);
+      }
+
+      charIdx = 0;
+      function typeChar() {
+        if (charIdx < item.text.length) {
+          if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
+          currentSpan.textContent += item.text.charAt(charIdx);
+          terminalEl.appendChild(cursor);
+          charIdx++;
+          setTimeout(typeChar, 35);
+        } else {
+          currentSpan = null;
+          itemIdx++;
+          setTimeout(processNext, 60);
+        }
+      }
+      typeChar();
+    }
+
+    terminalEl.appendChild(cursor);
+    processNext();
+  }
+
+  var termObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        termObserver.disconnect();
+        setTimeout(function() { typeSequence(sequences[0]); }, 600);
+      }
+    });
+  }, { threshold: 0.3 });
+  if (terminalEl) termObserver.observe(terminalEl);
+})();
+</script>
+
+</body>
+</html>
