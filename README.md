@@ -263,12 +263,9 @@ pm-operating-system/
 |   |-- PRD/SKILL.md
 |   |-- validate-project/SKILL.md
 |   |-- lean-canvas/SKILL.md
-|   |-- gtm-plan/SKILL.md
-|   |-- competitive-analysis/SKILL.md
-|   |-- pre-mortem/SKILL.md
-|   |-- user-stories/SKILL.md
+|   |-- meeting-sync/SKILL.md
 |   |-- sprint-plan/SKILL.md
-|   +-- ...
+|   +-- ...                      (14 more)
 |
 |-- commands/                    6 slash commands
 |   |-- morning.md
@@ -284,14 +281,9 @@ pm-operating-system/
 |   +-- system-health.md
 |
 |-- core/
-|   |-- mcp/
-|   |   |-- server.py            MCP server (10 tools + dedup)
-|   |   +-- pyproject.toml
-|   |-- templates/
-|   |   |-- AGENTS.md            AI instruction template
-|   |   +-- config.yaml
-|   +-- integrations/
-|       +-- granola/              Granola meeting sync setup
+|   +-- mcp/
+|       |-- server.py            MCP server (10 tools + dedup)
+|       +-- pyproject.toml
 |
 |-- hooks/
 |   +-- hooks.json               Session hooks (directory creation)
@@ -306,8 +298,7 @@ pm-operating-system/
 |-- BACKLOG.md                   Raw capture inbox
 |-- setup.sh                     Interactive goals setup
 |-- install.sh                   Full bootstrap installer
-|-- .mcp.json.example            MCP config template
-+-- GOALS.example.md             Example goals file
++-- .mcp.json.example            MCP config template
 ```
 
 ---

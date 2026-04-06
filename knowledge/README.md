@@ -16,9 +16,9 @@ Long-term memory for your operating system. Content here compounds across sessio
 | `research/projects/` | Project validation briefs | `/validate-project` |
 | `research/topics/` | Topic research briefs | `/research-topic` |
 | `decisions/` | Decision records with rationale | `/decision` |
-| `Meetings/YYYY/MM/DD.md` | Synced meeting notes | `/meeting-sync` |
-| `People/` | One file per person (auto-enriched from meetings) | `/meeting-sync`, `/meeting-prep` |
-| `Reference/` | Stable context docs (OKR history, system guide) | Manual |
+| `meetings/YYYY/MM/DD.md` | Synced meeting notes | `/meeting-sync` |
+| `people/` | One file per person (auto-enriched from meetings) | `/meeting-sync`, `/meeting-prep` |
+| `reference/` | Stable context docs (OKR history, system guide) | Manual |
 | `sprint-*.md` | Sprint plans | `/sprint-plan` |
 | `outcome-roadmap.md` | Outcome-focused roadmap | `/outcome-roadmap` |
 
@@ -30,6 +30,6 @@ Reference knowledge docs in your task or project files:
 
 ```yaml
 resource_refs:
-  - Knowledge/research/projects/my-project.md
-  - Knowledge/decisions/2026-04-06-tool-choice.md
+  - knowledge/research/projects/my-project.md
+  - knowledge/decisions/2026-04-06-tool-choice.md
 ```

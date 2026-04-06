@@ -5,7 +5,7 @@ A personal catalog of reusable AI artifacts — prompts, system instructions, sk
 ## Structure
 
 ```
-Library/
+library/
 ├── prompts/      # Standalone, copy-paste-ready prompts
 ├── systems/      # System-level instructions (CLAUDE.md, rules, personas)
 ├── skills/       # SKILL.md files (Claude Code / Codex format)
@@ -27,7 +27,7 @@ Library/
 
 ## Adding an item
 
-1. Create a folder: `Library/<category>/<descriptive-name>/`
+1. Create a folder: `library/<category>/<descriptive-name>/`
 2. Add the main file using the naming convention for that category (see below)
 3. Include YAML frontmatter with at minimum: `title`, `description`, `tools`, `tags`, `created`
 
@@ -58,7 +58,7 @@ The body of the file is the actual prompt/skill/agent content — clean and read
 ## Examples
 
 ```
-Library/
+library/
 ├── prompts/
 │   └── deep-code-review/
 │       └── prompt.md
