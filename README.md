@@ -500,5 +500,3 @@ MIT — open source, free to use for any purpose. See [LICENSE](LICENSE) for det
 ## Acknowledgments
 
 - **[Andrej Karpathy](https://karpathy.ai/)** for the "LLM OS" vision that inspired this project's architecture. His [Intro to Large Language Models](https://www.youtube.com/watch?v=zjkBMFhNj_g) talk and [Stanford CS229](https://www.youtube.com/watch?v=c3b-JASoPi0) lectures articulate the idea that LLMs are best understood as operating system kernels, not chatbots.
-- **[Aman Khan](https://github.com/amanaiproduct)** for the original personal-os framework that this project builds upon.
-- **[Anthropic](https://anthropic.com)** and the Claude Code team for building the plugin system that makes this possible.
