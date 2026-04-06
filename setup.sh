@@ -131,11 +131,10 @@ done
 # Copy template files
 print_header "Setting Up Templates"
 
-if [ ! -f "AGENTS.md" ] && [ -f "core/templates/AGENTS.md" ]; then
-    cp "core/templates/AGENTS.md" "AGENTS.md"
-    print_success "Copied: AGENTS.md"
+if [ -f "AGENTS.md" ]; then
+    print_info "File exists: AGENTS.md"
 else
-    print_info "File exists: AGENTS.md (preserving your version)"
+    print_info "AGENTS.md not found — it ships with the repo"
 fi
 
 if [ ! -f ".gitignore" ] && [ -f "core/templates/gitignore" ]; then
