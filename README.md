@@ -479,7 +479,8 @@ You will be prompted to authenticate via OAuth on first use.
 Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `Knowledge/Transcripts/`. Used by the `/meeting-sync` skill during your morning standup.
 
 **Prerequisites:**
-- Granola desktop app installed and account created
+- Granola desktop app installed
+- Granola paid plan (required for MCP access)
 
 **Configure** — add to your `.mcp.json` under `mcpServers`:
 
@@ -490,9 +491,11 @@ Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `Kno
 }
 ```
 
+You will be prompted to authenticate on first use. See [Granola MCP setup guide](https://www.granola.ai/blog/granola-mcp) for details.
+
 **Usage:** Run `/meeting-sync` during your morning standup or anytime to pull in recent meetings.
 
-**Available tools:** `search_meetings`, `get_meeting_details`, `get_meeting_transcript`, `check_new_meetings`, `sync_meeting_to_local`
+**Available tools:** `list_meetings`, `get_meetings`, `get_meeting_transcript`, `query_granola_meetings`, `list_meeting_folders`
 
 </details>
 
