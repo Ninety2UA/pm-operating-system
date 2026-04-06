@@ -119,7 +119,7 @@ read -p "Press Enter to begin..."
 # Create directories
 print_header "Creating Workspace"
 
-for dir in "Tasks" "Knowledge"; do
+for dir in "tasks" "knowledge"; do
     if [ -d "$dir" ]; then
         print_info "Directory exists: $dir/"
     else

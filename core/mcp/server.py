@@ -41,9 +41,9 @@ class DateTimeEncoder(json.JSONEncoder):
 
 # Configuration
 BASE_DIR = Path(os.environ.get('MANAGER_AI_BASE_DIR', Path.cwd()))
-TASKS_DIR = BASE_DIR / 'Tasks'
-PROJECTS_DIR = BASE_DIR / 'Projects'
-KNOWLEDGE_DIR = BASE_DIR / 'Knowledge'
+TASKS_DIR = BASE_DIR / 'tasks'
+PROJECTS_DIR = BASE_DIR / 'projects'
+KNOWLEDGE_DIR = BASE_DIR / 'knowledge'
 
 # Ensure directories exist
 TASKS_DIR.mkdir(exist_ok=True, parents=True)

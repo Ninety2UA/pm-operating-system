@@ -3,33 +3,33 @@
 # Template/example files are always tracked.
 
 # ── Personal data ──────────────────────────────────────
-Tasks/*.md
-!Tasks/README.md
-!Tasks/.gitkeep
+tasks/*.md
+!tasks/README.md
+!tasks/.gitkeep
 
 BACKLOG.md
 GOALS.md
 
-Knowledge/People/
-Knowledge/Reference/
-!Knowledge/Reference/PM_OS_GUIDE.md
-Knowledge/journals/
-Knowledge/Meetings/
-Knowledge/session-reviews/
-Knowledge/decisions/
-Knowledge/research/**
-Knowledge/sprint-*.md
-Knowledge/outcome-roadmap.md
-!Knowledge/README.md
-!Knowledge/.gitkeep
+knowledge/people/
+knowledge/reference/
+!knowledge/reference/PM_OS_GUIDE.md
+knowledge/journals/
+knowledge/meetings/
+knowledge/session-reviews/
+knowledge/decisions/
+knowledge/research/**
+knowledge/sprint-*.md
+knowledge/outcome-roadmap.md
+!knowledge/README.md
+!knowledge/.gitkeep
 
 # Project artifacts (generated per-user)
-Projects/*/prd.md
-Projects/*/lean-canvas.md
-Projects/*/gtm-plan.md
-Projects/*/pre-mortem.md
-Projects/*/user-stories.md
-Projects/*/competitive-analysis.md
+projects/*/prd.md
+projects/*/lean-canvas.md
+projects/*/gtm-plan.md
+projects/*/pre-mortem.md
+projects/*/user-stories.md
+projects/*/competitive-analysis.md
 
 # ── Claude Code local config ──────────────────────────
 .claude/settings.local.json

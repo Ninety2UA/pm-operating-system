@@ -23,7 +23,7 @@ cd task-manager
 pip install pyyaml mcp
 
 # Create directories
-mkdir Tasks CRM
+mkdir -p tasks projects knowledge library
 touch BACKLOG.md
 ```
 
@@ -50,14 +50,16 @@ Tell your AI assistant:
 ## System Architecture
 
 ```
-task-manager/
-├── manager_ai_mcp/
-│   └── server_core.py      # MCP server with deduplication
+pm-operating-system/
+├── core/mcp/
+│   └── server.py           # MCP server with deduplication
 ├── tasks/                  # Individual task files
-├── CRM/                    # Contact files
+├── projects/               # Project ideas and pipeline
+├── knowledge/              # Research, journals, meetings, people
+├── library/                # Reusable artifacts catalog
 ├── BACKLOG.md             # Unstructured notes
-├── AGENTS.md              # AI instructions (from template)
-└── config.yaml            # Optional configuration
+├── AGENTS.md              # AI instructions
+└── GOALS.md               # Strategic goals and OKRs
 ```
 
 ## Task Format
