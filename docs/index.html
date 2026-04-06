@@ -271,6 +271,36 @@
     }
     .flow-fork-row { display: flex; align-items: center; gap: 10px; }
     .flow-fork-hint { font-size: 11px; color: var(--text-muted); font-style: italic; white-space: nowrap; }
+    .system-map { display: flex; flex-direction: column; align-items: center; gap: 0; max-width: 720px; margin: 0 auto; }
+    .map-center { display: flex; flex-direction: column; align-items: center; }
+    .map-down { color: var(--text-muted); font-size: 20px; padding: 14px 0; display: flex; align-items: center; justify-content: center; }
+    .map-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin-bottom: 10px; }
+    .map-detail { font-size: 11px; color: var(--text-muted); margin-top: 8px; text-align: center; max-width: 400px; }
+    .map-sources { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .map-source {
+      font-size: 12px; font-weight: 500; color: var(--text-muted);
+      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg-card);
+    }
+    .map-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+    .map-card {
+      padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border);
+      background: var(--bg-card); text-align: center; transition: all .3s;
+    }
+    .map-card:hover { border-color: var(--border-light); background: var(--bg-card-hover); }
+    .map-card-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; margin-bottom: 14px;
+    }
+    .map-card-title.green { color: var(--green); }
+    .map-card-title.purple { color: var(--purple); }
+    .map-card-detail { font-size: 12px; color: var(--text-secondary); line-height: 1.7; margin-top: 12px; }
+    .map-card-detail code { font-size: 11px; color: var(--accent-light); }
+    .map-promote {
+      font-size: 11px; color: var(--amber); font-weight: 600; margin-top: 8px;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .map-foundation { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .map-foundation .flow-node { min-width: 100px; padding: 10px 18px; font-size: 12px; }
     .pipeline-track { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
     .pipeline-stage {
       flex: 0 0 auto; min-width: 150px; padding: 20px;
@@ -484,6 +514,7 @@
       .cmd-grid { grid-template-columns: 1fr; }
       .flow-row { flex-direction: column; }
       .flow-arrow { transform: rotate(90deg); }
+      .map-columns { grid-template-columns: 1fr; }
       .stats-row { gap: 20px; }
       .stat-num { font-size: 1.8rem; }
       .skill-row { flex-direction: column; gap: 4px; }
@@ -633,24 +664,68 @@
 
     <div class="arch-sub">
       <h3 class="reveal">System Overview</h3>
-      <p class="arch-desc reveal">Brain-dump into the backlog, classify into tasks or projects, manage with goal alignment.</p>
-      <div class="flow-row reveal">
-        <div class="flow-node highlight">BACKLOG.md</div>
-        <div class="flow-arrow">&#x2192;</div>
-        <div class="flow-node highlight">/process-backlog</div>
-        <div class="flow-arrow">&#x2192;</div>
-        <div class="flow-fork">
-          <div class="flow-fork-row">
-            <div class="flow-node">tasks/</div>
-            <div class="flow-fork-hint">single outcome</div>
-          </div>
-          <div class="flow-fork-row">
-            <div class="flow-node">projects/</div>
-            <div class="flow-fork-hint">multi-step</div>
+      <p class="arch-desc reveal">From raw ideas to daily execution — everything flows through a single inbox, gets classified, and ties back to your goals.</p>
+      <div class="system-map reveal">
+        <!-- Capture -->
+        <div class="map-center">
+          <div class="map-label">Capture</div>
+          <div class="map-sources">
+            <span class="map-source">Brain dumps</span>
+            <span class="map-source">Slack threads</span>
+            <span class="map-source">Meeting notes</span>
+            <span class="map-source">Ideas on the go</span>
           </div>
         </div>
-        <div class="flow-arrow">&#x2192;</div>
-        <div class="flow-node highlight">MCP Server</div>
+        <div class="map-down">&#x2193;</div>
+
+        <!-- Inbox -->
+        <div class="map-center">
+          <div class="flow-node highlight">BACKLOG.md</div>
+          <div class="map-detail">Single inbox — append anything, process later</div>
+        </div>
+        <div class="map-down">&#x2193;</div>
+
+        <!-- Classify -->
+        <div class="map-center">
+          <div class="map-label">Classify</div>
+          <div class="flow-node highlight">/process-backlog</div>
+          <div class="map-detail">Dedup against existing items, classify by scope</div>
+        </div>
+        <div class="map-down">&#x2193;</div>
+
+        <!-- Work columns -->
+        <div class="map-columns">
+          <div class="map-card">
+            <div class="map-card-title green">Execute</div>
+            <div class="flow-node">tasks/</div>
+            <div class="map-card-detail">
+              Single-outcome work items<br>
+              <code>/morning</code> picks Top 5 daily<br>
+              Priority P0&ndash;P3, status tracking
+            </div>
+          </div>
+          <div class="map-card">
+            <div class="map-card-title purple">Evaluate</div>
+            <div class="flow-node">projects/</div>
+            <div class="map-card-detail">
+              Multi-step initiatives<br>
+              <code>/launch</code> runs 6-stage pipeline<br>
+              <span class="map-promote">&#x2192; /user-stories promotes to tasks/</span>
+            </div>
+          </div>
+        </div>
+        <div class="map-down">&#x2193;</div>
+
+        <!-- Foundation -->
+        <div class="map-center">
+          <div class="map-label">Align &amp; Manage</div>
+          <div class="map-foundation">
+            <div class="flow-node highlight">GOALS.md</div>
+            <div class="flow-node highlight">knowledge/</div>
+            <div class="flow-node highlight">MCP Server</div>
+          </div>
+          <div class="map-detail">Every task and project ties to a goal. Knowledge compounds across sessions. MCP Server manages state.</div>
+        </div>
       </div>
     </div>
 
