@@ -12,6 +12,7 @@ GOALS.md
 
 Knowledge/People/
 Knowledge/Reference/
+!Knowledge/Reference/PM_OS_GUIDE.md
 Knowledge/journals/
 Knowledge/Transcripts/
 Knowledge/session-reviews/
@@ -66,6 +67,10 @@ env/
 .specstory/
 .factory/
 .mcp_cache/
+
+# ── Generated sites ───────────────────────────────────
+site/
+gh-pages/
 
 # ── Logs & test ───────────────────────────────────────
 *.log

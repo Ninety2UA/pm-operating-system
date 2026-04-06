@@ -162,6 +162,8 @@ cp .mcp.json.example .mcp.json
 | uv | latest | Yes | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
 | git | any | Yes | `brew install git` |
 | Claude Code | latest | Yes | [claude.ai/download](https://claude.ai/download) |
+| Node.js / npm | 18+ | For Perplexity | `brew install node` |
+| gws | latest | For Google Workspace | `brew tap nicholasgasior/gws && brew install gws` |
 
 ---
 
@@ -405,55 +407,92 @@ The manager-ai MCP server provides 10 tools for task and project management. It 
 
 ### Optional Integrations
 
+These integrations are optional but unlock powerful capabilities. Install whichever ones you need.
+
+<details>
+<summary><strong>Perplexity (AI-Powered Research)</strong></summary>
+
+<br>
+
+Powers the research capabilities of `/validate-project`, `/competitive-analysis`, `/research-topic`, `/discover-ideas`, and `/gtm-plan`. Without Perplexity, these skills will not have access to live web data.
+
+**Install:**
+
+```bash
+npm install -g @nicepkg/perplexity-mcp
+```
+
+**Configure** — add to your `.mcp.json` under `mcpServers`:
+
+```json
+"perplexity": {
+  "command": "npx",
+  "args": ["-y", "@nicepkg/perplexity-mcp"]
+}
+```
+
+**Set your API key** — get one from [perplexity.ai/settings/api](https://www.perplexity.ai/settings/api), then:
+
+```bash
+export PERPLEXITY_API_KEY="pplx-..."
+```
+
+Add this to your `~/.zshrc` or `~/.bashrc` to persist across sessions.
+
+**Available tools:**
+
+| Tool | Purpose | Cost | Speed |
+|------|---------|------|-------|
+| `perplexity_search` | Finding URLs, facts, recent news | ~$0.04 | Fast |
+| `perplexity_ask` | Quick AI-answered questions with citations | ~$0.03 | Fast |
+| `perplexity_research` | In-depth multi-source investigation | ~$0.40 | 30s+ |
+| `perplexity_reason` | Complex analysis with step-by-step logic | ~$0.40 | 30s+ |
+
+</details>
+
+<details>
+<summary><strong>Slack (Team Messaging)</strong></summary>
+
+<br>
+
+Post standups to channels, read message history, search across workspaces, and draft announcements. Used by `/morning`, `/weekly`, and `/write` commands.
+
+**Install** — use the Claude Code plugin (recommended):
+
+```
+/plugin install slack
+```
+
+This installs the Slack MCP server **and** high-level skills like `/slack:summarize-channel`, `/slack:find-discussions`, and `/slack:standup`.
+
+You will be prompted to authenticate via OAuth on first use.
+
+**Available tools:** `slack_send_message`, `slack_read_channel`, `slack_search_public`, `slack_search_channels`, `slack_read_thread`, and more.
+
+</details>
+
 <details>
 <summary><strong>Granola (Meeting Sync)</strong></summary>
 
 <br>
 
-Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `Knowledge/Transcripts/`.
+Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `Knowledge/Transcripts/`. Used by the `/meeting-sync` skill during your morning standup.
 
-1. Install the Granola desktop app and create an account
-2. Add to your `.mcp.json`:
+**Prerequisites:**
+- Granola desktop app installed and account created
+
+**Configure** — add to your `.mcp.json` under `mcpServers`:
+
 ```json
-{
-  "granola": {
-    "type": "http",
-    "url": "https://mcp.granola.ai/mcp"
-  }
+"granola": {
+  "type": "http",
+  "url": "https://mcp.granola.ai/mcp"
 }
 ```
-3. Use `/meeting-sync` during your morning standup or anytime
 
-</details>
+**Usage:** Run `/meeting-sync` during your morning standup or anytime to pull in recent meetings.
 
-<details>
-<summary><strong>Slack</strong></summary>
-
-<br>
-
-Post standups, read channels, and search message history.
-
-1. Add to your `.mcp.json`:
-```json
-{
-  "slack": {
-    "type": "http",
-    "url": "https://mcp.slack.com/mcp"
-  }
-}
-```
-2. Authenticate via OAuth when first used
-
-</details>
-
-<details>
-<summary><strong>Perplexity (Research)</strong></summary>
-
-<br>
-
-Powers the research capabilities of `/validate-project`, `/competitive-analysis`, `/research-topic`, `/discover-ideas`, and `/gtm-plan`.
-
-Install the Perplexity MCP server following their documentation, then add the configuration to your `.mcp.json`.
+**Available tools:** `search_meetings`, `get_meeting_details`, `get_meeting_transcript`, `check_new_meetings`, `sync_meeting_to_local`
 
 </details>
 
@@ -462,9 +501,42 @@ Install the Perplexity MCP server following their documentation, then add the co
 
 <br>
 
-Optional Gmail and Calendar integration for enriching meeting prep with email history.
+Gmail and Calendar integration for enriching `/meeting-prep` with email history, checking your calendar in `/morning`, and searching past correspondence.
 
-Install the [gws CLI](https://github.com/nicholasgasior/gws) and configure OAuth credentials at `~/.config/gws/client_secret.json`.
+**Install:**
+
+```bash
+# macOS
+brew tap nicholasgasior/gws
+brew install gws
+
+# Or from source
+go install github.com/nicholasgasior/gws@latest
+```
+
+**Authenticate:**
+
+1. Create a Google Cloud project and enable the Gmail, Calendar, and Drive APIs
+2. Download the OAuth client credentials JSON
+3. Run the initial auth:
+
+```bash
+gws gmail users messages list --params '{"userId": "me", "maxResults": 1}'
+```
+
+This will open a browser for OAuth consent. Credentials are stored at `~/.config/gws/`.
+
+**Example commands:**
+
+```bash
+# List recent emails
+gws gmail users messages list --params '{"userId": "me", "maxResults": 10}'
+
+# Check today's calendar
+gws calendar events list --params '{"calendarId": "primary", "timeMin": "2026-04-06T00:00:00Z", "timeMax": "2026-04-06T23:59:59Z"}'
+```
+
+> **Note:** `gws` is a CLI tool, not an MCP server. The AI assistant calls it via shell commands.
 
 </details>
 

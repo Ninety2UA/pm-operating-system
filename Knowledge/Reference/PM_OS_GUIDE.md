@@ -1050,53 +1050,35 @@ The MCP server auto-generates rich task bodies based on category:
 
 ## 14. Integrations
 
-### 14.1 Granola (Meeting Sync)
+### 14.1 Perplexity (AI-Powered Research)
 
-**Purpose**: Sync meeting notes from Granola.ai to local Knowledge folder
+**Purpose**: Web search and deep research via Perplexity AI API. Powers the research capabilities of `/validate-project`, `/competitive-analysis`, `/research-topic`, `/discover-ideas`, and `/gtm-plan`. Without Perplexity, these skills will not have access to live web data.
 
-**Prerequisites**:
-- Granola.ai installed on macOS
-- Python 3.12+
-- `uv` package manager
-- External MCP server: `granola-ai-mcp-server` (cloned separately)
+**Used by skills**: `/discover-ideas`, `/validate-project`, `/competitive-analysis`, `/research-topic`, `/gtm-plan`
 
-**Configuration** (`.mcp.json`):
+**Install**:
+```bash
+npm install -g @nicepkg/perplexity-mcp
+```
+
+**Configure** (`.mcp.json`):
 ```json
 {
   "mcpServers": {
-    "granola": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        "/path/to/granola-ai-mcp-server",
-        "run",
-        "granola-mcp-server"
-      ],
-      "env": {
-        "KNOWLEDGE_PATH": "/path/to/personal-os/Knowledge"
-      }
+    "perplexity": {
+      "command": "npx",
+      "args": ["-y", "@nicepkg/perplexity-mcp"]
     }
   }
 }
 ```
 
-**Available Granola MCP tools**:
-- `search_meetings` — Search by keyword
-- `get_meeting_details` — Full meeting metadata
-- `get_meeting_transcript` — Full transcript text
-- `check_new_meetings` — Find unsynced meetings
-- `sync_meeting_to_local` — Save meeting to Knowledge/Transcripts/
-- `analyze_meeting_patterns` — Pattern analysis across meetings
-- `get_last_sync_time` — Check when last sync occurred
-- `reset_sync` — Reset sync state
+**Set your API key** — get one from [perplexity.ai/settings/api](https://www.perplexity.ai/settings/api):
+```bash
+export PERPLEXITY_API_KEY="pplx-..."
+```
 
-**Sync tracking**: State stored in `Knowledge/.granola-sync.json`
-
-### 14.2 Perplexity (Web Research)
-
-**Purpose**: Web search and deep research via Perplexity AI API
-
-**Used by skills**: `/discover-ideas`, `/validate-project`, `/research-topic`
+Add this to your `~/.zshrc` or `~/.bashrc` to persist across sessions.
 
 **Available Perplexity MCP tools**:
 
@@ -1118,7 +1100,91 @@ The MCP server auto-generates rich task bodies based on category:
 - Indie Hackers: Good for validation
 - X/Twitter: Weaker coverage
 
-### 14.3 Docsify (Project Portfolio Site)
+### 14.2 Slack (Team Messaging)
+
+**Purpose**: Post standups to channels, read message history, search across workspaces, and draft announcements. Used by `/morning`, `/weekly`, and `/write` commands.
+
+**Install** — use the Claude Code plugin (recommended):
+```
+/plugin install slack
+```
+
+This installs the Slack MCP server **and** high-level skills like `/slack:summarize-channel`, `/slack:find-discussions`, and `/slack:standup`. You will be prompted to authenticate via OAuth on first use.
+
+**Available tools**: `slack_send_message`, `slack_read_channel`, `slack_search_public`, `slack_search_channels`, `slack_read_thread`, `slack_search_users`, `slack_schedule_message`, `slack_create_canvas`, `slack_read_canvas`, `slack_update_canvas`
+
+### 14.3 Granola (Meeting Sync)
+
+**Purpose**: Sync meeting notes from Granola.ai to local Knowledge folder
+
+**Prerequisites**:
+- Granola desktop app installed and account created
+
+**Configure** (`.mcp.json`):
+```json
+{
+  "mcpServers": {
+    "granola": {
+      "type": "http",
+      "url": "https://mcp.granola.ai/mcp"
+    }
+  }
+}
+```
+
+**Usage**: Run `/meeting-sync` during your morning standup or anytime to pull in recent meetings.
+
+**Available Granola MCP tools**:
+- `search_meetings` — Search by keyword
+- `get_meeting_details` — Full meeting metadata
+- `get_meeting_transcript` — Full transcript text
+- `check_new_meetings` — Find unsynced meetings
+- `sync_meeting_to_local` — Save meeting to Knowledge/Transcripts/
+
+**Sync tracking**: State stored in `Knowledge/.granola-sync.json`
+
+### 14.4 Google Workspace (gws CLI)
+
+**Purpose**: Gmail and Calendar integration for enriching `/meeting-prep` with email history, checking your calendar in `/morning`, and searching past correspondence.
+
+> **Note:** `gws` is a CLI tool, not an MCP server. The AI assistant calls it via shell commands.
+
+**Install**:
+```bash
+# macOS
+brew tap nicholasgasior/gws
+brew install gws
+
+# Or from source
+go install github.com/nicholasgasior/gws@latest
+```
+
+**Authenticate**:
+1. Create a Google Cloud project and enable the Gmail, Calendar, and Drive APIs
+2. Download the OAuth client credentials JSON
+3. Run the initial auth:
+```bash
+gws gmail users messages list --params '{"userId": "me", "maxResults": 1}'
+```
+This will open a browser for OAuth consent. Credentials are stored at `~/.config/gws/`.
+
+**Usage**: `gws <service> <resource> [sub-resource] <method> [flags]`
+
+**Example commands**:
+```bash
+# List recent emails
+gws gmail users messages list --params '{"userId": "me", "maxResults": 10}'
+
+# Check today's calendar
+gws calendar events list --params '{"calendarId": "primary", "timeMin": "2026-04-06T00:00:00Z", "timeMax": "2026-04-06T23:59:59Z"}'
+
+# Search Drive
+gws drive files list --params '{"pageSize": 10}'
+```
+
+**Key flags**: `--params` (JSON query params), `--json` (request body), `--format` (json/table/yaml/csv), `--page-all` (auto-paginate)
+
+### 14.5 Docsify (Project Portfolio Site)
 
 **Purpose**: Auto-generate a browsable documentation site from Projects/
 
