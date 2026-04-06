@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-orange" alt="License"></a>&nbsp;
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT"></a>&nbsp;
   <a href="https://github.com/Ninety2UA/pm-operating-system/stargazers"><img src="https://img.shields.io/github/stars/Ninety2UA/pm-operating-system?style=social" alt="GitHub Stars"></a>&nbsp;
   <img src="https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet" alt="Claude Code Plugin">&nbsp;
   <img src="https://img.shields.io/badge/Python-3.11+-blue?logo=python&logoColor=white" alt="Python 3.11+">
@@ -493,9 +493,7 @@ Contributions are welcome. Please:
 
 ## License
 
-This work is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
-
-Copyright 2026 Dominik Benger. You may view, use, modify, and share with attribution for non-commercial purposes. Commercial sale is not permitted, but you may use it internally for work and business.
+MIT — open source, free to use for any purpose. See [LICENSE](LICENSE) for details.
 
 ---
 

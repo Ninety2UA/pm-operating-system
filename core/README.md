@@ -138,7 +138,7 @@ The system automatically:
 
 ## Integrations
 
-Optional integrations extend Personal OS with external tools:
+Optional integrations extend PM Operating System with external tools:
 
 | Integration | Description | Setup |
 |-------------|-------------|-------|

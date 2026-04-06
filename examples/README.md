@@ -1,6 +1,6 @@
 # Examples
 
-Reference guides for PersonalOS.
+Reference guides for PM Operating System.
 
 ## Tutorials
 

@@ -1,6 +1,6 @@
 # Granola Integration
 
-Sync your [Granola.ai](https://granola.ai) meeting notes and transcripts into your Personal OS Knowledge folder.
+Sync your [Granola.ai](https://granola.ai) meeting notes and transcripts into your PM Operating System Knowledge folder.
 
 ## What This Does
 
@@ -20,7 +20,7 @@ Sync your [Granola.ai](https://granola.ai) meeting notes and transcripts into yo
 Tell Claude:
 
 ```
-Set up Granola integration for my Personal OS
+Set up Granola integration for PM Operating System
 ```
 
 Claude will:

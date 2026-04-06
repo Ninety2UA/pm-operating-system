@@ -1,6 +1,6 @@
 # Tutorials
 
-Reference guides for PersonalOS concepts.
+Reference guides for PM Operating System concepts.
 
 | Tutorial | What You'll Learn |
 |----------|-------------------|

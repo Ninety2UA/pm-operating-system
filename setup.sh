@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Personal OS Setup Script
+# PM Operating System Setup Script
 # Creates directories, copies templates, and guides you through goals creation
 #
 # ┌─────────────────────────────────────────────────────────────────────┐
@@ -105,7 +105,7 @@ ask_multiline() {
 
 # Start setup
 clear
-print_header "Welcome to Personal OS Setup"
+print_header "Welcome to PM Operating System Setup"
 
 echo "This setup will help you:"
 echo "  1. Create your workspace structure"
@@ -160,7 +160,7 @@ fi
 # Goals creation
 print_header "Building Your Personal Goals"
 
-echo "Now let's create your GOALS.md - the heart of your Personal OS."
+echo "Now let's create your GOALS.md - the heart of PM Operating System."
 echo ""
 echo "I'll ask you about your goals and priorities."
 echo "This helps your AI agent make smarter decisions about task priorities."
@@ -316,7 +316,7 @@ print_success "Created: GOALS.md"
 # Final summary
 print_header "Setup Complete!"
 
-echo "Your Personal OS is ready to use."
+echo "PM Operating System is ready to use."
 echo ""
 echo "📋 Next Steps:"
 echo ""

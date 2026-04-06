@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MCP Server for Personal OS — Task & Project Management
+MCP Server for PM Operating System — Task & Project Management
 
 Tools:
   Tasks:    list_tasks, get_task_summary, check_priority_limits, prune_completed_tasks
@@ -637,7 +637,7 @@ async def handle_call_tool(
 
 async def main():
     """Main entry point for the MCP server"""
-    logger.info(f"Starting Personal OS MCP Server")
+    logger.info(f"Starting PM Operating System MCP Server")
     logger.info(f"Base directory: {BASE_DIR}")
     logger.info(f"Tasks: {TASKS_DIR} | Projects: {PROJECTS_DIR}")
 

@@ -1,6 +1,6 @@
 # Integrations
 
-Optional integrations that extend Personal OS with external tools.
+Optional integrations that extend PM Operating System with external tools.
 
 ## Available Integrations
 
@@ -21,7 +21,7 @@ Each integration folder contains:
 Most integrations can be set up by telling Claude:
 
 ```
-Set up [integration name] for my Personal OS
+Set up [integration name] for PM Operating System
 ```
 
 Claude will follow the setup skill to install and configure everything.

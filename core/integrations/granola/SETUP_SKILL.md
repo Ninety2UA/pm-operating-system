@@ -12,7 +12,7 @@ description: Install and configure Granola MCP server for meeting sync. Use when
 
 # Setup Granola Integration
 
-Automatically install and configure the Granola MCP server for syncing meetings to Personal OS.
+Automatically install and configure the Granola MCP server for syncing meetings to PM Operating System.
 
 ## Prerequisites Check
 
