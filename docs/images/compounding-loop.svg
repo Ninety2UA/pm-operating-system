@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 340">
   <defs>
     <marker id="loop-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#6B7280"/>
@@ -10,7 +10,7 @@
   <text x="120" y="48" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#2D5F3A" text-anchor="middle">Daily /morning</text>
   <line x1="40" y1="58" x2="200" y2="58" stroke="#5C8A5E" stroke-width="1" opacity="0.3"/>
   <text x="40" y="82" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#1a1a2e">Save plan to journal</text>
-  <text x="40" y="108" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#1a1a2e">Read yesterday's actuals</text>
+  <text x="40" y="108" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#1a1a2e">Read yesterday&#x2019;s actuals</text>
   <text x="40" y="134" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#1a1a2e">Persist memories</text>
 
   <!-- Weekly /weekly box -->
@@ -31,29 +31,24 @@
   <text x="510" y="134" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#1a1a2e">Refresh GOALS.md</text>
   <text x="510" y="160" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#1a1a2e">Audit system health</text>
 
-  <!-- Cycle arrows -->
-  <!-- Daily -> Weekly: "patterns feed" -->
-  <path d="M 220 260 Q 350 280 460 260" fill="none" stroke="#6B7280" stroke-width="2" marker-end="url(#loop-arrow)"/>
-  <rect x="280" y="265" width="100" height="22" rx="4" fill="white" opacity="0.85"/>
-  <text x="330" y="281" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#6B7280" text-anchor="middle" font-style="italic">patterns feed</text>
+  <!-- Forward arrows: Daily -> Weekly -> Quarterly -->
 
-  <!-- Weekly -> Quarterly: "strategy feeds" -->
-  <path d="M 460 310 Q 530 330 620 310" fill="none" stroke="#6B7280" stroke-width="2" marker-end="url(#loop-arrow)"/>
-  <rect x="485" y="318" width="100" height="22" rx="4" fill="white" opacity="0.85"/>
-  <text x="535" y="334" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#6B7280" text-anchor="middle" font-style="italic">strategy feeds</text>
+  <!-- Daily -> Weekly -->
+  <line x1="220" y1="105" x2="247" y2="105" stroke="#6B7280" stroke-width="2" marker-end="url(#loop-arrow)"/>
+  <text x="233" y="98" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle" font-style="italic">patterns</text>
 
-  <!-- Quarterly -> Daily: "goals feed" (wraps bottom) -->
-  <path d="M 620 310 C 680 380 40 380 120 260" fill="none" stroke="#6B7280" stroke-width="2" marker-end="url(#loop-arrow)"/>
-  <rect x="320" y="370" width="80" height="22" rx="4" fill="white" opacity="0.85"/>
-  <text x="360" y="386" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#6B7280" text-anchor="middle" font-style="italic">goals feed</text>
+  <!-- Weekly -> Quarterly -->
+  <line x1="460" y1="105" x2="487" y2="105" stroke="#6B7280" stroke-width="2" marker-end="url(#loop-arrow)"/>
+  <text x="473" y="98" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#6B7280" text-anchor="middle" font-style="italic">strategy</text>
 
-  <!-- Connector stubs from boxes down to arrows -->
-  <line x1="120" y1="190" x2="120" y2="260" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
-  <line x1="355" y1="215" x2="355" y2="270" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
-  <line x1="587" y1="215" x2="587" y2="270" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
+  <!-- Return arrow: Quarterly -> Daily (wraps underneath) -->
+  <path d="M 587 215 L 587 262 Q 587 280 569 280 L 131 280 Q 113 280 113 262 L 113 215"
+        fill="none" stroke="#6B7280" stroke-width="2" marker-end="url(#loop-arrow)"/>
 
-  <!-- Small circle connectors at arrow start points -->
-  <circle cx="120" cy="260" r="4" fill="#5C8A5E"/>
-  <circle cx="355" cy="270" r="4" fill="#4A7C9B"/>
-  <circle cx="587" cy="270" r="4" fill="#B8956A"/>
+  <!-- "goals feed" label on return arrow -->
+  <rect x="310" y="269" width="80" height="22" rx="4" fill="white" opacity="0.85"/>
+  <text x="350" y="285" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#6B7280" text-anchor="middle" font-style="italic">goals feed</text>
+
+  <!-- Small circle at return arrow start -->
+  <circle cx="587" cy="215" r="3.5" fill="#B8956A"/>
 </svg>
