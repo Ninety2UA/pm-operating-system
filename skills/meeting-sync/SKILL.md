@@ -10,7 +10,7 @@ argument-hint: "[--all | --skip]"
 
 # Meeting Sync
 
-Check for new Granola meetings and offer to sync them to your local Knowledge/Transcripts folder.
+Check for new Granola meetings and offer to sync them to your local Knowledge/Meetings folder.
 
 Uses the official Granola MCP server (`https://mcp.granola.ai/mcp`).
 
@@ -44,7 +44,7 @@ Use AskUserQuestion with these options:
 
 | Option | Description |
 |--------|-------------|
-| Sync all | Add all new meetings to Knowledge/Transcripts |
+| Sync all | Add all new meetings to Knowledge/Meetings |
 | Select specific | Let user choose which meetings to sync |
 | Skip for now | Continue without syncing |
 
@@ -56,10 +56,10 @@ If `--skip` flag was passed, skip syncing entirely.
 For each meeting the user wants to sync:
 1. Call `mcp__granola__get_meetings` with the meeting ID to get content and enhanced notes
 2. Call `mcp__granola__get_meeting_transcript` with the meeting ID to get the raw transcript (paid plans only — skip gracefully if unavailable)
-3. Write the meeting content to `Knowledge/Transcripts/YYYY-MM-DD_meeting-title.md` using the Write tool
+3. Write the meeting content to `Knowledge/Meetings/YYYY/MM/DD.md` using the Write tool (append if multiple meetings on the same day, separated by `---`)
 4. Update `Knowledge/.granola-sync.json` with the new last-sync timestamp
 
-Ensure `Knowledge/Transcripts/` directory exists (create with `mkdir -p` if needed).
+Ensure the date-nested directory exists (create with `mkdir -p Knowledge/Meetings/YYYY/MM/` if needed).
 
 ### Step 4b: Extract Action Items
 
@@ -195,7 +195,7 @@ The official Granola MCP also provides:
 2. "I found 3 new meetings since your last sync..."
 3. Presents AskUserQuestion with sync options
 4. User selects "Sync all" or specific meetings
-5. Gets content via `get_meetings`, writes to Knowledge/Transcripts/
+5. Gets content via `get_meetings`, writes to Knowledge/Meetings/
 6. "Synced 3 meetings. Now for your day..."
 7. Continues with task planning (morning standup workflow)
 
@@ -210,7 +210,7 @@ The official Granola MCP also provides:
 - Only Granola meetings with notes/content are worth syncing
 - Meetings marked "(no notes)" may be empty placeholders — skip these
 - Sync state is tracked in `Knowledge/.granola-sync.json`
-- Files are saved to `Knowledge/Transcripts/` with sanitized filenames (lowercase, hyphens, no special chars)
+- Files are saved to `Knowledge/Meetings/` with sanitized filenames (lowercase, hyphens, no special chars)
 - `get_meeting_transcript` requires a paid Granola plan — skip gracefully on free plans
 - If Granola MCP server is unavailable, skip meeting sync gracefully and proceed with morning planning
 - Rate limit: ~100 requests/minute across all Granola tools

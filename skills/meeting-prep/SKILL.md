@@ -45,10 +45,10 @@ If no profile exists, note this gap and proceed — the prep will rely on transc
 
 ### Step 3: Search Past Meeting History
 
-Search `Knowledge/Transcripts/` for files mentioning this person:
+Search `Knowledge/Meetings/` for files mentioning this person:
 
-1. Use Glob to find `Knowledge/Transcripts/*<person-name>*` (direct matches)
-2. Use Grep to search transcript content for the person's full name across all `Knowledge/Transcripts/*.md` files
+1. Use Glob to find `Knowledge/Meetings/*<person-name>*` (direct matches)
+2. Use Grep to search transcript content for the person's full name across all `Knowledge/Meetings/*.md` files
 3. Query `mcp__granola__query_granola_meetings` with: "meetings with [person name]" to find recent context not yet synced
 
 Collect the **3 most recent** meetings. For each, extract:

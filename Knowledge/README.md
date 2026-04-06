@@ -16,7 +16,7 @@ Long-term memory for your operating system. Content here compounds across sessio
 | `research/projects/` | Project validation briefs | `/validate-project` |
 | `research/topics/` | Topic research briefs | `/research-topic` |
 | `decisions/` | Decision records with rationale | `/decision` |
-| `Transcripts/` | Synced meeting notes | `/meeting-sync` |
+| `Meetings/YYYY/MM/DD.md` | Synced meeting notes | `/meeting-sync` |
 | `People/` | One file per person (auto-enriched from meetings) | `/meeting-sync`, `/meeting-prep` |
 | `Reference/` | Stable context docs (OKR history, system guide) | Manual |
 | `sprint-*.md` | Sprint plans | `/sprint-plan` |

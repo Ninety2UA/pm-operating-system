@@ -24,7 +24,7 @@ project/
 │   ├── decisions/     # Decision records (YYYY-MM-DD-topic.md)
 │   ├── People/        # One file per person (auto-enriched from meetings + email)
 │   ├── Reference/     # Stable context docs (OKR history, consultancy profile)
-│   ├── Transcripts/   # /meeting-sync output
+│   ├── Meetings/      # /meeting-sync output (YYYY/MM/DD.md)
 │   ├── outcome-roadmap.md  # /outcome-roadmap --save output
 │   └── sprint-*.md    # /sprint-plan output
 ├── Library/      # Catalog of reusable AI artifacts (reference only)

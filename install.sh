@@ -95,7 +95,7 @@ DIRS=(
   Projects
   Knowledge/research/projects
   Knowledge/research/topics
-  Knowledge/Transcripts
+  Knowledge/Meetings
   Knowledge/journals
   Knowledge/session-reviews
   Knowledge/decisions

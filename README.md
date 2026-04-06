@@ -145,7 +145,7 @@ cd pm-operating-system
 cd core/mcp && uv sync && cd ../..
 
 # Create workspace
-mkdir -p Tasks Projects Knowledge/{research/projects,research/topics,Transcripts,journals,session-reviews,decisions,People,Reference}
+mkdir -p Tasks Projects Knowledge/{research/projects,research/topics,Meetings,journals,session-reviews,decisions,People,Reference}
 
 # Configure MCP (edit paths to match your install location)
 cp .mcp.json.example .mcp.json
@@ -476,7 +476,7 @@ You will be prompted to authenticate via OAuth on first use.
 
 <br>
 
-Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `Knowledge/Transcripts/`. Used by the `/meeting-sync` skill during your morning standup.
+Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `Knowledge/Meetings/`. Used by the `/meeting-sync` skill during your morning standup.
 
 **Prerequisites:**
 - Granola desktop app installed

@@ -717,7 +717,7 @@
 <span class="kw">cd</span> core/mcp &amp;&amp; <span class="kw">uv sync</span> &amp;&amp; <span class="kw">cd</span> ../..
 
 <span class="cmt"># Create workspace directories</span>
-<span class="kw">mkdir -p</span> Tasks Projects Knowledge/{research/projects,research/topics,Transcripts,journals,session-reviews,decisions,People,Reference}
+<span class="kw">mkdir -p</span> Tasks Projects Knowledge/{research/projects,research/topics,Meetings,journals,session-reviews,decisions,People,Reference}
 
 <span class="cmt"># Configure MCP (edit paths to match your install)</span>
 <span class="kw">cp</span> .mcp.json.example .mcp.json
@@ -973,7 +973,7 @@
       <div class="card reveal reveal-delay-2">
         <div class="card-icon" style="background:rgba(52,211,153,.12)">&#x1f4dd;</div>
         <div class="integ-name">Granola</div>
-        <div class="integ-desc">Sync meeting notes and transcripts into Knowledge/Transcripts/ automatically via <code>/meeting-sync</code>. Requires <a href="https://granola.ai" target="_blank" rel="noopener">paid plan</a>.</div>
+        <div class="integ-desc">Sync meeting notes and transcripts into Knowledge/Meetings/ automatically via <code>/meeting-sync</code>. Requires <a href="https://granola.ai" target="_blank" rel="noopener">paid plan</a>.</div>
         <div class="integ-setup">
           <div class="integ-step"><strong>1.</strong> Install the <a href="https://granola.ai" target="_blank" rel="noopener">Granola</a> desktop app (paid plan required)</div>
           <div class="integ-step"><strong>2.</strong> Add to <code>.mcp.json</code>:</div>

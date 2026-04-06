@@ -105,7 +105,7 @@ personal-os/
 │   ├── research/
 │   │   ├── projects/               # /validate-project output (market research briefs)
 │   │   └── topics/                 # /research-topic output (general research briefs)
-│   └── Transcripts/                # Synced Granola meeting notes
+│   └── Meetings/                # Synced Granola meeting notes
 │
 ├── Library/                        # Catalog of reusable AI artifacts (reference only)
 │   ├── README.md
@@ -906,7 +906,7 @@ Also triggered automatically during morning planning ("What should I do today?")
 
 **Notes**:
 - Sync state tracked in `Knowledge/.granola-sync.json`
-- Files saved to `Knowledge/Transcripts/` with sanitized filenames
+- Files saved to `Knowledge/Meetings/` with sanitized filenames
 - Meetings marked "(no notes)" may be empty placeholders
 
 ---
@@ -1139,7 +1139,7 @@ This installs the Slack MCP server **and** high-level skills like `/slack:summar
 - `get_meeting_details` — Full meeting metadata
 - `get_meeting_transcript` — Full transcript text
 - `check_new_meetings` — Find unsynced meetings
-- `sync_meeting_to_local` — Save meeting to Knowledge/Transcripts/
+- `sync_meeting_to_local` — Save meeting to Knowledge/Meetings/
 
 **Sync tracking**: State stored in `Knowledge/.granola-sync.json`
 
@@ -1617,7 +1617,7 @@ The AI should think of itself as a personal chief of staff:
 | Project PRDs | `Projects/<name>/prd.md` |
 | Market research | `Knowledge/research/projects/<name>.md` |
 | Topic research | `Knowledge/research/topics/<slug>.md` |
-| Meeting notes | `Knowledge/Transcripts/` |
+| Meeting notes | `Knowledge/Meetings/` |
 | Voice samples | `Knowledge/voice-samples/` |
 | Voice guide | `Knowledge/voice-guide.md` |
 | Reusable prompts | `Library/prompts/<name>/prompt.md` |
