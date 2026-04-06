@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 80">
+  <defs>
+    <marker id="pipe-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6B7280"/>
+    </marker>
+  </defs>
+
+  <!-- Stage 1: Validate -->
+  <rect x="0" y="10" width="128" height="55" rx="6" fill="#D4A574" stroke="#B8956A" stroke-width="1.5"/>
+  <text x="64" y="43" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#1a1a2e" text-anchor="middle" font-weight="600">Validate</text>
+
+  <!-- Arrow -->
+  <line x1="133" y1="37" x2="152" y2="37" stroke="#6B7280" stroke-width="2" marker-end="url(#pipe-arrow)"/>
+
+  <!-- Stage 2: Lean Canvas -->
+  <rect x="157" y="10" width="128" height="55" rx="6" fill="#C9B896" stroke="#A89A72" stroke-width="1.5"/>
+  <text x="221" y="43" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#1a1a2e" text-anchor="middle" font-weight="600">Lean Canvas</text>
+
+  <!-- Arrow -->
+  <line x1="290" y1="37" x2="309" y2="37" stroke="#6B7280" stroke-width="2" marker-end="url(#pipe-arrow)"/>
+
+  <!-- Stage 3: GTM Plan -->
+  <rect x="314" y="10" width="128" height="55" rx="6" fill="#B8D4E3" stroke="#4A7C9B" stroke-width="1.5"/>
+  <text x="378" y="43" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#1a1a2e" text-anchor="middle" font-weight="600">GTM Plan</text>
+
+  <!-- Arrow -->
+  <line x1="447" y1="37" x2="466" y2="37" stroke="#6B7280" stroke-width="2" marker-end="url(#pipe-arrow)"/>
+
+  <!-- Stage 4: Competitive -->
+  <rect x="471" y="10" width="128" height="55" rx="6" fill="#A8C4D8" stroke="#5A8EAD" stroke-width="1.5"/>
+  <text x="535" y="43" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#1a1a2e" text-anchor="middle" font-weight="600">Competitive</text>
+
+  <!-- Arrow -->
+  <line x1="604" y1="37" x2="623" y2="37" stroke="#6B7280" stroke-width="2" marker-end="url(#pipe-arrow)"/>
+
+  <!-- Stage 5: Pre-Mortem -->
+  <rect x="628" y="10" width="128" height="55" rx="6" fill="#98B4CD" stroke="#4F7D9B" stroke-width="1.5"/>
+  <text x="692" y="43" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#1a1a2e" text-anchor="middle" font-weight="600">Pre-Mortem</text>
+
+  <!-- Arrow -->
+  <line x1="761" y1="37" x2="780" y2="37" stroke="#6B7280" stroke-width="2" marker-end="url(#pipe-arrow)"/>
+
+  <!-- Stage 6: User Stories -->
+  <rect x="785" y="10" width="128" height="55" rx="6" fill="#88A4C2" stroke="#4A6E8F" stroke-width="1.5"/>
+  <text x="849" y="43" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#1a1a2e" text-anchor="middle" font-weight="600">User Stories</text>
+</svg>

@@ -65,44 +65,17 @@ The result: each session makes the next one more effective. Your assistant does 
 
 ### System Overview
 
-```mermaid
-graph LR
-    subgraph INPUT
-        B[BACKLOG.md]
-    end
-
-    subgraph PROCESSING
-        PB[/process-backlog]
-    end
-
-    subgraph WORK
-        T[Tasks]
-        P[Projects]
-    end
-
-    subgraph MCP[MCP Server]
-        M[manager-ai<br/>10 tools + dedup]
-    end
-
-    B --> PB --> T & P
-    M -.-> T & P
-```
+<p align="center">
+  <img src="docs/images/system-overview.svg" alt="System Overview — BACKLOG.md flows through /process-backlog into Tasks and Projects, managed by the MCP server" width="100%">
+</p>
 
 ### Project Pipeline
 
 When a project enters the pipeline via `/launch`, it passes through six evaluation stages with a Go/No-Go gate after each:
 
-```mermaid
-graph LR
-    V[Validate] --> L[Lean Canvas] --> G[GTM Plan] --> C[Competitive<br/>Analysis] --> R[Pre-Mortem] --> U[User Stories]
-
-    style V fill:#7c5cfc,stroke:none,color:#fff
-    style L fill:#6a6cf7,stroke:none,color:#fff
-    style G fill:#587cf2,stroke:none,color:#fff
-    style C fill:#468ced,stroke:none,color:#fff
-    style R fill:#349ce8,stroke:none,color:#fff
-    style U fill:#22ace3,stroke:none,color:#fff
-```
+<p align="center">
+  <img src="docs/images/project-pipeline.svg" alt="Project Pipeline — Validate, Lean Canvas, GTM Plan, Competitive, Pre-Mortem, User Stories" width="100%">
+</p>
 
 > Each stage produces a markdown artifact saved to the project folder. Skip ahead with `/launch my-project --from gtm-plan`.
 
@@ -110,36 +83,9 @@ graph LR
 
 The system learns through three nested feedback loops. Each layer feeds the next.
 
-```mermaid
-graph TD
-    subgraph DAILY[Daily /morning]
-        D1[Save plan to journal]
-        D2[Read yesterday's actuals]
-        D3[Persist memories]
-    end
-
-    subgraph WEEKLY[Weekly /weekly]
-        W1[Compile shipping summary]
-        W2[Detect plan-vs-actual patterns]
-        W3[Review session prompts]
-        W4[Propose new skills/commands]
-    end
-
-    subgraph QUARTERLY[Quarterly /quarterly]
-        Q1[Score OKRs 0.0 to 1.0]
-        Q2[Archive stale projects]
-        Q3[Refresh GOALS.md]
-        Q4[Audit system health]
-    end
-
-    DAILY -->|patterns feed| WEEKLY
-    WEEKLY -->|strategy feeds| QUARTERLY
-    QUARTERLY -->|goals feed| DAILY
-
-    style DAILY fill:#1a1a3e,stroke:#7c5cfc,color:#fff
-    style WEEKLY fill:#1a1a3e,stroke:#5ea4f8,color:#fff
-    style QUARTERLY fill:#1a1a3e,stroke:#4ecdc4,color:#fff
-```
+<p align="center">
+  <img src="docs/images/compounding-loop.svg" alt="The Compounding Loop — Daily feeds Weekly feeds Quarterly feeds back to Daily" width="100%">
+</p>
 
 ---
 
