@@ -30,7 +30,7 @@ Check `$ARGUMENTS` for an optional quarter identifier (e.g., `Q2-2026`).
 
 If not provided, determine the current quarter from today's date.
 
-### Step 2: Read Current Goals
+### Step 2: Read Current Goals & OKR History
 
 Read `GOALS.md` to extract:
 - Professional vision
@@ -38,6 +38,13 @@ Read `GOALS.md` to extract:
 - Quarterly objectives (informal)
 - Top 3 priorities
 - Any existing OKRs (if this is a refresh)
+
+Read `Knowledge/Reference/okr-history.md` to learn from past quarters:
+- Which KR categories consistently hit vs. miss
+- Calibration notes (were past targets too ambitious or too easy?)
+- Patterns (e.g., "shipping KRs always hit, outreach KRs always miss")
+
+Use this history to set better-calibrated targets. If past outreach KRs missed at 0.3, don't set the same ambitious target — either adjust the target or change the approach.
 
 ### Step 3: Read Current State
 
@@ -135,18 +142,18 @@ Before saving, verify each OKR against:
 Based on GOALS.md context:
 
 ```
-O1: Become a recognized product builder in the AI/marketing space
+O1: Become a recognized product builder in my space
   KR1: Ship products from 0 to 3 launched MVPs
   KR2: Increase portfolio projects with live demos from 0 to 5
   KR3: Publish technical write-ups from 0 to 4 posts
 
-O2: Build a profitable consultancy pipeline
-  KR1: Grow dbenger.com inbound leads from 0 to 10 qualified leads
+O2: Build a profitable consulting pipeline
+  KR1: Grow inbound leads from 0 to 10 qualified leads
   KR2: Acquire paying clients from 0 to 3
   KR3: Generate consulting revenue from $0 to $X
 
-O3: Develop deep AI product expertise
-  KR1: Complete AI product projects from 0 to 5 end-to-end builds
+O3: Develop deep product expertise
+  KR1: Complete product projects from 0 to 5 end-to-end builds
   KR2: Evaluate project ideas through full pipeline from 0 to 15 evaluated
   KR3: Kill non-viable projects (decisive focus) from 0 to 5 killed
 ```

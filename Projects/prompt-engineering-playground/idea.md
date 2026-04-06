@@ -5,14 +5,12 @@ priority: P2
 project_status: idea
 created_date: 2026-03-12
 estimated_time: 960
-resource_refs:
-  - Knowledge/Portfolio_Project_Ideas.md
 ---
 
 # Prompt Engineering Playground
 
 ## Context
-Side-by-side interface where users can test the same prompt across different system prompts, temperature settings, and structured output formats — seeing how each variable affects Claude's output quality and consistency. Demonstrates deep understanding of LLM behavior beyond surface-level chatbot interaction. Supports goal: develop AI product skills, build & ship products.
+Side-by-side interface where users can test the same prompt across different system prompts, temperature settings, and structured output formats, seeing how each variable affects output quality and consistency. Useful for teams evaluating prompt strategies before deploying to production.
 
 Tech stack: React, Claude API (Sonnet), split-pane UI, JSON/markdown output rendering.
 
@@ -24,4 +22,4 @@ Tech stack: React, Claude API (Sonnet), split-pane UI, JSON/markdown output rend
 - Simple "quality score" heuristic
 
 ## Progress Log
-- 2026-03-12: Created from Portfolio Project Ideas doc. Build time estimate: 2 days.
+- 2026-03-12: Created as example project.

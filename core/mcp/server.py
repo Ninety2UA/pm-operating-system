@@ -17,6 +17,7 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta, date
 from collections import Counter
 
+import shutil
 import yaml
 import re
 from difflib import SequenceMatcher
@@ -309,7 +310,7 @@ async def handle_list_tools() -> list[types.Tool]:
         ),
         types.Tool(
             name="prune_completed_tasks",
-            description="Delete completed tasks older than specified days",
+            description="Archive completed tasks older than specified days to Tasks/archive/",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -448,7 +449,9 @@ async def handle_call_tool(
     elif name == "prune_completed_tasks":
         days = args.get('days', 30)
         cutoff = datetime.now() - timedelta(days=days)
-        deleted = []
+        archive_dir = TASKS_DIR / 'archive'
+        archive_dir.mkdir(exist_ok=True)
+        archived = []
         for task_file in TASKS_DIR.glob('*.md'):
             if task_file.name in ('README.md', '.gitkeep'):
                 continue
@@ -458,15 +461,21 @@ async def handle_call_tool(
                     with open(task_file, 'r') as f:
                         metadata, _ = parse_yaml_frontmatter(f.read())
                     if metadata.get('status') == 'd':
-                        task_file.unlink()
-                        deleted.append(task_file.name)
+                        dest = archive_dir / task_file.name
+                        if dest.exists():
+                            stem = task_file.stem
+                            suffix = task_file.suffix
+                            date_str = datetime.now().strftime('%Y-%m-%d')
+                            dest = archive_dir / f"{stem}_{date_str}{suffix}"
+                        shutil.move(str(task_file), str(dest))
+                        archived.append(task_file.name)
             except Exception as e:
                 logger.error(f"Error processing {task_file}: {e}")
         result = {
             "success": True,
-            "deleted_count": len(deleted),
-            "deleted_files": deleted,
-            "message": f"Deleted {len(deleted)} done tasks older than {days} days"
+            "archived_count": len(archived),
+            "archived_files": archived,
+            "message": f"Archived {len(archived)} done tasks older than {days} days to Tasks/archive/"
         }
 
     # ── list_projects ───────────────────────────────────────────

@@ -91,20 +91,13 @@ Claude will produce something like:
 - Public posts: Confident but not salesy
 ```
 
-### Step 4: Add to Your Agent Instructions
+### Step 4: Save the Voice Guide
 
-Add the voice guide to your agent instructions file (AGENTS.md) so it applies to all sessions:
+Save the generated voice guide to `Knowledge/voice-guide.md`. This keeps voice patterns separate from AGENTS.md (which handles system behavior, not writing style).
 
-```markdown
-## Writing Style Guidelines
+The `/write` command and any content-generation tasks will read `Knowledge/voice-guide.md` automatically for tone matching.
 
-[Paste your generated voice guide here]
-
-When drafting any writing for me:
-1. Apply these patterns
-2. Read a sample from Knowledge/voice-samples/ if unsure
-3. Ask me to review before finalizing
-```
+You can also add a condensed version of key anti-patterns to AGENTS.md if you want them enforced globally (the current AGENTS.md already has some anti-cliche rules under writing style guidelines).
 
 ### Step 5: Test and Refine
 
@@ -121,29 +114,22 @@ Good start, but I wouldn't say "I wanted to reach out" - I'd just say
 write in short paragraphs. Try again.
 ```
 
-## The Subagent Workflow
+## Writing with Your Voice
 
-For important writing, use this multi-step approach:
+For important writing, use the `/write` command which automatically reads your voice guide and samples:
 
 ```
-You: Help me write a blog post about our Q1 learnings
-
-Claude (coordinator):
-├── Subagent 1: Read Knowledge/voice-samples/ and extract style patterns
-├── Subagent 2: Read Knowledge/q1-retro.md for content
-├── Subagent 3: Research similar posts in the space
-│
-└── Main Claude: Synthesize into draft using your voice
+/write blog-post Q1 learnings
 ```
 
-**The prompt:**
+For more manual control:
 
 ```
 I need to write a blog post about our Q1 learnings.
 
 Before writing:
-1. Read my voice samples in Knowledge/voice-samples/
-2. Read Knowledge/q1-retro.md for the content
+1. Read Knowledge/voice-guide.md for my style patterns
+2. Read a sample from Knowledge/voice-samples/ for reference
 3. Draft an outline, then write
 
 Match my voice exactly. Short sentences. No "key insights" or "learnings."
@@ -205,29 +191,29 @@ You might write differently in different contexts:
 
 ## Quick Start Template
 
-Add this to your agent instructions file (AGENTS.md) and fill in:
+Save this to `Knowledge/voice-guide.md` and fill in:
 
 ```markdown
-## My Writing Voice
+# Voice Guide
 
-### I sound like:
+## I sound like:
 [Describe your tone in 2-3 sentences]
 
-### I always:
+## I always:
 - [Pattern 1]
 - [Pattern 2]
 - [Pattern 3]
 
-### I never:
+## I never:
 - [Anti-pattern 1]
 - [Anti-pattern 2]
 - [Anti-pattern 3]
 
-### Sample phrases I use:
+## Sample phrases I use:
 - "[Phrase 1]"
 - "[Phrase 2]"
 
-### For reference:
+## For reference:
 See Knowledge/voice-samples/ for examples of my actual writing.
 ```
 

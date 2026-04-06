@@ -1,28 +1,49 @@
-# Template .gitignore for Task Management System
-# Copy relevant parts to your .gitignore
+# PM Operating System - .gitignore
+# Excludes personal data, local config, and build artifacts.
+# Template/example files are always tracked.
 
-# Personal task files
+# ── Personal data ──────────────────────────────────────
 Tasks/*.md
-!Tasks/.gitkeep
 !Tasks/README.md
+!Tasks/.gitkeep
+
 BACKLOG.md
+GOALS.md
 
-# Personal knowledge files
-Knowledge/*.md
-!Knowledge/.gitkeep
+Knowledge/People/
+Knowledge/Reference/
+Knowledge/journals/
+Knowledge/Transcripts/
+Knowledge/session-reviews/
+Knowledge/decisions/
+Knowledge/research/**
+Knowledge/sprint-*.md
+Knowledge/outcome-roadmap.md
 !Knowledge/README.md
+!Knowledge/.gitkeep
 
-# Personal configuration
-CLAUDE.md       # If customized from template
-GOALS.md        # Personal goals
+# Project artifacts (generated per-user)
+Projects/*/prd.md
+Projects/*/lean-canvas.md
+Projects/*/gtm-plan.md
+Projects/*/pre-mortem.md
+Projects/*/user-stories.md
+Projects/*/competitive-analysis.md
 
-# Keep templates and examples
-!CLAUDE_TEMPLATE.md
-!config.example.yaml
-!Tasks/example.md
-!CRM/example.md
+# ── Claude Code local config ──────────────────────────
+.claude/settings.local.json
+.claude/plans/
+.claude/commands/
 
-# Python
+# ── MCP config (contains paths + credentials) ─────────
+.mcp.json
+
+# ── Personal/scratch files ────────────────────────────
+docs/brainstorms/
+docs/plans/
+sync_docs.py
+
+# ── Python ────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
@@ -32,7 +53,7 @@ venv/
 env/
 .env
 
-# IDE & Editor configs
+# ── IDE & editors ─────────────────────────────────────
 .vscode/
 .idea/
 .obsidian/
@@ -41,21 +62,16 @@ env/
 *~
 .DS_Store
 
-# Tool-specific
+# ── Tool-specific ─────────────────────────────────────
 .specstory/
 .factory/
+.mcp_cache/
 
-# Logs
+# ── Logs & test ───────────────────────────────────────
 *.log
 logs/
-
-# Testing
 test_*.py
 *.test.py
 .pytest_cache/
 .coverage
-
-# MCP/System
-.mcp_cache/
 *.pid
-*.lock

@@ -8,7 +8,7 @@ title: "PRD: Ad Spend Anomaly Detector"
 project: ad-spend-anomaly-detector
 date: 2026-03-15
 status: draft
-author: Dominik Benger
+author: Your Name
 ---
 
 # Ad Spend Anomaly Detector — Product Requirements Document

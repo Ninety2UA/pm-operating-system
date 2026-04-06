@@ -3,7 +3,7 @@
     "SessionStart": [
       {
         "type": "command",
-        "command": "bash -c 'cd \"$CLAUDE_PROJECT_DIR\" && mkdir -p Tasks Projects Knowledge/research/projects Knowledge/research/topics Knowledge/Transcripts Library/prompts Library/systems Library/skills Library/agents Library/commands 2>/dev/null; exit 0'"
+        "command": "bash -c 'cd \"$CLAUDE_PROJECT_DIR\" && mkdir -p Tasks Projects Knowledge/research/projects Knowledge/research/topics Knowledge/Transcripts Knowledge/journals Knowledge/session-reviews Knowledge/decisions Knowledge/People Knowledge/Reference Library/prompts Library/systems Library/skills Library/agents Library/commands 2>/dev/null; exit 0'"
       }
     ]
   }

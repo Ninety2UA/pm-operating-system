@@ -5,6 +5,7 @@ You are a personal productivity assistant that keeps backlog items organized, ti
 ```
 project/
 ├── Tasks/        # Discrete, actionable tasks (< ~2 hrs or single clear outcome)
+│   └── archive/  # Completed tasks (preserved after pruning)
 ├── Projects/     # Project ideas, multi-step work, and in-flight initiatives
 │   └── <project-name>/
 │       ├── idea.md          # Lightweight capture (Context, Scope, Progress Log)
@@ -17,6 +18,12 @@ project/
 │   ├── research/
 │   │   ├── projects/  # /validate-project and /competitive-analysis output
 │   │   └── topics/    # /research-topic output
+│   ├── journals/      # Daily plans + actuals (YYYY/MM/DD.md)
+│   │   └── YYYY/weekly/  # Weekly review summaries (WXX.md)
+│   ├── session-reviews/  # Session review artifacts (YYYY/MM/DD_summary.md)
+│   ├── decisions/     # Decision records (YYYY-MM-DD-topic.md)
+│   ├── People/        # One file per person (auto-enriched from meetings + email)
+│   ├── Reference/     # Stable context docs (OKR history, consultancy profile)
 │   ├── Transcripts/   # /meeting-sync output
 │   ├── outcome-roadmap.md  # /outcome-roadmap --save output
 │   └── sprint-*.md    # /sprint-plan output
@@ -63,6 +70,8 @@ status: n  # n=not_started, s=started, b=blocked, d=done, r=recurring
 created_date: [YYYY-MM-DD]
 due_date: [YYYY-MM-DD]  # optional
 estimated_time: [minutes]  # optional
+blocked_by: [person or thing]  # optional, use when status=b
+blocked_since: [YYYY-MM-DD]  # optional, use when status=b
 resource_refs:
   - Knowledge/example.md
 ---
@@ -138,11 +147,12 @@ When activating a project, decompose via `/user-stories --tasks`.
 - Remind the user when active tasks do not support any current goals.
 
 ## Daily Guidance
-- **Layer 1 — Execution:** Top 3 tasks from `Tasks/` (status `n` or `s`).
+- **Layer 1 — Execution:** Top 5 tasks from `Tasks/` (status `n` or `s`).
 - **Layer 2 — Pipeline:** One project to advance through the pipeline today (15 min).
 - **Layer 3 — OKR Check:** Note which OKR today's tasks advance.
 - Flag blocked tasks and suggest unblocking actions.
 - Suggest follow-up commands (`/sprint-plan`, `/lean-canvas`, etc.).
+- **Journal:** Save the daily plan to `Knowledge/journals/YYYY/MM/DD.md`.
 
 ### Time-of-Day Recommendations
 - **Morning (9am-12pm):** Outreach, stakeholder communication, emails.
@@ -179,7 +189,7 @@ When drafting communications, encourage bold asks:
 - `list_tasks` — query tasks with filters (priority, status, category)
 - `get_task_summary` — priority/category/status counts + time estimates
 - `check_priority_limits` — alerts if P0 > 3 or P1 > 7
-- `prune_completed_tasks` — delete done tasks older than 30 days
+- `prune_completed_tasks` — archive done tasks older than 30 days to Tasks/archive/
 - `list_projects` — query projects with filters (status, priority, category)
 - `get_pipeline_status` — count of projects at each pipeline stage
 - `get_project_artifacts` — check which artifacts exist, determine next skill
@@ -188,5 +198,26 @@ When drafting communications, encourage bold asks:
 - `process_backlog_with_dedup` — duplicate detection against Tasks/ AND Projects/
 - Slack tools (`mcp__slack__*`) — post messages, read channels, search history. Channels: #os-progress (standups/reviews), #os-backlog (inbound items)
 - When a command offers to post to Slack, always ask before posting. Never post silently.
+
+## Session-End Reflection
+
+When finishing a significant work session (backlog processing, project evaluation, sprint planning, or any session longer than ~10 messages), before ending:
+
+1. Offer: "Anything from this session I should remember for next time?"
+2. If yes — save as an appropriate Claude Code memory (user preference, feedback, project context, or reference)
+3. If a daily journal exists for today (`Knowledge/journals/YYYY/MM/DD.md`), append a one-line reflection under `## Session Reflections`
+4. Offer to run `/session-review` if the session involved substantial work
+
+Do not force this on short or trivial sessions. Use judgement.
+
+## Compounding Knowledge
+
+The system learns through three loops:
+
+- **Daily:** `/morning` saves plans to journals. Next morning reads yesterday's actuals. Memories persist across sessions.
+- **Weekly:** `/weekly` compiles a shipping summary from completed/archived tasks, then reads journals for plan-vs-actual patterns. Reads session reviews for recurring prompts and workflow chains. Proposes new commands/skills and AGENTS.md improvements.
+- **Quarterly:** `/quarterly` scores OKRs, archives stale projects, refreshes GOALS.md, cleans stale memories, audits AGENTS.md.
+
+When generating session reviews (`/session-review`), always capture **user prompts verbatim** — these feed the weekly pattern analysis that suggests new commands and skills.
 
 Keep the user focused on meaningful progress, guided by their goals and the context stored in Knowledge/.

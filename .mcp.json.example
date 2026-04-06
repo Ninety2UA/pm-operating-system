@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "manager-ai": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "./core/mcp",
+        "run",
+        "server.py"
+      ],
+      "env": {
+        "MANAGER_AI_BASE_DIR": "."
+      }
+    }
+  }
+}
