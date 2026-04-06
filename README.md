@@ -1,18 +1,12 @@
 <p align="center">
-  <strong style="font-size: 2em;">PM Operating System</strong>
-</p>
-
-<h1 align="center">PM Operating System</h1>
-
-<p align="center">
-  <strong>Your AI-powered productivity system for Claude Code</strong><br>
-  Turn brain dumps into organized, goal-driven work. Evaluate projects, run standups, and compound knowledge across sessions.
+  <img src="docs/images/hero-banner.svg" alt="PM Operating System" width="100%">
 </p>
 
 <p align="center">
-  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-orange" alt="License"></a>
-  <a href="https://github.com/Ninety2UA/pm-operating-system/stargazers"><img src="https://img.shields.io/github/stars/Ninety2UA/pm-operating-system?style=social" alt="GitHub Stars"></a>
-  <img src="https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet" alt="Claude Code Plugin">
+  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-orange" alt="License"></a>&nbsp;
+  <a href="https://github.com/Ninety2UA/pm-operating-system/stargazers"><img src="https://img.shields.io/github/stars/Ninety2UA/pm-operating-system?style=social" alt="GitHub Stars"></a>&nbsp;
+  <img src="https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet" alt="Claude Code Plugin">&nbsp;
+  <img src="https://img.shields.io/badge/Python-3.11+-blue?logo=python&logoColor=white" alt="Python 3.11+">
 </p>
 
 <p align="center">
@@ -46,18 +40,22 @@ PM Operating System is a Claude Code plugin that gives your AI assistant a struc
 
 This project is built on a core insight from Andrej Karpathy's thinking about LLMs: that large language models are best understood not as chatbots, but as the **kernel of a new kind of operating system**.
 
-> "It's not just about text generation. Think about it more like an operating system." -- Andrej Karpathy, [Intro to Large Language Models (2023)](https://www.youtube.com/watch?v=zjkBMFhNj_g)
+> *"Think about it more like an operating system."*
+>
+> -- Andrej Karpathy, [Intro to Large Language Models (2023)](https://www.youtube.com/watch?v=zjkBMFhNj_g)
 
 In his [Stanford talk](https://www.youtube.com/watch?v=c3b-JASoPi0) and subsequent writing, Karpathy describes a future where the LLM sits at the center, orchestrating tools, managing memory, and maintaining context across interactions. The model reads your files, understands your goals, uses tools to take action, and gets better over time.
 
 **PM Operating System implements this vision literally:**
 
-- **GOALS.md** is your strategic context. The LLM reads it every session to prioritize your work.
-- **Skills** are specialized capabilities the LLM can invoke (market validation, risk analysis, sprint planning).
-- **Commands** are recurring workflows (morning standup, weekly review, quarterly scoring).
-- **Agents** are autonomous sub-processes that run in the background (deep research, batch evaluation, system diagnostics).
-- **The MCP server** gives the LLM structured tools for task and project management with deduplication.
-- **Knowledge/** is the LLM's long-term memory, compounding from daily journals to weekly reviews to quarterly assessments.
+| LLM OS Concept | How It Works Here |
+|---|---|
+| **Strategic memory** | `GOALS.md` is read every session to prioritize your work |
+| **Specialized capabilities** | 19 skills the LLM can invoke (validation, risk analysis, sprint planning) |
+| **Recurring workflows** | 6 commands for daily standups, weekly reviews, quarterly scoring |
+| **Autonomous sub-processes** | 3 agents that run in the background (research, evaluation, diagnostics) |
+| **Structured tool use** | MCP server with 10 tools for task and project management |
+| **Long-term memory** | `Knowledge/` compounds from daily journals to quarterly assessments |
 
 The result: each session makes the next one more effective. Your assistant does not start from zero; it starts from everything it has learned about you, your goals, and your work.
 
@@ -65,82 +63,98 @@ The result: each session makes the next one more effective. Your assistant does 
 
 ## Architecture
 
+### System Overview
+
+```mermaid
+graph LR
+    subgraph INPUT
+        B[BACKLOG.md]
+    end
+
+    subgraph PROCESSING
+        PB[/process-backlog]
+    end
+
+    subgraph WORK
+        T[Tasks]
+        P[Projects]
+    end
+
+    subgraph MCP[MCP Server]
+        M[manager-ai<br/>10 tools + dedup]
+    end
+
+    B --> PB --> T & P
+    M -.-> T & P
+```
+
+### Project Pipeline
+
+When a project enters the pipeline via `/launch`, it passes through six evaluation stages with a Go/No-Go gate after each:
+
+```mermaid
+graph LR
+    V[Validate] --> L[Lean Canvas] --> G[GTM Plan] --> C[Competitive<br/>Analysis] --> R[Pre-Mortem] --> U[User Stories]
+
+    style V fill:#7c5cfc,stroke:none,color:#fff
+    style L fill:#6a6cf7,stroke:none,color:#fff
+    style G fill:#587cf2,stroke:none,color:#fff
+    style C fill:#468ced,stroke:none,color:#fff
+    style R fill:#349ce8,stroke:none,color:#fff
+    style U fill:#22ace3,stroke:none,color:#fff
+```
+
+> Each stage produces a markdown artifact saved to the project folder. Skip ahead with `/launch my-project --from gtm-plan`.
+
+### The Compounding Loop
+
+The system learns through three nested feedback loops. Each layer feeds the next.
+
 ```mermaid
 graph TD
-    subgraph Input
-        BACKLOG[BACKLOG.md<br>Raw brain dump]
+    subgraph DAILY[Daily /morning]
+        D1[Save plan to journal]
+        D2[Read yesterday's actuals]
+        D3[Persist memories]
     end
 
-    subgraph Processing
-        PROCESS["/process-backlog<br>Classify + dedup"]
+    subgraph WEEKLY[Weekly /weekly]
+        W1[Compile shipping summary]
+        W2[Detect plan-vs-actual patterns]
+        W3[Review session prompts]
+        W4[Propose new skills/commands]
     end
 
-    subgraph Work Items
-        TASKS["Tasks/<br>Single outcomes (< 2 hrs)"]
-        PROJECTS["Projects/<br>Multi-step initiatives"]
+    subgraph QUARTERLY[Quarterly /quarterly]
+        Q1[Score OKRs 0.0 to 1.0]
+        Q2[Archive stale projects]
+        Q3[Refresh GOALS.md]
+        Q4[Audit system health]
     end
 
-    subgraph "Project Pipeline (/launch)"
-        VALIDATE[/validate-project]
-        LEAN[/lean-canvas]
-        GTM[/gtm-plan]
-        COMPETE[/competitive-analysis]
-        RISK[/pre-mortem]
-        STORIES[/user-stories]
-    end
+    DAILY -->|patterns feed| WEEKLY
+    WEEKLY -->|strategy feeds| QUARTERLY
+    QUARTERLY -->|goals feed| DAILY
 
-    subgraph "Execution Loop"
-        MORNING["/morning<br>Daily standup"]
-        SPRINT["/sprint-plan<br>Weekly capacity"]
-        WEEKLY["/weekly<br>Review + patterns"]
-        QUARTERLY["/quarterly<br>OKR scoring"]
-    end
-
-    subgraph "Knowledge Layer"
-        JOURNALS[Knowledge/journals/]
-        RESEARCH[Knowledge/research/]
-        PEOPLE[Knowledge/People/]
-    end
-
-    subgraph "MCP Server"
-        MCP["manager-ai<br>10 tools + dedup"]
-    end
-
-    BACKLOG --> PROCESS
-    PROCESS --> TASKS
-    PROCESS --> PROJECTS
-    PROJECTS --> VALIDATE
-    VALIDATE --> LEAN
-    LEAN --> GTM
-    GTM --> COMPETE
-    COMPETE --> RISK
-    RISK --> STORIES
-    STORIES --> TASKS
-    TASKS --> MORNING
-    MORNING --> SPRINT
-    SPRINT --> WEEKLY
-    WEEKLY --> QUARTERLY
-    MORNING -.->|saves| JOURNALS
-    WEEKLY -.->|reads| JOURNALS
-    QUARTERLY -.->|scores| JOURNALS
-    VALIDATE -.->|saves| RESEARCH
-    MCP -.->|manages| TASKS
-    MCP -.->|manages| PROJECTS
+    style DAILY fill:#1a1a3e,stroke:#7c5cfc,color:#fff
+    style WEEKLY fill:#1a1a3e,stroke:#5ea4f8,color:#fff
+    style QUARTERLY fill:#1a1a3e,stroke:#4ecdc4,color:#fff
 ```
 
 ---
 
 ## Features
 
-- **19 skills** covering every stage from ideation to execution
-- **6 slash commands** for daily, weekly, and quarterly workflows
-- **3 autonomous agents** for background research, batch evaluation, and system diagnostics
-- **MCP server** with fuzzy deduplication for tasks and projects
-- **Goal-driven prioritization** with P0-P3 levels tied to your strategic objectives
-- **Project pipeline** with Go/No-Go gates at each evaluation stage
-- **Compounding knowledge** from daily journals to weekly reviews to quarterly OKR scoring
-- **Smart backlog processing** that classifies items and catches duplicates automatically
-- **Optional integrations** for Granola (meetings), Slack (messaging), and Perplexity (research)
+| Category | What You Get |
+|---|---|
+| **Skills** | 19 specialized skills covering ideation, validation, planning, and execution |
+| **Commands** | 6 slash commands for daily, weekly, and quarterly workflows |
+| **Agents** | 3 autonomous agents for deep research, batch evaluation, and system diagnostics |
+| **MCP Server** | 10 tools with fuzzy deduplication for tasks and projects |
+| **Prioritization** | Goal-driven P0-P3 levels tied to your strategic objectives |
+| **Pipeline** | Project evaluation with Go/No-Go gates at each stage |
+| **Knowledge** | Compounding loops from daily journals to quarterly OKR scoring |
+| **Integrations** | Optional: Granola (meetings), Slack (messaging), Perplexity (research) |
 
 ---
 
@@ -210,14 +224,16 @@ cp .mcp.json.example .mcp.json
 <details>
 <summary><strong>Skills Reference (19 skills)</strong></summary>
 
-### Ideation and Discovery
+<br>
+
+**Ideation and Discovery**
 
 | Skill | Description |
 |-------|-------------|
 | `/discover-ideas` | Search the web for project ideas and trending opportunities |
 | `/research-topic` | Deep research on any topic with web and social media signals |
 
-### Project Evaluation Pipeline
+**Project Evaluation Pipeline**
 
 | Skill | Description |
 |-------|-------------|
@@ -227,7 +243,7 @@ cp .mcp.json.example .mcp.json
 | `/competitive-analysis` | Map competitor landscape with strengths, gaps, and positioning |
 | `/pre-mortem` | Risk analysis that imagines the project has failed and works backward |
 
-### Execution and Planning
+**Execution and Planning**
 
 | Skill | Description |
 |-------|-------------|
@@ -238,7 +254,7 @@ cp .mcp.json.example .mcp.json
 | `/outcome-roadmap` | Generate an outcome-focused roadmap from active projects |
 | `/prioritize` | Rank projects or tasks using ICE/RICE frameworks |
 
-### Analysis and Review
+**Analysis and Review**
 
 | Skill | Description |
 |-------|-------------|
@@ -247,7 +263,7 @@ cp .mcp.json.example .mcp.json
 | `/session-review` | Capture session learnings, prompts, and patterns for weekly analysis |
 | `/refresh-goals` | Review and fill gaps in GOALS.md through conversation |
 
-### Integrations
+**Integrations**
 
 | Skill | Description |
 |-------|-------------|
@@ -258,6 +274,8 @@ cp .mcp.json.example .mcp.json
 
 <details>
 <summary><strong>Commands Reference (6 commands)</strong></summary>
+
+<br>
 
 | Command | Description | Usage |
 |---------|-------------|-------|
@@ -272,6 +290,8 @@ cp .mcp.json.example .mcp.json
 
 <details>
 <summary><strong>Agents Reference (3 agents)</strong></summary>
+
+<br>
 
 | Agent | Description | When to Use |
 |-------|-------------|-------------|
@@ -289,16 +309,20 @@ cp .mcp.json.example .mcp.json
 pm-operating-system/
 |
 |-- .claude-plugin/
-|   +-- plugin.json            # Plugin manifest
+|   +-- plugin.json              Plugin manifest
 |
-|-- skills/                    # 19 specialized skills
+|-- skills/                      19 specialized skills
 |   |-- PRD/SKILL.md
 |   |-- validate-project/SKILL.md
 |   |-- lean-canvas/SKILL.md
-|   |-- ...
-|   +-- session-review/SKILL.md
+|   |-- gtm-plan/SKILL.md
+|   |-- competitive-analysis/SKILL.md
+|   |-- pre-mortem/SKILL.md
+|   |-- user-stories/SKILL.md
+|   |-- sprint-plan/SKILL.md
+|   +-- ...
 |
-|-- commands/                  # 6 slash commands
+|-- commands/                    6 slash commands
 |   |-- morning.md
 |   |-- weekly.md
 |   |-- quarterly.md
@@ -306,36 +330,36 @@ pm-operating-system/
 |   |-- process-backlog.md
 |   +-- write.md
 |
-|-- agents/                    # 3 autonomous agents
+|-- agents/                      3 autonomous agents
 |   |-- deep-research.md
 |   |-- batch-evaluator.md
 |   +-- system-health.md
 |
 |-- core/
 |   |-- mcp/
-|   |   |-- server.py          # MCP server (10 tools + dedup)
+|   |   |-- server.py            MCP server (10 tools + dedup)
 |   |   +-- pyproject.toml
 |   |-- templates/
-|   |   |-- AGENTS.md          # AI instruction template
+|   |   |-- AGENTS.md            AI instruction template
 |   |   +-- config.yaml
 |   +-- integrations/
-|       +-- granola/            # Granola meeting sync setup
+|       +-- granola/              Granola meeting sync setup
 |
 |-- hooks/
-|   +-- hooks.json             # Session hooks (directory creation)
+|   +-- hooks.json               Session hooks (directory creation)
 |
-|-- Knowledge/                 # Long-term memory (per-user, gitignored)
-|-- Tasks/                     # Active tasks (per-user, gitignored)
-|-- Projects/                  # Project pipeline (per-user, gitignored)
-|-- Library/                   # Reusable artifact catalog
+|-- Knowledge/                   Long-term memory (per-user, gitignored)
+|-- Tasks/                       Active tasks (per-user, gitignored)
+|-- Projects/                    Project pipeline (per-user, gitignored)
+|-- Library/                     Reusable artifact catalog
 |
-|-- AGENTS.md                  # AI assistant instructions
-|-- GOALS.md                   # Your personal goals (generated by setup.sh)
-|-- BACKLOG.md                 # Raw capture inbox
-|-- setup.sh                   # Interactive goals setup
-|-- install.sh                 # Full bootstrap installer
-|-- .mcp.json.example          # MCP config template
-+-- GOALS.example.md           # Example goals file
+|-- AGENTS.md                    AI assistant instructions
+|-- GOALS.md                     Your personal goals (generated by setup.sh)
+|-- BACKLOG.md                   Raw capture inbox
+|-- setup.sh                     Interactive goals setup
+|-- install.sh                   Full bootstrap installer
+|-- .mcp.json.example            MCP config template
++-- GOALS.example.md             Example goals file
 ```
 
 ---
@@ -359,12 +383,10 @@ Your assistant will:
 ### Processing Your Backlog
 
 ```
-# 1. Drop raw notes into BACKLOG.md
-# 2. Run the processor
 /process-backlog
 ```
 
-The processor reads every item, checks for duplicates against existing tasks and projects, classifies each item (task vs. project), and asks for clarification on anything ambiguous.
+The processor reads every item in `BACKLOG.md`, checks for duplicates against existing tasks and projects, classifies each item (task vs. project), and asks for clarification on anything ambiguous.
 
 ### Launching a Project Through the Pipeline
 
@@ -374,18 +396,16 @@ The processor reads every item, checks for duplicates against existing tasks and
 
 Runs the full evaluation pipeline with a Go/No-Go gate after each stage:
 
-1. `/validate-project` -- Market research and validation brief
-2. `/lean-canvas` -- Business model viability
-3. `/gtm-plan` -- Go-to-market strategy
-4. `/competitive-analysis` -- Competitor landscape
-5. `/pre-mortem` -- Risk analysis (what could go wrong?)
-6. `/user-stories` -- Decompose into buildable stories
+| Stage | Skill | Output |
+|-------|-------|--------|
+| 1 | `/validate-project` | Market research and validation brief |
+| 2 | `/lean-canvas` | Business model viability |
+| 3 | `/gtm-plan` | Go-to-market strategy |
+| 4 | `/competitive-analysis` | Competitor landscape |
+| 5 | `/pre-mortem` | Risk analysis |
+| 6 | `/user-stories` | Decomposed buildable stories |
 
-Skip ahead with `--from`:
-
-```
-/launch my-project --from gtm-plan
-```
+Skip ahead: `/launch my-project --from gtm-plan`
 
 ### Weekly Review
 
@@ -394,33 +414,6 @@ Skip ahead with `--from`:
 ```
 
 Compiles a shipping summary, reads journals for plan-vs-actual patterns, reviews session learnings, and proposes improvements to your workflow.
-
----
-
-## The Compounding Loop
-
-The system learns through three nested loops:
-
-```
-Daily (/morning)
-  Saves plans to Knowledge/journals/
-  Next morning reads yesterday's actuals
-  Memories persist across sessions
-
-    Weekly (/weekly)
-    Compiles what shipped from completed tasks
-    Reads journals for plan-vs-actual patterns
-    Reads session reviews for recurring prompts
-    Proposes new commands/skills
-
-        Quarterly (/quarterly)
-        Scores OKRs on a 0.0-1.0 scale
-        Archives stale projects
-        Refreshes GOALS.md
-        Audits system health
-```
-
-Each layer feeds the next. Daily execution patterns inform weekly strategy. Weekly patterns inform quarterly goal-setting. The system gets smarter the more you use it.
 
 ---
 
@@ -444,7 +437,10 @@ The manager-ai MCP server provides 10 tools for task and project management. It 
 }
 ```
 
-**MCP Tools Available:**
+<details>
+<summary><strong>MCP Tools Reference (10 tools)</strong></summary>
+
+<br>
 
 | Tool | Description |
 |------|-------------|
@@ -459,10 +455,14 @@ The manager-ai MCP server provides 10 tools for task and project management. It 
 | `get_system_status` | Full dashboard (tasks + projects + backlog) |
 | `process_backlog_with_dedup` | Deduplicate backlog items against existing work |
 
+</details>
+
 ### Optional Integrations
 
 <details>
 <summary><strong>Granola (Meeting Sync)</strong></summary>
+
+<br>
 
 Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `Knowledge/Transcripts/`.
 
@@ -483,6 +483,8 @@ Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `Kno
 <details>
 <summary><strong>Slack</strong></summary>
 
+<br>
+
 Post standups, read channels, and search message history.
 
 1. Add to your `.mcp.json`:
@@ -501,6 +503,8 @@ Post standups, read channels, and search message history.
 <details>
 <summary><strong>Perplexity (Research)</strong></summary>
 
+<br>
+
 Powers the research capabilities of `/validate-project`, `/competitive-analysis`, `/research-topic`, `/discover-ideas`, and `/gtm-plan`.
 
 Install the Perplexity MCP server following their documentation, then add the configuration to your `.mcp.json`.
@@ -510,6 +514,8 @@ Install the Perplexity MCP server following their documentation, then add the co
 <details>
 <summary><strong>Google Workspace (gws CLI)</strong></summary>
 
+<br>
+
 Optional Gmail and Calendar integration for enriching meeting prep with email history.
 
 Install the [gws CLI](https://github.com/nicholasgasior/gws) and configure OAuth credentials at `~/.config/gws/client_secret.json`.
@@ -518,10 +524,12 @@ Install the [gws CLI](https://github.com/nicholasgasior/gws) and configure OAuth
 
 ### Customization
 
-- **Add skills:** Create `skills/<skill-name>/SKILL.md` with frontmatter (`name`, `description`, `allowed-tools`)
-- **Add commands:** Create `commands/<command-name>.md` with frontmatter (`description`, `argument-hint`)
-- **Add agents:** Create `agents/<agent-name>.md` with frontmatter (`name`, `description`, `model`, `tools`)
-- **Modify behavior:** Edit `AGENTS.md` to change prioritization rules, categories, interaction style, or daily guidance
+| What | How |
+|------|-----|
+| Add a skill | Create `skills/<name>/SKILL.md` with frontmatter (`name`, `description`, `allowed-tools`) |
+| Add a command | Create `commands/<name>.md` with frontmatter (`description`, `argument-hint`) |
+| Add an agent | Create `agents/<name>.md` with frontmatter (`name`, `description`, `model`, `tools`) |
+| Change behavior | Edit `AGENTS.md` to modify prioritization rules, categories, or interaction style |
 
 ---
 
