@@ -80,7 +80,7 @@ After a final Go or No-Go decision, ask: "Post this decision to #os-progress?"
 If Go: Post "[Project Name] — GO. Moving to [status]. [One-line MVP scope]."
 If No-Go: Post "[Project Name] — NO-GO. [Archived/Paused]. Reason: [one line]."
 
-Use `mcp__slack__slack_post_message` to #os-progress. If Slack MCP is unavailable, skip silently.
+Use `mcp__plugin_slack_slack__slack_send_message` to #os-progress. If Slack MCP is unavailable, skip silently.
 
 ## Notes
 

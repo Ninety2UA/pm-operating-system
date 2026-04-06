@@ -11,6 +11,14 @@
       "env": {
         "MANAGER_AI_BASE_DIR": "."
       }
+    },
+    "perplexity": {
+      "command": "npx",
+      "args": ["-y", "@nicepkg/perplexity-mcp"]
+    },
+    "granola": {
+      "type": "http",
+      "url": "https://mcp.granola.ai/mcp"
     }
   }
 }

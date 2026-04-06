@@ -11,7 +11,7 @@ Turn BACKLOG.md into organized tasks and projects with duplicate detection.
 
 ### Step 0: Scan Slack Capture Channel (Optional)
 
-If Slack MCP is available, call `mcp__slack__slack_get_channel_history` for `#os-backlog` to read recent messages.
+If Slack MCP is available, call `mcp__plugin_slack_slack__slack_read_channel` for `#os-backlog` to read recent messages.
 
 Extract any actionable items from the messages and append them to `BACKLOG.md` before proceeding. If no new messages or Slack unavailable, skip to Step 1.
 

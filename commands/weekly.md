@@ -163,7 +163,7 @@ This file becomes input for `/quarterly` reviews and long-term trend analysis.
 
 After the review, ask: "Post weekly review to #os-progress?"
 
-If yes, format a summary and post using `mcp__slack__slack_post_message` to #os-progress:
+If yes, format a summary and post using `mcp__plugin_slack_slack__slack_send_message` to #os-progress:
 - Tasks completed this week (count, grouped by goal)
 - Pipeline movement (projects advanced, projects killed)
 - OKR scores (if they exist)

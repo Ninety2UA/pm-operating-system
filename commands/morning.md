@@ -98,7 +98,7 @@ Read `GOALS.md`. If OKRs exist, briefly note which OKR today's suggested tasks a
 
 After presenting the standup, ask: "Post this standup summary to #os-progress?"
 
-If yes, format a concise message and post using `mcp__slack__slack_post_message` to #os-progress:
+If yes, format a concise message and post using `mcp__plugin_slack_slack__slack_send_message` to #os-progress:
 - Date
 - Top 3 focus tasks (one line each, with priority)
 - Pipeline project being advanced today

@@ -138,13 +138,14 @@ The system automatically:
 
 ## Integrations
 
-Optional integrations extend PM Operating System with external tools:
+Optional integrations are configured via `.mcp.json` in the project root. See the main [README](../README.md#optional-integrations) for setup instructions.
 
-| Integration | Description | Setup |
-|-------------|-------------|-------|
-| [Granola](./integrations/granola/) | Sync meeting notes and transcripts | `Set up Granola integration` |
-
-See [integrations/](./integrations/) for full documentation.
+| Integration | Description | Config |
+|-------------|-------------|--------|
+| Perplexity | AI-powered web research | `.mcp.json` |
+| Slack | Team messaging | Claude Code plugin |
+| Granola | Meeting sync | `.mcp.json` |
+| Google Workspace | Gmail & Calendar | `gws` CLI |
 
 ## Customization
 
