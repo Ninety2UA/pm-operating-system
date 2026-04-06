@@ -34,7 +34,7 @@ Reject any argument containing `..`, `/`, or non-alphanumeric characters besides
 
 ### Step 2: Look Up Person Profile
 
-Check `Knowledge/People/<person-name>.md`. If it exists, read it fully — extract:
+Check `knowledge/people/<person-name>.md`. If it exists, read it fully — extract:
 - Communication preferences (how to present information)
 - Decision-making style (what they need to decide)
 - Meeting guidelines (what to lead with)
@@ -45,10 +45,10 @@ If no profile exists, note this gap and proceed — the prep will rely on transc
 
 ### Step 3: Search Past Meeting History
 
-Search `Knowledge/Meetings/` for files mentioning this person:
+Search `knowledge/meetings/` for files mentioning this person:
 
-1. Use Glob to find `Knowledge/Meetings/*<person-name>*` (direct matches)
-2. Use Grep to search transcript content for the person's full name across all `Knowledge/Meetings/*.md` files
+1. Use Glob to find `knowledge/meetings/*<person-name>*` (direct matches)
+2. Use Grep to search transcript content for the person's full name across all `knowledge/meetings/*.md` files
 3. Query `mcp__granola__query_granola_meetings` with: "meetings with [person name]" to find recent context not yet synced
 
 Collect the **3 most recent** meetings. For each, extract:
@@ -59,9 +59,9 @@ Collect the **3 most recent** meetings. For each, extract:
 
 ### Step 4: Check Open Tasks
 
-Search `Tasks/` for any task referencing this person or related projects:
+Search `tasks/` for any task referencing this person or related projects:
 
-1. Use Grep to search `Tasks/*.md` for the person's name
+1. Use Grep to search `tasks/*.md` for the person's name
 2. Note any tasks with status `n` (not started) or `s` (started) that relate to shared work
 
 ### Step 5: Check Goals Alignment
@@ -89,7 +89,7 @@ Output a prep document directly to the user (do not save to file). Format based 
 
 ## Open Items
 - [ ] [Action from previous meetings — owner: me/them]
-- [ ] [Related task from Tasks/]
+- [ ] [Related task from tasks/]
 
 ## Suggested Talking Points
 1. [Follow up on open item X]
@@ -121,7 +121,7 @@ Same structure plus:
 ## Review Context
 - **What's being reviewed:** [project/PRD/design]
 - **Decision needed:** [what needs to be decided]
-- **Pre-read:** [link to relevant artifact in Projects/]
+- **Pre-read:** [link to relevant artifact in projects/]
 ```
 
 #### Type: planning

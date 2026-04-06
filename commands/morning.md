@@ -13,7 +13,7 @@ If the argument is "quick", skip meeting sync and pipeline — just show top 5 t
 
 ### Step 0: Review Yesterday's Journal
 
-Check if a journal entry exists for yesterday at `Knowledge/journals/YYYY/MM/DD.md`. If it does:
+Check if a journal entry exists for yesterday at `knowledge/journals/YYYY/MM/DD.md`. If it does:
 - Read the Actuals section to see what was completed vs. planned
 - Note any unfinished tasks that should carry forward
 - Briefly mention: "Yesterday you planned X tasks, completed Y. Carrying forward: [unfinished items]"
@@ -26,7 +26,7 @@ Check what day of the week it is.
 
 **Monday:** Ask the user: "What's your focus theme for this week?" Save their answer as a `## Weekly Theme` line in today's journal (Step 7).
 
-**Tuesday–Friday:** Read this week's Monday journal (`Knowledge/journals/YYYY/MM/[monday-date].md`) and pull the `## Weekly Theme` line. Display it at the top of the standup: "This week's theme: [theme]". Carry it into today's journal.
+**Tuesday–Friday:** Read this week's Monday journal (`knowledge/journals/YYYY/MM/[monday-date].md`) and pull the `## Weekly Theme` line. Display it at the top of the standup: "This week's theme: [theme]". Carry it into today's journal.
 
 If no Monday journal exists (e.g., holiday), check the most recent weekday journal for a theme. If none found, skip silently.
 
@@ -43,7 +43,7 @@ For each task show:
 - Goal/OKR alignment
 - Any blockers
 
-If the MCP server is unavailable, read Tasks/*.md directly.
+If the MCP server is unavailable, read tasks/*.md directly.
 
 ### Step 2b: Waiting On (Dependency Table)
 
@@ -108,9 +108,9 @@ If Slack MCP is unavailable, skip silently.
 
 ### Step 7: Save Daily Journal
 
-Save today's standup output as a journal entry at `Knowledge/journals/YYYY/MM/DD.md`.
+Save today's standup output as a journal entry at `knowledge/journals/YYYY/MM/DD.md`.
 
-Create the directory structure if it doesn't exist (`Knowledge/journals/YYYY/MM/`).
+Create the directory structure if it doesn't exist (`knowledge/journals/YYYY/MM/`).
 
 Use this format:
 

@@ -17,7 +17,7 @@ Imagine the project has failed 6 months from now. Work backward to identify why,
 ## Quick Start
 
 User: `/pre-mortem campaign-optimizer-simulation`
-Result: Reads all project artifacts, generates a pre-mortem analysis with ranked risks and mitigations, saves to `Projects/campaign-optimizer-simulation/pre-mortem.md`.
+Result: Reads all project artifacts, generates a pre-mortem analysis with ranked risks and mitigations, saves to `projects/campaign-optimizer-simulation/pre-mortem.md`.
 
 ## Instructions
 
@@ -31,23 +31,23 @@ If no project name is provided, ask the user which project to analyze.
 
 **Security check:** Reject any project name containing `..`, `/`, or non-alphanumeric characters besides hyphens.
 
-Check if `Projects/<project-name>/` exists. If not, list available projects.
+Check if `projects/<project-name>/` exists. If not, list available projects.
 
 ### Step 3: Read Project Context
 
 Read all available project artifacts:
-1. `Projects/<project-name>/idea.md` (required)
-2. `Projects/<project-name>/prd.md` (if exists)
-3. `Projects/<project-name>/lean-canvas.md` (if exists — key source for business risks)
-4. `Projects/<project-name>/gtm-plan.md` (if exists — key source for market risks)
-5. `Projects/<project-name>/user-stories.md` (if exists — key source for execution risks)
-6. `Knowledge/research/projects/<project-name>.md` (if exists — competitor/market risks)
+1. `projects/<project-name>/idea.md` (required)
+2. `projects/<project-name>/prd.md` (if exists)
+3. `projects/<project-name>/lean-canvas.md` (if exists — key source for business risks)
+4. `projects/<project-name>/gtm-plan.md` (if exists — key source for market risks)
+5. `projects/<project-name>/user-stories.md` (if exists — key source for execution risks)
+6. `knowledge/research/projects/<project-name>.md` (if exists — competitor/market risks)
 
 The more artifacts available, the richer the pre-mortem. Minimum requirement is idea.md.
 
 ### Step 4: Check for Existing Pre-mortem
 
-Check if `Projects/<project-name>/pre-mortem.md` already exists.
+Check if `projects/<project-name>/pre-mortem.md` already exists.
 
 If it does, ask the user: Overwrite or Skip.
 
@@ -137,11 +137,11 @@ The three most important things to do before committing to build:
 
 ### Step 7: Save the Pre-mortem
 
-Save to `Projects/<project-name>/pre-mortem.md`.
+Save to `projects/<project-name>/pre-mortem.md`.
 
 ### Step 8: Update Project Resource Refs
 
-Add `Projects/<project-name>/pre-mortem.md` to the idea.md `resource_refs` array.
+Add `projects/<project-name>/pre-mortem.md` to the idea.md `resource_refs` array.
 
 ### Step 9: Present Summary
 

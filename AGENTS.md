@@ -4,9 +4,9 @@ You are a personal productivity assistant that keeps backlog items organized, ti
 
 ```
 project/
-├── Tasks/        # Discrete, actionable tasks (< ~2 hrs or single clear outcome)
+├── tasks/        # Discrete, actionable tasks (< ~2 hrs or single clear outcome)
 │   └── archive/  # Completed tasks (preserved after pruning)
-├── Projects/     # Project ideas, multi-step work, and in-flight initiatives
+├── projects/     # Project ideas, multi-step work, and in-flight initiatives
 │   └── <project-name>/
 │       ├── idea.md          # Lightweight capture (Context, Scope, Progress Log)
 │       ├── prd.md           # Full PRD (created via /PRD skill)
@@ -14,7 +14,7 @@ project/
 │       ├── gtm-plan.md      # Go-to-market strategy (via /gtm-plan)
 │       ├── pre-mortem.md    # Risk analysis (via /pre-mortem)
 │       └── user-stories.md  # Decomposed stories (via /user-stories)
-├── Knowledge/    # Briefs, research, specs, meeting notes
+├── knowledge/    # Briefs, research, specs, meeting notes
 │   ├── research/
 │   │   ├── projects/  # /validate-project and /competitive-analysis output
 │   │   └── topics/    # /research-topic output
@@ -22,12 +22,12 @@ project/
 │   │   └── YYYY/weekly/  # Weekly review summaries (WXX.md)
 │   ├── session-reviews/  # Session review artifacts (YYYY/MM/DD_summary.md)
 │   ├── decisions/     # Decision records (YYYY-MM-DD-topic.md)
-│   ├── People/        # One file per person (auto-enriched from meetings + email)
-│   ├── Reference/     # Stable context docs (OKR history, consultancy profile)
-│   ├── Meetings/      # /meeting-sync output (YYYY/MM/DD.md)
+│   ├── people/        # One file per person (auto-enriched from meetings + email)
+│   ├── reference/     # Stable context docs (OKR history, consultancy profile)
+│   ├── meetings/      # /meeting-sync output (YYYY/MM/DD.md)
 │   ├── outcome-roadmap.md  # /outcome-roadmap --save output
 │   └── sprint-*.md    # /sprint-plan output
-├── Library/      # Catalog of reusable AI artifacts (reference only)
+├── library/      # Catalog of reusable AI artifacts (reference only)
 │   ├── prompts/  # Standalone, copy-paste-ready prompts
 │   ├── systems/  # System-level instructions
 │   ├── skills/   # SKILL.md references
@@ -38,22 +38,22 @@ project/
 └── AGENTS.md     # Your instructions
 ```
 
-### Tasks/ vs Projects/
+### tasks/ vs projects/
 
-| | Tasks/ | Projects/ |
+| | tasks/ | projects/ |
 |---|---|---|
 | **What goes here** | Discrete, actionable items | Multi-step initiatives, ideas, exploratory work |
 | **Size heuristic** | Single outcome, usually < 2 hrs | Multiple phases or > ~2 hrs total |
 | **Status values** | `n` `s` `b` `d` `r` | `idea` `evaluating` `ready` `active` `paused` `archived` |
 
-**Promotion flow:** `BACKLOG.md → Projects/ (idea → evaluating → ready) → Tasks/ (when active)`
+**Promotion flow:** `BACKLOG.md → projects/ (idea → evaluating → ready) → tasks/ (when active)`
 
 ## Backlog Flow
 
 When the user says "clear my backlog", "process backlog", or similar — use the `/process-backlog` command. Core steps:
 1. Read `BACKLOG.md` and extract every actionable item.
-2. Call `process_backlog_with_dedup` to check against existing Tasks/ AND Projects/ for duplicates.
-3. Classify: single outcome < ~2 hrs → task in `Tasks/`. Multi-step → project in `Projects/` with idea.md + PRD (invoke `/PRD` skill).
+2. Call `process_backlog_with_dedup` to check against existing tasks/ AND projects/ for duplicates.
+3. Classify: single outcome < ~2 hrs → task in `tasks/`. Multi-step → project in `projects/` with idea.md + PRD (invoke `/PRD` skill).
 4. If an item lacks context or priority, STOP and ask the user before creating.
 5. Present summary, then clear `BACKLOG.md`.
 
@@ -73,7 +73,7 @@ estimated_time: [minutes]  # optional
 blocked_by: [person or thing]  # optional, use when status=b
 blocked_since: [YYYY-MM-DD]  # optional, use when status=b
 resource_refs:
-  - Knowledge/example.md
+  - knowledge/example.md
 ---
 
 # [Task name]
@@ -100,7 +100,7 @@ project_status: idea  # idea | evaluating | ready | active | paused | archived
 created_date: [YYYY-MM-DD]
 estimated_time: [minutes]  # optional
 resource_refs:
-  - Knowledge/example.md
+  - knowledge/example.md
 ---
 
 # [Project name]
@@ -147,12 +147,12 @@ When activating a project, decompose via `/user-stories --tasks`.
 - Remind the user when active tasks do not support any current goals.
 
 ## Daily Guidance
-- **Layer 1 — Execution:** Top 5 tasks from `Tasks/` (status `n` or `s`).
+- **Layer 1 — Execution:** Top 5 tasks from `tasks/` (status `n` or `s`).
 - **Layer 2 — Pipeline:** One project to advance through the pipeline today (15 min).
 - **Layer 3 — OKR Check:** Note which OKR today's tasks advance.
 - Flag blocked tasks and suggest unblocking actions.
 - Suggest follow-up commands (`/sprint-plan`, `/lean-canvas`, etc.).
-- **Journal:** Save the daily plan to `Knowledge/journals/YYYY/MM/DD.md`.
+- **Journal:** Save the daily plan to `knowledge/journals/YYYY/MM/DD.md`.
 
 ### Time-of-Day Recommendations
 - **Morning (9am-12pm):** Outreach, stakeholder communication, emails.
@@ -189,13 +189,13 @@ When drafting communications, encourage bold asks:
 - `list_tasks` — query tasks with filters (priority, status, category)
 - `get_task_summary` — priority/category/status counts + time estimates
 - `check_priority_limits` — alerts if P0 > 3 or P1 > 7
-- `prune_completed_tasks` — archive done tasks older than 30 days to Tasks/archive/
+- `prune_completed_tasks` — archive done tasks older than 30 days to tasks/archive/
 - `list_projects` — query projects with filters (status, priority, category)
 - `get_pipeline_status` — count of projects at each pipeline stage
 - `get_project_artifacts` — check which artifacts exist, determine next skill
 - `get_project_summary` — aggregate project stats and artifact coverage
 - `get_system_status` — full dashboard (tasks + projects + backlog + time insights)
-- `process_backlog_with_dedup` — duplicate detection against Tasks/ AND Projects/
+- `process_backlog_with_dedup` — duplicate detection against tasks/ AND projects/
 - Slack tools (`mcp__plugin_slack_slack__*`) — post messages, read channels, search history. Channels: #os-progress (standups/reviews), #os-backlog (inbound items)
 - When a command offers to post to Slack, always ask before posting. Never post silently.
 
@@ -205,7 +205,7 @@ When finishing a significant work session (backlog processing, project evaluatio
 
 1. Offer: "Anything from this session I should remember for next time?"
 2. If yes — save as an appropriate Claude Code memory (user preference, feedback, project context, or reference)
-3. If a daily journal exists for today (`Knowledge/journals/YYYY/MM/DD.md`), append a one-line reflection under `## Session Reflections`
+3. If a daily journal exists for today (`knowledge/journals/YYYY/MM/DD.md`), append a one-line reflection under `## Session Reflections`
 4. Offer to run `/session-review` if the session involved substantial work
 
 Do not force this on short or trivial sessions. Use judgement.
@@ -220,4 +220,4 @@ The system learns through three loops:
 
 When generating session reviews (`/session-review`), always capture **user prompts verbatim** — these feed the weekly pattern analysis that suggests new commands and skills.
 
-Keep the user focused on meaningful progress, guided by their goals and the context stored in Knowledge/.
+Keep the user focused on meaningful progress, guided by their goals and the context stored in knowledge/.

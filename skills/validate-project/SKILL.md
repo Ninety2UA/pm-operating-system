@@ -13,19 +13,19 @@ argument-hint: "<project-name> [--model quick|deep|reason]"
 
 # Validate Project
 
-Research and validate an existing project idea against market reality using Perplexity, then save a structured research brief to Knowledge/.
+Research and validate an existing project idea against market reality using Perplexity, then save a structured research brief to knowledge/.
 
 ## Quick Start
 
 User: `/validate-project campaign-optimizer-simulation`
-Result: Reads the project's idea.md (and prd.md if available), researches competitors, market size, and social sentiment via Perplexity, saves brief to `Knowledge/research/projects/campaign-optimizer-simulation.md`.
+Result: Reads the project's idea.md (and prd.md if available), researches competitors, market size, and social sentiment via Perplexity, saves brief to `knowledge/research/projects/campaign-optimizer-simulation.md`.
 
 ## Instructions
 
 ### Step 1: Parse Arguments
 
 Check `$ARGUMENTS` for:
-- A required `<project-name>` (the project folder name under `Projects/`)
+- A required `<project-name>` (the project folder name under `projects/`)
 - An optional `--model` flag (`quick`, `search`, `deep`, `reason`)
 
 If no `--model` flag is provided, default to `mcp__perplexity__perplexity_research`.
@@ -42,17 +42,17 @@ For `perplexity_research` and `perplexity_reason`, always set `strip_thinking: t
 
 **Security check:** Reject any project name containing `..`, `/`, or non-alphanumeric characters besides hyphens. Respond: "Invalid project name. Use the project folder name only (e.g., 'campaign-optimizer-simulation')."
 
-Check if `Projects/<project-name>/` exists. If not, use Glob to list available projects under `Projects/*/idea.md` and present them: "Project not found: X. Available projects: ..."
+Check if `projects/<project-name>/` exists. If not, use Glob to list available projects under `projects/*/idea.md` and present them: "Project not found: X. Available projects: ..."
 
 ### Step 3: Read Project Context
 
-Read `Projects/<project-name>/idea.md`.
+Read `projects/<project-name>/idea.md`.
 
-If `Projects/<project-name>/prd.md` exists, read it too. Extract the title, context, and scope sections — do not send the full PRD to Perplexity. Summarize to 2-3 sentences of project concept.
+If `projects/<project-name>/prd.md` exists, read it too. Extract the title, context, and scope sections — do not send the full PRD to Perplexity. Summarize to 2-3 sentences of project concept.
 
 ### Step 4: Check for Existing Brief
 
-Check if `Knowledge/research/projects/<project-name>.md` already exists.
+Check if `knowledge/research/projects/<project-name>.md` already exists.
 
 If it does, use AskUserQuestion to ask:
 
@@ -120,16 +120,16 @@ Write the Review Notes section as a freeform paragraph covering these points.
 
 ### Step 9: Save the Brief
 
-Ensure `Knowledge/research/projects/` directory exists (create with `mkdir -p` if needed).
+Ensure `knowledge/research/projects/` directory exists (create with `mkdir -p` if needed).
 
-Save to `Knowledge/research/projects/<project-name>.md`.
+Save to `knowledge/research/projects/<project-name>.md`.
 
 ### Step 10: Update Project Resource Refs
 
-Read `Projects/<project-name>/idea.md` frontmatter. Add `Knowledge/research/projects/<project-name>.md` to the `resource_refs` array.
+Read `projects/<project-name>/idea.md` frontmatter. Add `knowledge/research/projects/<project-name>.md` to the `resource_refs` array.
 
 Handle these cases:
-- `resource_refs: []` → replace with `resource_refs:\n  - Knowledge/research/projects/<project-name>.md`
+- `resource_refs: []` → replace with `resource_refs:\n  - knowledge/research/projects/<project-name>.md`
 - `resource_refs:` with existing items → append the new path
 - No `resource_refs` key → add it after the last frontmatter field
 
@@ -148,14 +148,14 @@ Present the key findings:
 **User:** `/validate-project google-ads-budget-pacing-simulator`
 
 **Claude:**
-1. Validates project name — exists at `Projects/google-ads-budget-pacing-simulator/`
+1. Validates project name — exists at `projects/google-ads-budget-pacing-simulator/`
 2. Reads idea.md — "Interactive simulator for budget pacing with ROAS alerts"
 3. Reads prd.md — extracts summary: "Campaign pacing tool with daily visualization"
 4. No existing brief found
 5. Calls `perplexity_research` for market/competitor analysis
 6. Calls `perplexity_ask` with `search_domain_filter` for Reddit/HN sentiment
 7. Combines into brief, reviews for quality
-8. Saves to `Knowledge/research/projects/google-ads-budget-pacing-simulator.md`
+8. Saves to `knowledge/research/projects/google-ads-budget-pacing-simulator.md`
 9. Updates idea.md resource_refs
 
 **Claude responds:**
@@ -168,7 +168,7 @@ Present the key findings:
 >
 > **Assessment:** Strong opportunity — clear user demand, no direct competitor for standalone pacing simulation.
 >
-> Brief saved to `Knowledge/research/projects/google-ads-budget-pacing-simulator.md`
+> Brief saved to `knowledge/research/projects/google-ads-budget-pacing-simulator.md`
 
 ## Notes
 

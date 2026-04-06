@@ -29,7 +29,7 @@ Present:
 Overall: X.XX
 ```
 
-**After scoring, append the full quarter's OKR results to `Knowledge/Reference/okr-history.md`:**
+**After scoring, append the full quarter's OKR results to `knowledge/reference/okr-history.md`:**
 - Scored OKR table
 - What Worked (approaches that led to hitting KRs)
 - What Missed & Why (root causes for misses)
@@ -42,7 +42,7 @@ If no OKRs exist: "No OKRs found. Run `/plan-okrs` to make next quarter measurab
 
 ### Step 2: Weekly Summary Review
 
-Read all weekly summaries from `Knowledge/journals/YYYY/weekly/`. Aggregate across the quarter:
+Read all weekly summaries from `knowledge/journals/YYYY/weekly/`. Aggregate across the quarter:
 - Total tasks completed
 - Average weekly completion rate (from plan-vs-actual data)
 - Pipeline movement (how many projects advanced, how many archived)
@@ -110,7 +110,7 @@ Propose 0-3 specific AGENTS.md changes. Present for user approval. Never auto-ap
 
 ### Step 9: Quarterly Summary
 
-Save the full quarterly review to `Knowledge/journals/YYYY/quarterly/QX.md`.
+Save the full quarterly review to `knowledge/journals/YYYY/quarterly/QX.md`.
 
 Include:
 - OKR scores

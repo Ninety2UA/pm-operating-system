@@ -67,8 +67,8 @@ PROJECT_ARTIFACTS = [
 
 # Knowledge-based artifacts (stored outside project folder)
 KNOWLEDGE_ARTIFACTS = [
-    ("validation_brief", "Knowledge/research/projects/{project}.md"),
-    ("competitor_analysis", "Knowledge/research/projects/{project}-competitors.md"),
+    ("validation_brief", "knowledge/research/projects/{project}.md"),
+    ("competitor_analysis", "knowledge/research/projects/{project}-competitors.md"),
 ]
 
 # Pipeline stage definitions
@@ -208,7 +208,7 @@ def extract_keywords(text: str) -> set:
 
 
 def find_similar_items(item: str, existing: List[Dict[str, Any]],
-                       title_key: str = 'title', source_label: str = 'Tasks/',
+                       title_key: str = 'title', source_label: str = 'tasks/',
                        config: dict = DEDUP_CONFIG) -> List[Dict[str, Any]]:
     """Find items similar to the given text"""
     similar = []
@@ -310,7 +310,7 @@ async def handle_list_tools() -> list[types.Tool]:
         ),
         types.Tool(
             name="prune_completed_tasks",
-            description="Archive completed tasks older than specified days to Tasks/archive/",
+            description="Archive completed tasks older than specified days to tasks/archive/",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -362,7 +362,7 @@ async def handle_list_tools() -> list[types.Tool]:
         ),
         types.Tool(
             name="process_backlog_with_dedup",
-            description="Process backlog items with duplicate detection against both Tasks/ and Projects/",
+            description="Process backlog items with duplicate detection against both tasks/ and projects/",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -475,7 +475,7 @@ async def handle_call_tool(
             "success": True,
             "archived_count": len(archived),
             "archived_files": archived,
-            "message": f"Archived {len(archived)} done tasks older than {days} days to Tasks/archive/"
+            "message": f"Archived {len(archived)} done tasks older than {days} days to tasks/archive/"
         }
 
     # ── list_projects ───────────────────────────────────────────
@@ -600,8 +600,8 @@ async def handle_call_tool(
 
             for item in items:
                 # Check against BOTH tasks and projects
-                similar_tasks = find_similar_items(item, existing_tasks, 'title', 'Tasks/')
-                similar_projects = find_similar_items(item, existing_projects, 'title', 'Projects/')
+                similar_tasks = find_similar_items(item, existing_tasks, 'title', 'tasks/')
+                similar_projects = find_similar_items(item, existing_projects, 'title', 'projects/')
                 all_similar = sorted(similar_tasks + similar_projects,
                                      key=lambda x: x['similarity_score'], reverse=True)[:3]
 

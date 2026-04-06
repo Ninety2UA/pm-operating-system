@@ -1,7 +1,7 @@
 ---
 name: meeting-sync
 description: >
-  Sync new Granola meetings to local Knowledge folder. Use during morning
+  Sync new Granola meetings to local knowledge folder. Use during morning
   planning, when user asks "what should I do today", "sync my meetings",
   "check for new meetings", or asks to review recent meetings.
 allowed-tools: Read Write Edit Glob Bash mcp__granola__*
@@ -10,7 +10,7 @@ argument-hint: "[--all | --skip]"
 
 # Meeting Sync
 
-Check for new Granola meetings and offer to sync them to your local Knowledge/Meetings folder.
+Check for new Granola meetings and offer to sync them to your local knowledge/meetings folder.
 
 Uses the official Granola MCP server (`https://mcp.granola.ai/mcp`).
 
@@ -18,7 +18,7 @@ Uses the official Granola MCP server (`https://mcp.granola.ai/mcp`).
 
 ### Step 1: Check for New Meetings
 
-Call `mcp__granola__list_meetings` to find recent meetings. If `Knowledge/.granola-sync.json` exists, read it to determine the last sync timestamp and filter to meetings after that date.
+Call `mcp__granola__list_meetings` to find recent meetings. If `knowledge/.granola-sync.json` exists, read it to determine the last sync timestamp and filter to meetings after that date.
 
 If `.granola-sync.json` doesn't exist, fetch the last 7 days of meetings.
 
@@ -33,7 +33,7 @@ I found X new meeting(s) since your last sync:
 2. **Meeting Title** (Date)
 ...
 
-Add to Knowledge folder?
+Add to knowledge folder?
 ```
 
 If no new meetings are found, say so and continue to the morning planning workflow.
@@ -44,7 +44,7 @@ Use AskUserQuestion with these options:
 
 | Option | Description |
 |--------|-------------|
-| Sync all | Add all new meetings to Knowledge/Meetings |
+| Sync all | Add all new meetings to knowledge/meetings |
 | Select specific | Let user choose which meetings to sync |
 | Skip for now | Continue without syncing |
 
@@ -56,10 +56,10 @@ If `--skip` flag was passed, skip syncing entirely.
 For each meeting the user wants to sync:
 1. Call `mcp__granola__get_meetings` with the meeting ID to get content and enhanced notes
 2. Call `mcp__granola__get_meeting_transcript` with the meeting ID to get the raw transcript (paid plans only — skip gracefully if unavailable)
-3. Write the meeting content to `Knowledge/Meetings/YYYY/MM/DD.md` using the Write tool (append if multiple meetings on the same day, separated by `---`)
-4. Update `Knowledge/.granola-sync.json` with the new last-sync timestamp
+3. Write the meeting content to `knowledge/meetings/YYYY/MM/DD.md` using the Write tool (append if multiple meetings on the same day, separated by `---`)
+4. Update `knowledge/.granola-sync.json` with the new last-sync timestamp
 
-Ensure the date-nested directory exists (create with `mkdir -p Knowledge/Meetings/YYYY/MM/` if needed).
+Ensure the date-nested directory exists (create with `mkdir -p knowledge/meetings/YYYY/MM/` if needed).
 
 ### Step 4b: Extract Action Items
 
@@ -96,24 +96,24 @@ Use AskUserQuestion with these options for each group:
 
 | Option | Description |
 |--------|-------------|
-| Create tasks | Create as Tasks/ files with meeting reference |
+| Create tasks | Create as tasks/ files with meeting reference |
 | Add to People | Append to attendee's Interaction History |
 | Both | Create tasks AND note in People profiles |
 | Skip | Don't track these |
 
-If "Create tasks" or "Both": create task files in `Tasks/` using the standard template. Set `resource_refs` to the transcript file path. Set category based on content. Set priority to P2 unless the item is clearly urgent.
+If "Create tasks" or "Both": create task files in `tasks/` using the standard template. Set `resource_refs` to the transcript file path. Set category based on content. Set priority to P2 unless the item is clearly urgent.
 
 If "Add to People" or "Both": include the items in the People profile update (Step 4c).
 
 ### Step 4c: Update People Profiles (Auto-Enriched)
 
-After syncing meetings, check `Knowledge/People/` for each meeting attendee. Each person gets their own file: `Knowledge/People/firstname-lastname.md`.
+After syncing meetings, check `knowledge/people/` for each meeting attendee. Each person gets their own file: `knowledge/people/firstname-lastname.md`.
 
-Read `Knowledge/People/_template.md` for the full profile structure.
+Read `knowledge/people/_template.md` for the full profile structure.
 
-**For NEW attendees** (no file exists in `Knowledge/People/`):
+**For NEW attendees** (no file exists in `knowledge/people/`):
 
-1. Create `Knowledge/People/firstname-lastname.md` using the template structure.
+1. Create `knowledge/people/firstname-lastname.md` using the template structure.
 
 2. Analyze the synced meeting notes/transcript to infer and fill:
    - **Quick Facts:** Role, company, background (from how they were introduced)
@@ -162,7 +162,7 @@ This format feeds directly into `/meeting-prep` — richer history means better 
 
 **For GROUP dynamics** (optional):
 
-If the meeting had 3+ attendees who work together regularly, consider creating or updating a group dynamics file (e.g., `Knowledge/People/_team-engineering.md`) capturing:
+If the meeting had 3+ attendees who work together regularly, consider creating or updating a group dynamics file (e.g., `knowledge/people/_team-engineering.md`) capturing:
 - How team members interact with each other
 - Who defers to whom
 - Communication patterns within the group
@@ -195,7 +195,7 @@ The official Granola MCP also provides:
 2. "I found 3 new meetings since your last sync..."
 3. Presents AskUserQuestion with sync options
 4. User selects "Sync all" or specific meetings
-5. Gets content via `get_meetings`, writes to Knowledge/Meetings/
+5. Gets content via `get_meetings`, writes to knowledge/meetings/
 6. "Synced 3 meetings. Now for your day..."
 7. Continues with task planning (morning standup workflow)
 
@@ -209,8 +209,8 @@ The official Granola MCP also provides:
 
 - Only Granola meetings with notes/content are worth syncing
 - Meetings marked "(no notes)" may be empty placeholders — skip these
-- Sync state is tracked in `Knowledge/.granola-sync.json`
-- Files are saved to `Knowledge/Meetings/` with sanitized filenames (lowercase, hyphens, no special chars)
+- Sync state is tracked in `knowledge/.granola-sync.json`
+- Files are saved to `knowledge/meetings/` with sanitized filenames (lowercase, hyphens, no special chars)
 - `get_meeting_transcript` requires a paid Granola plan — skip gracefully on free plans
 - If Granola MCP server is unavailable, skip meeting sync gracefully and proceed with morning planning
 - Rate limit: ~100 requests/minute across all Granola tools

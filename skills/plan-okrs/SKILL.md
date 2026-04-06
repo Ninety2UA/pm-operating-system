@@ -39,7 +39,7 @@ Read `GOALS.md` to extract:
 - Top 3 priorities
 - Any existing OKRs (if this is a refresh)
 
-Read `Knowledge/Reference/okr-history.md` to learn from past quarters:
+Read `knowledge/reference/okr-history.md` to learn from past quarters:
 - Which KR categories consistently hit vs. miss
 - Calibration notes (were past targets too ambitious or too easy?)
 - Patterns (e.g., "shipping KRs always hit, outreach KRs always miss")
@@ -49,8 +49,8 @@ Use this history to set better-calibrated targets. If past outreach KRs missed a
 ### Step 3: Read Current State
 
 Gather data for baselining:
-- Use Glob for `Tasks/*.md` — count by status and priority
-- Use Glob for `Projects/*/idea.md` — count by project_status
+- Use Glob for `tasks/*.md` — count by status and priority
+- Use Glob for `projects/*/idea.md` — count by project_status
 - Check for any `active` projects and their progress
 - Look at completed tasks for velocity data
 

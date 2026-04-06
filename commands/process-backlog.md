@@ -21,7 +21,7 @@ Read `BACKLOG.md` and extract every actionable item (lines starting with `-`).
 
 ### Step 2: Check for Duplicates
 
-Call `mcp__manager-ai__process_backlog_with_dedup` with the extracted items. This checks against BOTH existing Tasks/ AND Projects/ for duplicates.
+Call `mcp__manager-ai__process_backlog_with_dedup` with the extracted items. This checks against BOTH existing tasks/ AND projects/ for duplicates.
 
 Review the results:
 - **new_tasks**: Ready to create
@@ -31,10 +31,10 @@ Review the results:
 ### Step 3: Classify Each Item
 
 For items that pass dedup:
-- **Single outcome, < ~2 hrs** → create task file in `Tasks/`
+- **Single outcome, < ~2 hrs** → create task file in `tasks/`
 - **Multi-step, exploratory, or not yet decided** → create project folder:
-  - Create `Projects/<project-name>/idea.md` using the Project Template
-  - Invoke the `/PRD` skill to generate `Projects/<project-name>/prd.md`
+  - Create `projects/<project-name>/idea.md` using the Project Template
+  - Invoke the `/PRD` skill to generate `projects/<project-name>/prd.md`
 
 ### Step 4: Check Priority Limits
 

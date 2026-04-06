@@ -18,13 +18,13 @@ Call `mcp__manager-ai__get_task_summary` for aggregate stats.
 List tasks completed this week (status `d`). Group by goal/OKR alignment:
 - How many tasks per goal
 - Time invested vs estimated
-- Sprint completion rate (if sprint plan exists in Knowledge/sprint-*.md)
+- Sprint completion rate (if sprint plan exists in knowledge/sprint-*.md)
 
 ### Step 1b: Shipped This Week
 
 Call `mcp__manager-ai__list_tasks` with `status: "d"` and `include_done: true` to get all completed tasks.
 
-Also check `Tasks/archive/` for any recently archived files (modified within the last 7 days) in case pruning already ran — read their frontmatter to include them.
+Also check `tasks/archive/` for any recently archived files (modified within the last 7 days) in case pruning already ran — read their frontmatter to include them.
 
 For each completed task, extract: title, category, priority, estimated_time, and the latest Progress Log entry.
 
@@ -43,7 +43,7 @@ Include this section in the weekly summary saved in Step 9.
 
 ### Step 2: Journal Review (Plan vs. Actual)
 
-Read this week's daily journal entries from `Knowledge/journals/YYYY/MM/`. Use Glob to find files for the last 7 days.
+Read this week's daily journal entries from `knowledge/journals/YYYY/MM/`. Use Glob to find files for the last 7 days.
 
 For each journal found:
 - Compare the `## Plan` section (what was intended) with `## Actuals` section (what happened)
@@ -105,7 +105,7 @@ Offer to update the "Current" column in GOALS.md OKR tables with this week's act
 
 ### Step 8: Learning Extraction (Session Reviews + Pattern Analysis)
 
-Read this week's session reviews from `Knowledge/session-reviews/YYYY/MM/`. Use Glob to find files for the last 7 days.
+Read this week's session reviews from `knowledge/session-reviews/YYYY/MM/`. Use Glob to find files for the last 7 days.
 
 #### 8a: Recurring Prompts Analysis
 
@@ -144,7 +144,7 @@ Propose updates: "Memory X is outdated — want me to update it?"
 
 ### Step 9: Save Weekly Summary
 
-Save the full weekly review output to `Knowledge/journals/YYYY/weekly/WXX.md` where XX is the ISO week number.
+Save the full weekly review output to `knowledge/journals/YYYY/weekly/WXX.md` where XX is the ISO week number.
 
 Create the directory if needed.
 

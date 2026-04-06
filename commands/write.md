@@ -11,7 +11,7 @@ Write content that sounds like you, not generic AI.
 
 ### Step 1: Check for Voice Samples
 
-Look for `Knowledge/voice-samples/`. If it exists, read 2-3 samples to understand voice patterns.
+Look for `knowledge/voice-samples/`. If it exists, read 2-3 samples to understand voice patterns.
 
 If no samples exist, ask:
 - Share examples of writing you liked
@@ -20,15 +20,15 @@ If no samples exist, ask:
 
 ### Step 2: Check for Voice Guide
 
-Read `Knowledge/voice-guide.md` if it exists. Apply those patterns throughout.
+Read `knowledge/voice-guide.md` if it exists. Apply those patterns throughout.
 
 ### Step 3: Gather Context
 
 | Content Type | Context to Read |
 |---|---|
-| Blog post | `Knowledge/` docs related to topic, `GOALS.md` for positioning |
-| Email/outreach | Task file for recipient context, related `Knowledge/` files |
-| Social media | Recent posts in `Knowledge/voice-samples/`, `GOALS.md` for themes |
+| Blog post | `knowledge/` docs related to topic, `GOALS.md` for positioning |
+| Email/outreach | Task file for recipient context, related `knowledge/` files |
+| Social media | Recent posts in `knowledge/voice-samples/`, `GOALS.md` for themes |
 
 ### Step 4: Draft Content
 

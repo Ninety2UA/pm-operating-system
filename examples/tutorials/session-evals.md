@@ -20,7 +20,7 @@ Learn from your AI sessions by generating structured reviews.
    - What worked and what didn't
    - Missing capabilities that could become new commands/skills
 
-3. Reviews are saved to `Knowledge/session-reviews/YYYY/MM/DD_summary.md`
+3. Reviews are saved to `knowledge/session-reviews/YYYY/MM/DD_summary.md`
 
 **Weekly payoff:** Run `/weekly` at end of week. It reads all session reviews, finds recurring prompts, and suggests new commands/skills to create.
 
@@ -40,7 +40,7 @@ Session in progress
 Claude reflects on the full conversation
     |
     v
-Review saved to Knowledge/session-reviews/YYYY/MM/DD_summary.md
+Review saved to knowledge/session-reviews/YYYY/MM/DD_summary.md
     |
     v
 /weekly reads reviews --> finds patterns --> suggests commands/skills

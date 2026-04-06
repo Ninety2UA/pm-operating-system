@@ -91,21 +91,21 @@ echo ""
 info "Creating workspace directories..."
 
 DIRS=(
-  Tasks
-  Projects
-  Knowledge/research/projects
-  Knowledge/research/topics
-  Knowledge/Meetings
-  Knowledge/journals
-  Knowledge/session-reviews
-  Knowledge/decisions
-  Knowledge/People
-  Knowledge/Reference
-  Library/prompts
-  Library/systems
-  Library/skills
-  Library/agents
-  Library/commands
+  tasks
+  projects
+  knowledge/research/projects
+  knowledge/research/topics
+  knowledge/meetings
+  knowledge/journals
+  knowledge/session-reviews
+  knowledge/decisions
+  knowledge/people
+  knowledge/reference
+  library/prompts
+  library/systems
+  library/skills
+  library/agents
+  library/commands
 )
 
 for dir in "${DIRS[@]}"; do
@@ -183,7 +183,7 @@ echo "============================================================"
 echo ""
 echo "  Installed:"
 echo "    - MCP server (manager-ai) with task/project management"
-echo "    - Workspace directories (Tasks/, Projects/, Knowledge/)"
+echo "    - Workspace directories (tasks/, projects/, knowledge/)"
 echo "    - .mcp.json configured for this directory"
 echo ""
 echo "  Next steps:"

@@ -26,7 +26,7 @@ practicality for a solo builder or small team.
 
 User: `/PRD ad-spend-anomaly-detector`
 Result: Reads idea.md and existing artifacts, optionally asks clarifying questions,
-writes a 10-section PRD to `Projects/ad-spend-anomaly-detector/prd.md`, and presents
+writes a 10-section PRD to `projects/ad-spend-anomaly-detector/prd.md`, and presents
 a summary with suggested next pipeline step.
 
 For a complete example, read `${CLAUDE_SKILL_DIR}/references/example-prd.md`.
@@ -35,11 +35,11 @@ For a complete example, read `${CLAUDE_SKILL_DIR}/references/example-prd.md`.
 
 ### Step 1: Gather Context
 
-1. Read `Projects/<project-name>/idea.md` for the project context and scope.
+1. Read `projects/<project-name>/idea.md` for the project context and scope.
 2. Read `GOALS.md` to understand how this project connects to broader goals and OKRs.
-3. Check if `Knowledge/research/projects/<project-name>.md` exists — if so, read the
+3. Check if `knowledge/research/projects/<project-name>.md` exists — if so, read the
    validation brief for market context.
-4. Check if `Projects/<project-name>/lean-canvas.md` exists — if so, use the business
+4. Check if `projects/<project-name>/lean-canvas.md` exists — if so, use the business
    model insights.
 
 If no idea.md exists, ask the user to describe the project before proceeding.
@@ -120,9 +120,9 @@ Match the depth to where the project is in the pipeline.
 
 ### Step 7: Save the PRD
 
-Save to `Projects/<project-name>/prd.md`.
+Save to `projects/<project-name>/prd.md`.
 
-Ensure the `Projects/<project-name>/` directory exists (create with `mkdir -p` if needed).
+Ensure the `projects/<project-name>/` directory exists (create with `mkdir -p` if needed).
 
 ### Step 8: Present Summary
 
@@ -162,7 +162,7 @@ Before saving the PRD, verify:
 - [ ] Assumptions are flagged explicitly with risk-if-wrong
 - [ ] Open questions capture genuine unknowns
 - [ ] Contacts identified (even for solo projects: advisors, domain experts, early users)
-- [ ] Saved to `Projects/<project-name>/prd.md`
+- [ ] Saved to `projects/<project-name>/prd.md`
 
 ## Notes
 

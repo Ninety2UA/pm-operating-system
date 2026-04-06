@@ -19,7 +19,7 @@ Evaluate A/B test results with statistical rigor — significance testing, confi
 User: `/ab-test Control: 1000 visitors, 45 conversions. Variant: 1000 visitors, 62 conversions.`
 Result: Calculates conversion rates, statistical significance, confidence intervals, lift, and recommendation.
 
-User: `/ab-test Knowledge/experiment-results.md`
+User: `/ab-test knowledge/experiment-results.md`
 Result: Reads test data from file, performs full analysis.
 
 ## Instructions
@@ -132,7 +132,7 @@ where Z_α/2 = 1.96 (95% confidence), Z_β = 0.84 (80% power)
 
 - "Want to test with different confidence levels (90%, 99%)?"
 - "Want to calculate the required sample size for a future test?"
-- "Want me to save this analysis to Knowledge/?"
+- "Want me to save this analysis to knowledge/?"
 
 ## Notes
 

@@ -20,7 +20,7 @@ User: `/outcome-roadmap`
 Result: Reads all projects, goals, and OKRs, generates an outcome-focused roadmap, presents inline.
 
 User: `/outcome-roadmap --save`
-Result: Same, but saves to `Knowledge/outcome-roadmap.md`.
+Result: Same, but saves to `knowledge/outcome-roadmap.md`.
 
 ## Instructions
 
@@ -32,10 +32,10 @@ Check `$ARGUMENTS` for an optional `--save` flag.
 
 Read in this order:
 1. `GOALS.md` — vision, success criteria, OKRs (if they exist)
-2. Use Glob for `Projects/*/idea.md` — read all project frontmatter (title, priority, project_status, category)
+2. Use Glob for `projects/*/idea.md` — read all project frontmatter (title, priority, project_status, category)
 3. For projects with status `evaluating` or `active`, read the full idea.md
-4. Check for lean canvases: Glob `Projects/*/lean-canvas.md`
-5. Read `Tasks/*.md` frontmatter for active work
+4. Check for lean canvases: Glob `projects/*/lean-canvas.md`
+5. Read `tasks/*.md` frontmatter for active work
 
 ### Step 3: Group Projects by Outcome
 
@@ -139,7 +139,7 @@ These projects don't clearly support any current goal or outcome. Consider archi
 
 ### Step 5: Save or Present
 
-If `--save` flag: Save to `Knowledge/outcome-roadmap.md`.
+If `--save` flag: Save to `knowledge/outcome-roadmap.md`.
 Otherwise: Present inline (do not save).
 
 ### Step 6: Present Summary

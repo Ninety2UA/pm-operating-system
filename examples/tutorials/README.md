@@ -15,7 +15,7 @@ Most operational workflows are now live commands and skills, not tutorial docs:
 - Quarterly review → `/quarterly`
 - Backlog processing → `/process-backlog`
 - Content generation → `/write`
-- Memory → Claude Code built-in memory + `Knowledge/journals/` + `Knowledge/session-reviews/`
+- Memory → Claude Code built-in memory + `knowledge/journals/` + `knowledge/session-reviews/`
 - MCP tools → documented in AGENTS.md under "MCP Tools Available"
 
 See `commands/` and `skills/` for the live implementations.

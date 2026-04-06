@@ -53,7 +53,7 @@ Tell your AI assistant:
 task-manager/
 ├── manager_ai_mcp/
 │   └── server_core.py      # MCP server with deduplication
-├── Tasks/                  # Individual task files
+├── tasks/                  # Individual task files
 ├── CRM/                    # Contact files
 ├── BACKLOG.md             # Unstructured notes
 ├── AGENTS.md              # AI instructions (from template)
@@ -183,7 +183,7 @@ The core system (this repo) contains:
 - Example structures
 
 Your personal data stays local:
-- Tasks/
+- tasks/
 - CRM/
 - BACKLOG.md
 - Personal AGENTS.md

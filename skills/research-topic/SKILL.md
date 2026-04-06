@@ -2,7 +2,7 @@
 name: research-topic
 description: >
   Performs deep research on any topic with web and social media signals, saving
-  a structured brief to Knowledge/. Use when the user asks to "research",
+  a structured brief to knowledge/. Use when the user asks to "research",
   "look into", "find out about", "investigate", "deep dive into",
   or wants to understand a topic, technology, or market before making decisions.
 disable-model-invocation: true
@@ -12,15 +12,15 @@ argument-hint: "<topic> [--model quick|deep|reason]"
 
 # Research Topic
 
-Perform deep research on any topic using Perplexity with social media signals, then save a structured brief to Knowledge/.
+Perform deep research on any topic using Perplexity with social media signals, then save a structured brief to knowledge/.
 
 ## Quick Start
 
 User: `/research-topic perplexity API pricing 2026`
-Result: Deep research via Perplexity, Claude reviews quality, saves brief to `Knowledge/research/topics/perplexity-api-pricing-2026.md`.
+Result: Deep research via Perplexity, Claude reviews quality, saves brief to `knowledge/research/topics/perplexity-api-pricing-2026.md`.
 
 User: `/research-topic "best React chart libraries" --model quick`
-Result: Quick research via `perplexity_ask`, saves brief to `Knowledge/research/topics/best-react-chart-libraries.md`.
+Result: Quick research via `perplexity_ask`, saves brief to `knowledge/research/topics/best-react-chart-libraries.md`.
 
 ## Instructions
 
@@ -53,7 +53,7 @@ Examples:
 
 ### Step 3: Check for Existing Brief
 
-Check if `Knowledge/research/topics/<topic-slug>.md` already exists.
+Check if `knowledge/research/topics/<topic-slug>.md` already exists.
 
 If it does, use AskUserQuestion to ask:
 
@@ -115,9 +115,9 @@ If the results are empty or extremely thin (only 1-2 sentences of substance), do
 
 ### Step 8: Save the Brief
 
-Ensure `Knowledge/research/topics/` directory exists (create with `mkdir -p` if needed).
+Ensure `knowledge/research/topics/` directory exists (create with `mkdir -p` if needed).
 
-Save to `Knowledge/research/topics/<topic-slug>.md`.
+Save to `knowledge/research/topics/<topic-slug>.md`.
 
 ### Step 9: Present Summary
 
@@ -136,7 +136,7 @@ Present the key findings:
 3. No existing brief found
 4. Calls `perplexity_research` with comprehensive prompt + social targeting
 5. Combines into brief, reviews for quality
-6. Saves to `Knowledge/research/topics/ai-agent-frameworks-comparison-2026.md`
+6. Saves to `knowledge/research/topics/ai-agent-frameworks-comparison-2026.md`
 
 **Claude responds:**
 > Research complete for **AI Agent Frameworks Comparison 2026**.
@@ -148,7 +148,7 @@ Present the key findings:
 > - Key trade-off: framework complexity vs. flexibility — simpler frameworks ship faster
 > - Market is fragmenting: no single winner emerging
 >
-> Brief saved to `Knowledge/research/topics/ai-agent-frameworks-comparison-2026.md`
+> Brief saved to `knowledge/research/topics/ai-agent-frameworks-comparison-2026.md`
 
 ## Notes
 

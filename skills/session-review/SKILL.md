@@ -52,9 +52,9 @@ Review the full conversation context. Extract:
 
 ### Step 3: Write the Review File
 
-Create the directory if needed: `Knowledge/session-reviews/YYYY/MM/`
+Create the directory if needed: `knowledge/session-reviews/YYYY/MM/`
 
-Save to: `Knowledge/session-reviews/YYYY/MM/DD_session-type.md`
+Save to: `knowledge/session-reviews/YYYY/MM/DD_session-type.md`
 
 If multiple reviews exist for the same day and type, append a number: `DD_session-type-2.md`
 
@@ -104,7 +104,7 @@ reviewed: false
 
 ### Step 4: Append to Daily Journal
 
-If a journal exists for today at `Knowledge/journals/YYYY/MM/DD.md`, append a one-line entry under `## Session Reflections`:
+If a journal exists for today at `knowledge/journals/YYYY/MM/DD.md`, append a one-line entry under `## Session Reflections`:
 
 ```
 - [HH:MM] [session-type]: [one-line takeaway]

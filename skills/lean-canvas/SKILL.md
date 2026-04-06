@@ -19,14 +19,14 @@ Generate a Lean Canvas business model evaluation for an existing project idea, c
 ## Quick Start
 
 User: `/lean-canvas campaign-optimizer-simulation`
-Result: Reads the project's idea.md and prd.md, researches market via Perplexity, produces a 9-block Lean Canvas, saves to `Projects/campaign-optimizer-simulation/lean-canvas.md`.
+Result: Reads the project's idea.md and prd.md, researches market via Perplexity, produces a 9-block Lean Canvas, saves to `projects/campaign-optimizer-simulation/lean-canvas.md`.
 
 ## Instructions
 
 ### Step 1: Parse Arguments
 
 Check `$ARGUMENTS` for:
-- A required `<project-name>` (the project folder name under `Projects/`)
+- A required `<project-name>` (the project folder name under `projects/`)
 - An optional `--model` flag (`quick`, `search`, `deep`, `reason`)
 
 If no `--model` flag is provided, default to `mcp__perplexity__perplexity_ask`.
@@ -43,21 +43,21 @@ If no project name is provided, ask the user which project to evaluate.
 
 **Security check:** Reject any project name containing `..`, `/`, or non-alphanumeric characters besides hyphens. Respond: "Invalid project name. Use the project folder name only (e.g., 'campaign-optimizer-simulation')."
 
-Check if `Projects/<project-name>/` exists. If not, use Glob to list available projects under `Projects/*/idea.md` and present them.
+Check if `projects/<project-name>/` exists. If not, use Glob to list available projects under `projects/*/idea.md` and present them.
 
 ### Step 3: Read Project Context
 
-Read `Projects/<project-name>/idea.md`.
+Read `projects/<project-name>/idea.md`.
 
-If `Projects/<project-name>/prd.md` exists, read it too.
+If `projects/<project-name>/prd.md` exists, read it too.
 
-If `Knowledge/research/projects/<project-name>.md` exists, read the validation brief for market data — this saves a Perplexity call and provides richer context.
+If `knowledge/research/projects/<project-name>.md` exists, read the validation brief for market data — this saves a Perplexity call and provides richer context.
 
 Extract: title, context, scope, target audience, and any competitive data.
 
 ### Step 4: Check for Existing Canvas
 
-Check if `Projects/<project-name>/lean-canvas.md` already exists.
+Check if `projects/<project-name>/lean-canvas.md` already exists.
 
 If it does, ask the user:
 - **Overwrite**: Replace with fresh canvas
@@ -162,11 +162,11 @@ What makes this hard to copy or buy? Be honest — "nothing yet" is valid for ea
 
 ### Step 7: Save the Canvas
 
-Save to `Projects/<project-name>/lean-canvas.md`.
+Save to `projects/<project-name>/lean-canvas.md`.
 
 ### Step 8: Update Project Resource Refs
 
-Read `Projects/<project-name>/idea.md` frontmatter. Add `Projects/<project-name>/lean-canvas.md` to the `resource_refs` array.
+Read `projects/<project-name>/idea.md` frontmatter. Add `projects/<project-name>/lean-canvas.md` to the `resource_refs` array.
 
 Handle these cases:
 - `resource_refs: []` → replace with the new path

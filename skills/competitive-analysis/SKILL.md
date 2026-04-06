@@ -18,7 +18,7 @@ Map the competitive landscape for a project with feature comparisons, pricing an
 ## Quick Start
 
 User: `/competitive-analysis ad-spend-anomaly-detector`
-Result: Researches competitors, builds feature matrix, analyzes pricing, identifies differentiation opportunities, saves to `Knowledge/research/projects/<name>-competitors.md`.
+Result: Researches competitors, builds feature matrix, analyzes pricing, identifies differentiation opportunities, saves to `knowledge/research/projects/<name>-competitors.md`.
 
 ## Instructions
 
@@ -40,21 +40,21 @@ Model flag routing:
 
 **Security check:** Reject names containing `..`, `/`, or non-alphanumeric characters besides hyphens.
 
-Check if `Projects/<project-name>/` exists.
+Check if `projects/<project-name>/` exists.
 
 ### Step 3: Read Project Context
 
 Read available project artifacts:
-1. `Projects/<project-name>/idea.md`
-2. `Projects/<project-name>/prd.md` (if exists)
-3. `Projects/<project-name>/lean-canvas.md` (if exists)
-4. `Knowledge/research/projects/<project-name>.md` (if exists — reuse competitor data)
+1. `projects/<project-name>/idea.md`
+2. `projects/<project-name>/prd.md` (if exists)
+3. `projects/<project-name>/lean-canvas.md` (if exists)
+4. `knowledge/research/projects/<project-name>.md` (if exists — reuse competitor data)
 
 Extract: product concept, target segment, key features, and any known competitors.
 
 ### Step 4: Check for Existing Analysis
 
-Check if `Knowledge/research/projects/<project-name>-competitors.md` exists.
+Check if `knowledge/research/projects/<project-name>-competitors.md` exists.
 
 If it does, ask: Overwrite or Skip.
 
@@ -172,9 +172,9 @@ competitors_analyzed: [N]
 
 ### Step 7: Save the Analysis
 
-Ensure `Knowledge/research/projects/` directory exists (create with `mkdir -p` if needed).
+Ensure `knowledge/research/projects/` directory exists (create with `mkdir -p` if needed).
 
-Save to `Knowledge/research/projects/<project-name>-competitors.md`.
+Save to `knowledge/research/projects/<project-name>-competitors.md`.
 
 ### Step 8: Update Project Resource Refs
 

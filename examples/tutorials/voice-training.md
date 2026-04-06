@@ -17,7 +17,7 @@ Give Claude examples of your actual writing, then have it extract patterns and a
 Gather 5-10 examples of your real writing. Mix of formats works best:
 
 ```
-Knowledge/
+knowledge/
 ├── voice-samples/
 │   ├── email-to-colleague.md
 │   ├── email-to-exec.md
@@ -43,7 +43,7 @@ Knowledge/
 Ask Claude to analyze your samples:
 
 ```
-Read all files in Knowledge/voice-samples/ and analyze my writing style.
+Read all files in knowledge/voice-samples/ and analyze my writing style.
 Extract specific patterns for:
 1. Sentence structure and length
 2. How I open and close messages
@@ -93,9 +93,9 @@ Claude will produce something like:
 
 ### Step 4: Save the Voice Guide
 
-Save the generated voice guide to `Knowledge/voice-guide.md`. This keeps voice patterns separate from AGENTS.md (which handles system behavior, not writing style).
+Save the generated voice guide to `knowledge/voice-guide.md`. This keeps voice patterns separate from AGENTS.md (which handles system behavior, not writing style).
 
-The `/write` command and any content-generation tasks will read `Knowledge/voice-guide.md` automatically for tone matching.
+The `/write` command and any content-generation tasks will read `knowledge/voice-guide.md` automatically for tone matching.
 
 You can also add a condensed version of key anti-patterns to AGENTS.md if you want them enforced globally (the current AGENTS.md already has some anti-cliche rules under writing style guidelines).
 
@@ -103,7 +103,7 @@ You can also add a condensed version of key anti-patterns to AGENTS.md if you wa
 
 ```
 Draft an email to my VP about pushing the launch date back one week.
-Use my voice - check Knowledge/voice-samples/ for reference.
+Use my voice - check knowledge/voice-samples/ for reference.
 ```
 
 Compare the output to how you'd actually write it. Give feedback:
@@ -128,8 +128,8 @@ For more manual control:
 I need to write a blog post about our Q1 learnings.
 
 Before writing:
-1. Read Knowledge/voice-guide.md for my style patterns
-2. Read a sample from Knowledge/voice-samples/ for reference
+1. Read knowledge/voice-guide.md for my style patterns
+2. Read a sample from knowledge/voice-samples/ for reference
 3. Draft an outline, then write
 
 Match my voice exactly. Short sentences. No "key insights" or "learnings."
@@ -191,7 +191,7 @@ You might write differently in different contexts:
 
 ## Quick Start Template
 
-Save this to `Knowledge/voice-guide.md` and fill in:
+Save this to `knowledge/voice-guide.md` and fill in:
 
 ```markdown
 # Voice Guide
@@ -214,7 +214,7 @@ Save this to `Knowledge/voice-guide.md` and fill in:
 - "[Phrase 2]"
 
 ## For reference:
-See Knowledge/voice-samples/ for examples of my actual writing.
+See knowledge/voice-samples/ for examples of my actual writing.
 ```
 
 ---

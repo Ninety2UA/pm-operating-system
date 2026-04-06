@@ -14,7 +14,7 @@
 # │ Follow these steps:                                                 │
 # │                                                                     │
 # │ 1. CREATE WORKSPACE STRUCTURE                                       │
-# │    - Ensure these directories exist: Tasks/, Knowledge/             │
+# │    - Ensure these directories exist: tasks/, knowledge/             │
 # │    - If AGENTS.md doesn't exist, copy from core/templates/AGENTS.md │
 # │    - If .gitignore doesn't exist, copy from core/templates/gitignore│
 # │    - If BACKLOG.md doesn't exist, create it with a short intro      │

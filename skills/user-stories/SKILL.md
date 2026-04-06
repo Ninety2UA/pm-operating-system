@@ -18,10 +18,10 @@ Generate structured user stories with acceptance criteria from a project's PRD, 
 ## Quick Start
 
 User: `/user-stories ad-spend-anomaly-detector`
-Result: Reads the PRD, generates prioritized user stories with acceptance criteria, saves to `Projects/ad-spend-anomaly-detector/user-stories.md`.
+Result: Reads the PRD, generates prioritized user stories with acceptance criteria, saves to `projects/ad-spend-anomaly-detector/user-stories.md`.
 
 User: `/user-stories ad-spend-anomaly-detector --tasks`
-Result: Same as above, plus creates individual task files in `Tasks/` for each P0/P1 story.
+Result: Same as above, plus creates individual task files in `tasks/` for each P0/P1 story.
 
 ## Instructions
 
@@ -37,20 +37,20 @@ If no project name is provided, ask the user which project to decompose.
 
 **Security check:** Reject any project name containing `..`, `/`, or non-alphanumeric characters besides hyphens.
 
-Check if `Projects/<project-name>/` exists. If not, list available projects.
+Check if `projects/<project-name>/` exists. If not, list available projects.
 
 ### Step 3: Read Project Context
 
 Read in order:
-1. `Projects/<project-name>/prd.md` (required — this is the primary input)
-2. `Projects/<project-name>/idea.md` (for context and goals alignment)
-3. `Projects/<project-name>/lean-canvas.md` (if exists — for customer segment context)
+1. `projects/<project-name>/prd.md` (required — this is the primary input)
+2. `projects/<project-name>/idea.md` (for context and goals alignment)
+3. `projects/<project-name>/lean-canvas.md` (if exists — for customer segment context)
 
 If no prd.md exists, stop and tell the user: "No PRD found. Run `/PRD <project-name>` first to generate a product spec."
 
 ### Step 4: Check for Existing Stories
 
-Check if `Projects/<project-name>/user-stories.md` already exists.
+Check if `projects/<project-name>/user-stories.md` already exists.
 
 If it does, ask the user: Overwrite or Skip.
 
@@ -158,11 +158,11 @@ Visual overview of the user journey and story coverage:
 
 ### Step 7: Save the Stories
 
-Save to `Projects/<project-name>/user-stories.md`.
+Save to `projects/<project-name>/user-stories.md`.
 
 ### Step 8: Create Task Files (if --tasks flag)
 
-If `--tasks` was passed, create individual task files in `Tasks/` for each P0 and P1 story:
+If `--tasks` was passed, create individual task files in `tasks/` for each P0 and P1 story:
 
 ```yaml
 ---
@@ -173,8 +173,8 @@ status: n
 created_date: YYYY-MM-DD
 estimated_time: [minutes based on size]
 resource_refs:
-  - Projects/<project-name>/user-stories.md
-  - Projects/<project-name>/prd.md
+  - projects/<project-name>/user-stories.md
+  - projects/<project-name>/prd.md
 ---
 
 # [Story title]
@@ -197,7 +197,7 @@ As a [role], I want [action], so that [benefit].
 
 ### Step 9: Update Project Resource Refs
 
-Add `Projects/<project-name>/user-stories.md` to the idea.md `resource_refs` array.
+Add `projects/<project-name>/user-stories.md` to the idea.md `resource_refs` array.
 
 ### Step 10: Present Summary
 

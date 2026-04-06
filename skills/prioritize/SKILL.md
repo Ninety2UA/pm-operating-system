@@ -33,12 +33,12 @@ Check `$ARGUMENTS` for:
 ### Step 2: Read Items to Prioritize
 
 **If scope = projects:**
-- Glob `Projects/*/idea.md` and read all frontmatter + Context section
+- Glob `projects/*/idea.md` and read all frontmatter + Context section
 - Filter to status `idea` and `evaluating` (skip `archived` and `paused`)
 - If lean canvases exist, read them for business model data
 
 **If scope = tasks:**
-- Glob `Tasks/*.md` and read all task files
+- Glob `tasks/*.md` and read all task files
 - Filter to status `n` (not started) and `s` (started)
 
 **If scope = all:**

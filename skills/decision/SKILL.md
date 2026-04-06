@@ -33,9 +33,9 @@ For each option, assess:
 
 ### Step 3: Write the Decision Record
 
-Create the directory if needed: `Knowledge/decisions/`
+Create the directory if needed: `knowledge/decisions/`
 
-Save to: `Knowledge/decisions/YYYY-MM-DD-topic-slug.md`
+Save to: `knowledge/decisions/YYYY-MM-DD-topic-slug.md`
 
 Use this format:
 

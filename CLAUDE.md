@@ -12,7 +12,7 @@
 ## Skills
 
 - **PRD** — Generate Product Requirements Document for a project
-- **meeting-sync** — Sync Granola meetings to Knowledge/Meetings
+- **meeting-sync** — Sync Granola meetings to knowledge/meetings
 - **meeting-prep** — Pre-meeting context gathering from People, transcripts, and tasks
 - **validate-project** — Market research and validation brief
 - **lean-canvas** — Business model evaluation
@@ -33,6 +33,6 @@
 
 ## Agents
 
-- **deep-research** — Background multi-source research, saves briefs to Knowledge/
+- **deep-research** — Background multi-source research, saves briefs to knowledge/
 - **batch-evaluator** — Parallel project evaluation with comparative ranking
 - **system-health** — Diagnostic scan of tasks, projects, goals, and backlog

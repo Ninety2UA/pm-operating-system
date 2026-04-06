@@ -10,7 +10,7 @@ title: <Brief title>
 created_date: YYYY-MM-DD
 source_skill: validate | research
 query_used: <actual search query sent to Perplexity>
-project_ref: Projects/<name>/idea.md  # only for /validate
+project_ref: projects/<name>/idea.md  # only for /validate
 ---
 ```
 

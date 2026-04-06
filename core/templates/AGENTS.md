@@ -27,11 +27,11 @@ You are managing a task management system optimized for product managers with in
 
 ```
 personal-os/
-├── Tasks/                    # Active tasks directory
+├── tasks/                    # Active tasks directory
 │   ├── task1.md             # Individual task files with YAML frontmatter
 │   └── task2.md             # Named descriptively
 │
-├── Knowledge/               # Reference documents and notes
+├── knowledge/               # Reference documents and notes
 ├── Resources/               # Context materials for AI
 ├── BACKLOG.md              # Unstructured notes/ideas to process
 ├── GOALS.md                # Your goals & strategic priorities
@@ -39,8 +39,8 @@ personal-os/
 ```
 
 ### Directory Details:
-- **Tasks/**: Active tasks as individual markdown files with YAML frontmatter
-- **Knowledge/**: Reference documents, research notes, product specs
+- **tasks/**: Active tasks as individual markdown files with YAML frontmatter
+- **knowledge/**: Reference documents, research notes, product specs
 - **Resources/**: Context materials (articles, transcripts) to understand your perspective
 - **BACKLOG.md**: Quick notes dump - cleared after processing into tasks
 - **GOALS.md**: Reference for priority assignment and task evaluation

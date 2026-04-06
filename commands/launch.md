@@ -11,7 +11,7 @@ Chain the full evaluation pipeline for a project. Each step produces an artifact
 
 ### Step 1: Parse Arguments
 
-- Required: `<project-name>` — the folder name under Projects/
+- Required: `<project-name>` — the folder name under projects/
 - Optional: `--from <stage>` — start from a specific stage (skip earlier ones)
 
 Valid stages: `validate`, `lean-canvas`, `competitive`, `gtm`, `pre-mortem`, `user-stories`

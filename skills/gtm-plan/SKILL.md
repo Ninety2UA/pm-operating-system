@@ -19,14 +19,14 @@ Generate a comprehensive go-to-market strategy for a project, covering ideal cus
 ## Quick Start
 
 User: `/gtm-plan ad-spend-anomaly-detector`
-Result: Reads project context and any existing lean canvas/validation brief, researches GTM approaches via Perplexity, produces a launch strategy, saves to `Projects/ad-spend-anomaly-detector/gtm-plan.md`.
+Result: Reads project context and any existing lean canvas/validation brief, researches GTM approaches via Perplexity, produces a launch strategy, saves to `projects/ad-spend-anomaly-detector/gtm-plan.md`.
 
 ## Instructions
 
 ### Step 1: Parse Arguments
 
 Check `$ARGUMENTS` for:
-- A required `<project-name>` (the project folder name under `Projects/`)
+- A required `<project-name>` (the project folder name under `projects/`)
 - An optional `--model` flag (`quick`, `search`, `deep`, `reason`)
 
 Default to `mcp__perplexity__perplexity_ask` if no `--model` flag.
@@ -43,21 +43,21 @@ If no project name is provided, ask the user which project to plan.
 
 **Security check:** Reject any project name containing `..`, `/`, or non-alphanumeric characters besides hyphens.
 
-Check if `Projects/<project-name>/` exists. If not, list available projects.
+Check if `projects/<project-name>/` exists. If not, list available projects.
 
 ### Step 3: Read Project Context
 
 Read all available project artifacts in order:
-1. `Projects/<project-name>/idea.md` (required)
-2. `Projects/<project-name>/prd.md` (if exists)
-3. `Projects/<project-name>/lean-canvas.md` (if exists — use for segments, channels, pricing)
-4. `Knowledge/research/projects/<project-name>.md` (if exists — use for competitor data)
+1. `projects/<project-name>/idea.md` (required)
+2. `projects/<project-name>/prd.md` (if exists)
+3. `projects/<project-name>/lean-canvas.md` (if exists — use for segments, channels, pricing)
+4. `knowledge/research/projects/<project-name>.md` (if exists — use for competitor data)
 
 If no lean canvas exists, warn: "No lean canvas found. Run `/lean-canvas <project-name>` first for a stronger GTM plan. Proceeding with available context."
 
 ### Step 4: Check for Existing Plan
 
-Check if `Projects/<project-name>/gtm-plan.md` already exists.
+Check if `projects/<project-name>/gtm-plan.md` already exists.
 
 If it does, ask the user: Overwrite or Skip.
 
@@ -191,11 +191,11 @@ The first, narrowest segment to win completely before expanding.
 
 ### Step 7: Save the Plan
 
-Save to `Projects/<project-name>/gtm-plan.md`.
+Save to `projects/<project-name>/gtm-plan.md`.
 
 ### Step 8: Update Project Resource Refs
 
-Add `Projects/<project-name>/gtm-plan.md` to the idea.md `resource_refs` array.
+Add `projects/<project-name>/gtm-plan.md` to the idea.md `resource_refs` array.
 
 ### Step 9: Present Summary
 

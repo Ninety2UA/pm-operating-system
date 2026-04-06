@@ -17,7 +17,7 @@ Create a focused weekly sprint plan from current tasks and user stories, using c
 ## Quick Start
 
 User: `/sprint-plan`
-Result: Reads all Tasks/ and active project user stories, estimates capacity, selects sprint stories, saves plan.
+Result: Reads all tasks/ and active project user stories, estimates capacity, selects sprint stories, saves plan.
 
 User: `/sprint-plan 20 --project ad-spend-anomaly-detector`
 Result: Plans a sprint with 20 available hours, focused on a specific project's user stories.
@@ -37,16 +37,16 @@ If no hours provided, default to 15 hours (a realistic week for someone with a d
 Read the following in parallel:
 
 **Tasks:**
-- Use Glob for `Tasks/*.md` and read all task files
+- Use Glob for `tasks/*.md` and read all task files
 - Filter to status `n` (not started) and `s` (started)
 - Note any `b` (blocked) tasks and their blockers
 
 **User Stories (if --project specified):**
-- Read `Projects/<project-name>/user-stories.md`
+- Read `projects/<project-name>/user-stories.md`
 - Pull P0 and P1 stories not yet completed
 
 **User Stories (if no --project):**
-- Use Glob for `Projects/*/user-stories.md`
+- Use Glob for `projects/*/user-stories.md`
 - Read any that exist and pull uncompleted P0/P1 stories
 
 **Goals:**
@@ -106,21 +106,21 @@ sprint_goal: "[One sentence: what will be true at the end of this week?]"
 
 | # | Item | Source | Est. | Status |
 |---|------|--------|------|--------|
-| 1 | [Task/story title] | [Tasks/ or Project] | [hrs] | [n/s] |
-| 2 | [Task/story title] | [Tasks/ or Project] | [hrs] | [n/s] |
+| 1 | [Task/story title] | [tasks/ or Project] | [hrs] | [n/s] |
+| 2 | [Task/story title] | [tasks/ or Project] | [hrs] | [n/s] |
 
 ### Should Complete (P1)
 
 | # | Item | Source | Est. | Status |
 |---|------|--------|------|--------|
-| 3 | [Task/story title] | [Tasks/ or Project] | [hrs] | [n/s] |
-| 4 | [Task/story title] | [Tasks/ or Project] | [hrs] | [n/s] |
+| 3 | [Task/story title] | [tasks/ or Project] | [hrs] | [n/s] |
+| 4 | [Task/story title] | [tasks/ or Project] | [hrs] | [n/s] |
 
 ### Stretch Goals (if buffer unused)
 
 | # | Item | Source | Est. |
 |---|------|--------|------|
-| 5 | [Task/story title] | [Tasks/ or Project] | [hrs] |
+| 5 | [Task/story title] | [tasks/ or Project] | [hrs] |
 
 **Total planned: [X] hrs / [Y] hrs capacity**
 
@@ -151,7 +151,7 @@ sprint_goal: "[One sentence: what will be true at the end of this week?]"
 
 ## Pipeline Check
 
-Projects that need attention this week (from Projects/ with status `evaluating` or `active`):
+Projects that need attention this week (from projects/ with status `evaluating` or `active`):
 
 | Project | Status | Next Skill to Run |
 |---------|--------|-------------------|
@@ -165,7 +165,7 @@ Projects that need attention this week (from Projects/ with status `evaluating` 
 
 ### Step 6: Save the Sprint Plan
 
-Save to `Knowledge/sprint-YYYY-MM-DD.md` (using the Monday date of the sprint week).
+Save to `knowledge/sprint-YYYY-MM-DD.md` (using the Monday date of the sprint week).
 
 ### Step 7: Present Summary
 
@@ -180,5 +180,5 @@ Present:
 
 - **No external calls:** Works entirely from local files.
 - **Overcommitment guard:** If the user tries to plan at 100% capacity, push back. "Planning at 100% guarantees you'll miss targets. Let's plan at 70% and use the buffer for reality."
-- **Re-planning:** It's fine to re-run mid-week if priorities shifted. The old plan stays in Knowledge/ as a record.
+- **Re-planning:** It's fine to re-run mid-week if priorities shifted. The old plan stays in knowledge/ as a record.
 - **Complement to morning standup:** Sprint plan sets the week; morning standup sets the day within that plan.
