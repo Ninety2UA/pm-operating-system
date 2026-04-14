@@ -1092,6 +1092,18 @@
 
       <div class="card" style="margin-bottom:24px;">
         <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
+          <div class="integ-name" style="font-size:20px;">v2.1.1</div>
+          <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
+        </div>
+        <div class="integ-desc" style="margin-bottom:14px;"><strong>Hotfix: <code>/plugin marketplace add</code> now actually clones and registers.</strong> v2.1.0 fixed the committed <code>.mcp.json</code> but two install-path issues remained: the repo was missing <code>.claude-plugin/marketplace.json</code> (required by Claude Code to treat a repo as a plugin marketplace), and the documented install command used the SSH form which fails without GitHub SSH keys configured.</div>
+        <ul style="margin:0 0 14px 18px; color:var(--text-secondary); font-size:14px;">
+          <li><strong style="color:var(--green);">Fixed</strong> — Added <code>.claude-plugin/marketplace.json</code> as a single-plugin marketplace manifest with <code>"source": "."</code>. Claude Code now recognizes the repo as a valid marketplace.</li>
+          <li><strong style="color:var(--green);">Fixed</strong> — README Option 1 and FAQ now document the HTTPS clone URL (<code>https://github.com/Ninety2UA/pm-operating-system.git</code>), which works without SSH keys. The shorter <code>Owner/Repo</code> form still works if you have SSH keys configured.</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
           <div class="integ-name" style="font-size:20px;">v2.1.0</div>
           <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
         </div>
@@ -1103,7 +1115,7 @@
           <li><strong style="color:var(--rose);">Removed</strong> — <code>.mcp.json.example</code> (redundant with the tracked <code>.mcp.json</code>), plus the MCP-config block in <code>install.sh</code> (no longer needed).</li>
           <li><strong style="color:var(--purple);">Improved</strong> — Perplexity and Granola docs. The <code>mcpServers</code> entries are wired up in <code>.mcp.json</code> by default; you just install the CLI/desktop app and set your API key / auth.</li>
         </ul>
-        <div class="integ-note" style="padding:12px 14px; background:rgba(251,191,36,.08); border-left:2px solid var(--amber); border-radius:6px;"><strong>Migration for existing users:</strong> If you were running in Option 2 mode (gitignored <code>.mcp.json</code> with absolute paths from <code>install.sh</code>'s sed rewrite), delete the local copy (<code>rm .mcp.json</code>) and pull the committed version. To use <code>manager-ai</code> going forward, install as a plugin: <code>/plugin marketplace add Ninety2UA/pm-operating-system</code> then <code>/plugin install pm-operating-system@pm-operating-system</code>.</div>
+        <div class="integ-note" style="padding:12px 14px; background:rgba(251,191,36,.08); border-left:2px solid var(--amber); border-radius:6px;"><strong>Migration for existing users:</strong> If you were running in Option 2 mode (gitignored <code>.mcp.json</code> with absolute paths from <code>install.sh</code>'s sed rewrite), delete the local copy (<code>rm .mcp.json</code>) and pull the committed version. To use <code>manager-ai</code> going forward, install as a plugin: <code>/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git</code> then <code>/plugin install pm-operating-system@pm-operating-system</code>.</div>
       </div>
 
       <div class="card">
@@ -1125,7 +1137,7 @@
     <div class="section-label reveal">FAQ</div>
     <div class="section-title reveal">Frequently Asked Questions</div>
     <div style="max-width:720px;" class="reveal">
-      <div class="faq-item"><button class="faq-q">How do I get started with PM Operating System?<span class="faq-icon">+</span></button><div class="faq-a">Install the plugin with <code>/plugin marketplace add Ninety2UA/pm-operating-system</code> then <code>/plugin install pm-operating-system@pm-operating-system</code>, and run <code>./setup.sh</code> to configure your goals. The setup walks you through a 2-minute interactive questionnaire. After that, just say <code>/morning</code> to start your first standup.</div></div>
+      <div class="faq-item"><button class="faq-q">How do I get started with PM Operating System?<span class="faq-icon">+</span></button><div class="faq-a">Install the plugin with <code>/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git</code> then <code>/plugin install pm-operating-system@pm-operating-system</code>, and run <code>./setup.sh</code> to configure your goals. The HTTPS URL works without SSH keys. The setup walks you through a 2-minute interactive questionnaire. After that, just say <code>/morning</code> to start your first standup.</div></div>
       <div class="faq-item"><button class="faq-q">Does it modify my existing files?<span class="faq-icon">+</span></button><div class="faq-a">No. The system creates new directories (tasks/, projects/, knowledge/) and markdown files. It never touches your existing code or documents. All personal data is gitignored by default.</div></div>
       <div class="faq-item"><button class="faq-q">Do I need all the integrations?<span class="faq-icon">+</span></button><div class="faq-a">No. All integrations are optional. The core system works entirely with local markdown files and the MCP server. Granola, Slack, Perplexity, and Google Workspace add extra capabilities but aren't required.</div></div>
       <div class="faq-item"><button class="faq-q">What AI assistants does it work with?<span class="faq-icon">+</span></button><div class="faq-a">It's built as a Claude Code plugin, but the underlying system is just markdown files and an MCP server. Any AI assistant that can read markdown and call MCP tools can use it — including ChatGPT, Cursor, and other MCP-compatible tools.</div></div>

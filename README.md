@@ -117,9 +117,11 @@ The system learns through three nested feedback loops. Each layer feeds the next
 ### Option 1: Install as a Claude Code Plugin
 
 ```
-/plugin marketplace add Ninety2UA/pm-operating-system
+/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git
 /plugin install pm-operating-system@pm-operating-system
 ```
+
+> **Note on auth:** the HTTPS URL form above works without any setup. The shorter form `/plugin marketplace add Ninety2UA/pm-operating-system` only works if your local git is configured with GitHub SSH keys — otherwise you'll see `Permission denied (publickey)`.
 
 Then run the setup to create your goals:
 
@@ -540,19 +542,28 @@ gws calendar events list --params '{"calendarId": "primary", "timeMin": "2026-04
 
 Tagged releases and binaries: [github.com/Ninety2UA/pm-operating-system/releases](https://github.com/Ninety2UA/pm-operating-system/releases).
 
+### v2.1.1 — 2026-04-14
+
+**Hotfix: `/plugin marketplace add` now actually clones + registers.**
+
+v2.1.0 fixed the committed `.mcp.json` but two install-path issues remained: the repo was missing `.claude-plugin/marketplace.json` (required by Claude Code to treat a repo as a plugin marketplace), and the documented install command used the SSH form which fails without GitHub SSH keys configured.
+
+- **Fixed** — Added `.claude-plugin/marketplace.json` as a single-plugin marketplace manifest with `"source": "."`. Claude Code now recognizes the repo as a valid marketplace.
+- **Fixed** — README Option 1 and FAQ now document the HTTPS clone URL (`https://github.com/Ninety2UA/pm-operating-system.git`), which works without SSH keys. The shorter `Owner/Repo` form still works if you have SSH keys configured.
+
 ### v2.1.0 — 2026-04-14
 
 **Distribution fix: the Claude Code plugin install path now actually works.**
 
 Before this release, `/plugin install pm-operating-system@pm-operating-system` completed but shipped zero MCP tools, because `.mcp.json` was gitignored. Plugin-install users silently lost `manager-ai`, `perplexity`, and `granola`.
 
-- **Fixed** — README install command. Option 1 previously advertised `/install <repo>`, which is not a real Claude Code slash command. Corrected to the two-step marketplace flow: `/plugin marketplace add Ninety2UA/pm-operating-system` then `/plugin install pm-operating-system@pm-operating-system`.
+- **Fixed** — README install command. Option 1 previously advertised `/install <repo>`, which is not a real Claude Code slash command. Corrected to the two-step marketplace flow using the HTTPS clone URL (works without SSH keys configured).
 - **Fixed** — `.mcp.json` is now committed at the repo root with `${CLAUDE_PLUGIN_ROOT}`-based paths, matching the convention used by Anthropic's official plugins.
 - **Changed** — `MANAGER_AI_BASE_DIR` defaults to `"."` (CWD) rather than a hard-coded absolute path, so the plugin works from any working directory.
 - **Removed** — `.mcp.json.example` (redundant with the tracked `.mcp.json`), plus the MCP-config block in `install.sh` (no longer needed).
 - **Improved** — Perplexity and Granola docs. The `mcpServers` entries are wired up in `.mcp.json` by default; you just install the CLI/desktop app and set your API key / auth.
 
-**Migration for existing users:** If you were running the repo in Option 2 mode (gitignored `.mcp.json` with absolute paths from `install.sh`'s sed rewrite), delete the local copy (`rm .mcp.json`) and pull the committed version. To use `manager-ai` going forward, install as a plugin: `/plugin marketplace add Ninety2UA/pm-operating-system` then `/plugin install pm-operating-system@pm-operating-system`.
+**Migration for existing users:** If you were running the repo in Option 2 mode (gitignored `.mcp.json` with absolute paths from `install.sh`'s sed rewrite), delete the local copy (`rm .mcp.json`) and pull the committed version. To use `manager-ai` going forward, install as a plugin: `/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git` then `/plugin install pm-operating-system@pm-operating-system`.
 
 ### v2.0.0 — Initial release
 
