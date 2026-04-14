@@ -4,7 +4,7 @@
       "command": "uv",
       "args": [
         "--directory",
-        "${CLAUDE_PLUGIN_ROOT}/core/mcp",
+        "./core/mcp",
         "run",
         "server.py"
       ],

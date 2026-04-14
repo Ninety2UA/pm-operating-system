@@ -7,7 +7,6 @@
 <p align="center">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT"></a>&nbsp;
   <a href="https://github.com/Ninety2UA/pm-operating-system/stargazers"><img src="https://img.shields.io/github/stars/Ninety2UA/pm-operating-system?style=social" alt="GitHub Stars"></a>&nbsp;
-  <img src="https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet" alt="Claude Code Plugin">&nbsp;
   <img src="https://img.shields.io/badge/Python-3.11+-blue?logo=python&logoColor=white" alt="Python 3.11+">
 </p>
 
@@ -26,7 +25,7 @@
 
 ## Overview
 
-PM Operating System is a Claude Code plugin that gives your AI assistant a structured productivity layer. Instead of starting every session from scratch, your assistant knows your goals, tracks your tasks, evaluates your project ideas through a rigorous pipeline, and learns from each session to make the next one better.
+PM Operating System is a Claude Code configuration that gives your AI assistant a structured productivity layer. Instead of starting every session from scratch, your assistant knows your goals, tracks your tasks, evaluates your project ideas through a rigorous pipeline, and learns from each session to make the next one better.
 
 **The workflow is simple:**
 
@@ -114,16 +113,13 @@ The system learns through three nested feedback loops. Each layer feeds the next
 
 ## Quick Start
 
-### Option 1: Install as a Claude Code Plugin
-
+```bash
+git clone https://github.com/Ninety2UA/pm-operating-system.git
+cd pm-operating-system
+./setup.sh
 ```
-/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git
-/plugin install pm-operating-system@pm-operating-system
-```
 
-> **Note on auth:** the HTTPS URL form above works without any setup. The shorter form `/plugin marketplace add Ninety2UA/pm-operating-system` only works if your local git is configured with GitHub SSH keys — otherwise you'll see `Permission denied (publickey)`.
-
-That's it. The first time Claude Code starts in your working directory, the plugin auto-creates the workspace (`tasks/`, `projects/`, `knowledge/`, `library/`) plus a blank `BACKLOG.md` and a `GOALS.md` template.
+`setup.sh` installs MCP server dependencies, creates your workspace directories (`tasks/`, `projects/`, `knowledge/`, `library/`), and walks you through an interactive goals setup.
 
 Next, populate your goals through a guided conversation:
 
@@ -137,39 +133,21 @@ Then start your first standup:
 /morning
 ```
 
-### Option 2: Clone and Bootstrap
+### Manual Setup
 
 ```bash
-git clone https://github.com/Ninety2UA/pm-operating-system.git
-cd pm-operating-system
-./install.sh
-```
-
-The install script will:
-- Verify Python 3.11+ and install `uv` if needed
-- Install MCP server dependencies
-- Create workspace directories
-- Walk you through an interactive goals setup
-- Verify everything works
-
-### Option 3: Manual Setup
-
-```bash
-# Clone
 git clone https://github.com/Ninety2UA/pm-operating-system.git
 cd pm-operating-system
 
 # Install MCP server dependencies
-cd pm-operating-system/core/mcp && uv sync && cd ../../..
+cd core/mcp && uv sync && cd ../..
 
 # Create workspace
-mkdir -p tasks projects knowledge/{research/projects,research/topics,Meetings,journals,session-reviews,decisions,People,Reference}
+mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,journals,session-reviews,decisions,people,reference}
 
 # Set your goals
 ./setup.sh
 ```
-
-> **Note:** `.mcp.json` lives inside `pm-operating-system/` and uses `${CLAUDE_PLUGIN_ROOT}` so it works automatically when installed as a Claude Code plugin. Option 2 is provided for contributors who want to edit the plugin locally — install your local clone as a plugin with `/plugin marketplace add /path/to/your/clone` then `/plugin install pm-operating-system@pm-operating-system`.
 
 ### Prerequisites
 
@@ -271,16 +249,10 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,Meetings,jo
 ## Project Structure
 
 ```
-pm-operating-system/                 (marketplace repo root)
+pm-operating-system/
 |
-|-- .claude-plugin/
-|   +-- marketplace.json         Marketplace manifest (points at the plugin below)
-|
-|-- pm-operating-system/             (THE PLUGIN)
-|   |-- .claude-plugin/
-|   |   +-- plugin.json          Plugin manifest
-|   |
-|   |-- skills/                  25 skills (19 original + 6 former commands)
+|-- .claude/
+|   |-- skills/                  25 skills (19 original + 6 workflow skills)
 |   |   |-- morning/SKILL.md
 |   |   |-- weekly/SKILL.md
 |   |   |-- launch/SKILL.md
@@ -293,16 +265,16 @@ pm-operating-system/                 (marketplace repo root)
 |   |   |-- batch-evaluator.md
 |   |   +-- system-health.md
 |   |
-|   |-- core/
-|   |   +-- mcp/                 manager-ai MCP server (10 tools + dedup)
-|   |
-|   |-- hooks/
-|   |   +-- hooks.json           Session hooks (workspace bootstrap)
-|   |
-|   |-- AGENTS.md                AI assistant instructions
-|   |-- CLAUDE.md                Plugin-side context
-|   |-- library/                 Reusable artifact catalog
-|   +-- .mcp.json                MCP server manifest
+|   +-- hooks/
+|       +-- hooks.json           Session hooks (workspace bootstrap)
+|
+|-- core/
+|   +-- mcp/                     manager-ai MCP server (10 tools + dedup)
+|
+|-- library/                     Reusable artifact catalog
+|-- AGENTS.md                    AI assistant instructions
+|-- CLAUDE.md                    Project context
+|-- .mcp.json                    MCP server manifest
 |
 |-- knowledge/                   Long-term memory (per-user, gitignored)
 |-- tasks/                       Active tasks (per-user, gitignored)
@@ -310,11 +282,10 @@ pm-operating-system/                 (marketplace repo root)
 |-- GOALS.md                     Your personal goals (per-user, gitignored)
 |-- BACKLOG.md                   Raw capture inbox (per-user, gitignored)
 |
-|-- README.md                    This file (repo-level docs)
+|-- README.md                    This file
 |-- LICENSE
 |-- docs/                        GitHub Pages site
-|-- setup.sh                     Interactive goals setup
-+-- install.sh                   Optional bootstrap installer (git clone path)
++-- setup.sh                     Interactive goals setup
 ```
 
 ---
@@ -376,16 +347,16 @@ Compiles a shipping summary, reads journals for plan-vs-actual patterns, reviews
 
 ### MCP Server (Required)
 
-The manager-ai MCP server provides 10 tools for task and project management. It is wired up in the committed `pm-operating-system/.mcp.json` — no manual configuration needed when the plugin is installed:
+The manager-ai MCP server provides 10 tools for task and project management. It is wired up in the committed `.mcp.json` at the repo root — `setup.sh` installs the dependencies and you are good to go:
 
 ```json
 {
   "mcpServers": {
     "manager-ai": {
       "command": "uv",
-      "args": ["--directory", "${CLAUDE_PLUGIN_ROOT}/core/mcp", "run", "server.py"],
+      "args": ["--directory", "./core/mcp", "run", "server.py"],
       "env": {
-        "MANAGER_AI_BASE_DIR": "/path/to/pm-operating-system"
+        "MANAGER_AI_BASE_DIR": "."
       }
     }
   }
@@ -538,80 +509,10 @@ gws calendar events list --params '{"calendarId": "primary", "timeMin": "2026-04
 
 | What | How |
 |------|-----|
-| Add a skill | Create `pm-operating-system/skills/<name>/SKILL.md` with frontmatter (`name`, `description`). Descriptions should enumerate explicit trigger phrases so Claude auto-invokes reliably. |
-| Add an agent | Create `pm-operating-system/agents/<name>.md` with frontmatter (`name`, `description`, `model`, `tools`) |
-| Change behavior | Edit `pm-operating-system/AGENTS.md` to modify prioritization rules, categories, or interaction style |
-| Add MCP server | Edit `pm-operating-system/.mcp.json` — use `${CLAUDE_PLUGIN_ROOT}` for intra-plugin paths |
-
----
-
-## Releases
-
-Tagged releases and binaries: [github.com/Ninety2UA/pm-operating-system/releases](https://github.com/Ninety2UA/pm-operating-system/releases).
-
-### v2.2.1 — 2026-04-14
-
-**Workspace bootstrap: fresh installs now have all the files they need.**
-
-The SessionStart hook used to only create empty directories — `BACKLOG.md` and `GOALS.md` were missing on a fresh install, so `/process-backlog` and `/morning`'s OKR check would error or no-op. Now the hook also creates these files (and helpful `README.md` files in `tasks/`, `projects/`, `knowledge/`).
-
-- **Added** — Hook now creates `BACKLOG.md` (capture inbox template) and `GOALS.md` (full template prompting `/refresh-goals`) on first run.
-- **Added** — `README.md` files in `tasks/`, `projects/`, and `knowledge/` explaining the layout to new users.
-- **Added** — `tasks/archive/` directory pre-created (used by `prune_completed_tasks` MCP tool).
-- **Changed** — Hook logic moved from a single-line bash command in `hooks.json` to `hooks/init-workspace.sh` for maintainability. Uses `${CLAUDE_PLUGIN_ROOT}` so it works for both `/plugin install` users and local-clone users.
-- **Idempotent** — files are only created when missing, so re-running the hook never overwrites user content.
-
-### v2.2.0 — 2026-04-14
-
-**Plugin restructure + skill overhaul — aligned with Anthropic's plugin and skill-creator conventions.**
-
-This release fixes the last install blocker (repos must have plugin content in a subdirectory, not at the repo root), converts all 6 commands to skills so the plugin has one consistent component type, and brings every skill up to skill-creator best practices.
-
-- **Fixed** — `/plugin install` now succeeds. Previous releases couldn't actually be installed because `.claude-plugin/marketplace.json` had `"source": "."` which Claude Code rejects. Plugin content now lives in `pm-operating-system/` subdirectory, following the pattern used by `anthropics/knowledge-work-plugins`.
-- **Changed** — All 6 commands (`/morning`, `/weekly`, `/quarterly`, `/launch`, `/process-backlog`, `/write`) converted from `commands/*.md` to `skills/*/SKILL.md`. User invocation (`/name`) is unchanged.
-- **Improved** — Every skill's description rewritten with explicit trigger-phrase enumeration and a "push" clause (e.g. "even if the user doesn't say 'X' explicitly"). Improves auto-invocation reliability across all 25 skills.
-- **Improved** — 9 skills with inline templates >65 lines now use progressive disclosure: templates moved to `references/<name>-template.md` and loaded on demand. SKILL.md bodies are now uniformly under 160 lines.
-- **Added** — `allowed-tools` frontmatter on the 6 former commands for consistency with the older skills.
-- **Removed** — `user-invocable: true` from `meeting-prep` (non-standard Claude Code frontmatter field).
-
-**Breaking change for repo-local developers:** The plugin content is no longer at the repo root. If you were running Claude Code directly from the repo (project-local mode), install as a plugin instead:
-
-```
-/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git
-/plugin install pm-operating-system@pm-operating-system
-```
-
-If you previously added the marketplace and hit the `v2.1.0` or `v2.1.1` schema errors, remove the stale entry first:
-```
-/plugin marketplace remove Ninety2UA-pm-operating-system
-```
-
-### v2.1.1 — 2026-04-14
-
-**Hotfix: `/plugin marketplace add` now actually clones + registers.**
-
-v2.1.0 fixed the committed `.mcp.json` but two install-path issues remained: the repo was missing `.claude-plugin/marketplace.json` (required by Claude Code to treat a repo as a plugin marketplace), and the documented install command used the SSH form which fails without GitHub SSH keys configured.
-
-- **Fixed** — Added `.claude-plugin/marketplace.json` as a single-plugin marketplace manifest with `"source": "."`. Claude Code now recognizes the repo as a valid marketplace.
-- **Fixed** — README Option 1 and FAQ now document the HTTPS clone URL (`https://github.com/Ninety2UA/pm-operating-system.git`), which works without SSH keys. The shorter `Owner/Repo` form still works if you have SSH keys configured.
-
-### v2.1.0 — 2026-04-14
-
-**Distribution fix: the Claude Code plugin install path now actually works.**
-
-Before this release, `/plugin install pm-operating-system@pm-operating-system` completed but shipped zero MCP tools, because `.mcp.json` was gitignored. Plugin-install users silently lost `manager-ai`, `perplexity`, and `granola`.
-
-- **Fixed** — README install command. Option 1 previously advertised `/install <repo>`, which is not a real Claude Code slash command. Corrected to the two-step marketplace flow using the HTTPS clone URL (works without SSH keys configured).
-- **Fixed** — `.mcp.json` is now committed at the repo root with `${CLAUDE_PLUGIN_ROOT}`-based paths, matching the convention used by Anthropic's official plugins.
-- **Changed** — `MANAGER_AI_BASE_DIR` defaults to `"."` (CWD) rather than a hard-coded absolute path, so the plugin works from any working directory.
-- **Removed** — `.mcp.json.example` (redundant with the tracked `.mcp.json`), plus the MCP-config block in `install.sh` (no longer needed).
-- **Improved** — Perplexity and Granola docs. The `mcpServers` entries are wired up in `.mcp.json` by default; you just install the CLI/desktop app and set your API key / auth.
-
-**Migration for existing users:** If you were running the repo in Option 2 mode (gitignored `.mcp.json` with absolute paths from `install.sh`'s sed rewrite), delete the local copy (`rm .mcp.json`) and pull the committed version. To use `manager-ai` going forward, install as a plugin: `/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git` then `/plugin install pm-operating-system@pm-operating-system`.
-
-### v2.0.0 — Initial release
-
-Public debut of the plugin architecture: goal-driven task management, project pipeline evaluation, compounding knowledge loops (daily journals → weekly reviews → quarterly OKR scoring), custom `manager-ai` MCP server with 10 tools, and integration with Perplexity, Slack, and Granola. See [git history](https://github.com/Ninety2UA/pm-operating-system/commits/main) for per-commit detail.
+| Add a skill | Create `.claude/skills/<name>/SKILL.md` with frontmatter (`name`, `description`). Descriptions should enumerate explicit trigger phrases so Claude auto-invokes reliably. |
+| Add an agent | Create `.claude/agents/<name>.md` with frontmatter (`name`, `description`, `model`, `tools`) |
+| Change behavior | Edit `AGENTS.md` to modify prioritization rules, categories, or interaction style |
+| Add MCP server | Edit `.mcp.json` at the repo root |
 
 ---
 
@@ -623,7 +524,7 @@ Contributions are welcome. Please:
 - Keep additions generic and configurable
 - Follow the existing patterns for skills, commands, and agents
 - Include documentation for new features
-- Test that `install.sh` still works after your changes
+- Test that `setup.sh` still works after your changes
 
 ---
 

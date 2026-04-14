@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PM Operating System — AI-Powered Productivity for Claude Code</title>
-  <meta name="description" content="A Claude Code plugin that gives your AI assistant a structured productivity layer. Goals, tasks, projects, pipeline evaluation, and compounding knowledge — all in markdown.">
+  <meta name="description" content="A Claude Code configuration that gives your AI assistant a structured productivity layer. Goals, tasks, projects, pipeline evaluation, and compounding knowledge — all in markdown.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -543,7 +543,6 @@
       <li><a href="#skills">Skills</a></li>
       <li><a href="#commands">Commands</a></li>
       <li><a href="#agents">Agents</a></li>
-      <li><a href="#releases">Releases</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <div class="nav-right">
@@ -566,7 +565,7 @@
   <div class="container">
     <div class="hero-badge reveal"><span class="dot"></span> Claude Code Plugin</div>
     <h1 class="reveal">PM Operating<br>System</h1>
-    <p class="hero-sub reveal">A Claude Code plugin that gives your AI assistant a structured productivity layer. Goals, tasks, projects, pipeline evaluation, and compounding knowledge — all in plain markdown.</p>
+    <p class="hero-sub reveal">A Claude Code configuration that gives your AI assistant a structured productivity layer. Goals, tasks, projects, pipeline evaluation, and compounding knowledge — all in plain markdown.</p>
     <div class="hero-actions reveal">
       <a href="#install" class="btn btn-primary">
         <svg viewBox="0 0 16 16"><path d="M8 1a.5.5 0 0 1 .5.5v9.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 11.293V1.5A.5.5 0 0 1 8 1z"/></svg>
@@ -781,26 +780,16 @@
   <div class="container">
     <div class="section-label reveal">Quick Start</div>
     <div class="section-title reveal">Install in Minutes</div>
-    <p class="section-desc reveal">Three ways to get started — pick what suits your workflow.</p>
+    <p class="section-desc reveal">Clone the repo and run setup. Two paths — guided or manual.</p>
     <div class="tabs reveal" role="tablist">
-      <button class="tab-btn active" data-tab="tab-plugin" role="tab">Plugin Install</button>
-      <button class="tab-btn" data-tab="tab-clone" role="tab">Clone &amp; Bootstrap</button>
+      <button class="tab-btn active" data-tab="tab-clone" role="tab">Clone &amp; Bootstrap</button>
       <button class="tab-btn" data-tab="tab-manual" role="tab">Manual Setup</button>
     </div>
-    <div class="tab-panel active" id="tab-plugin">
-      <div class="code-block reveal"><span class="cmt"># Install as a Claude Code plugin</span>
-<span class="kw">/plugin marketplace add</span> <span class="str">https://github.com/Ninety2UA/pm-operating-system.git</span>
-<span class="kw">/plugin install</span> pm-operating-system@pm-operating-system
-
-<span class="cmt"># The SessionStart hook auto-creates BACKLOG.md, GOALS.md template, and the workspace dirs</span>
-<span class="cmt"># Populate your goals through a guided conversation:</span>
-<span class="kw">/refresh-goals</span></div>
-    </div>
-    <div class="tab-panel" id="tab-clone">
+    <div class="tab-panel active" id="tab-clone">
       <div class="code-block reveal"><span class="kw">git clone</span> <span class="str">https://github.com/Ninety2UA/pm-operating-system.git</span>
 <span class="kw">cd</span> pm-operating-system
-<span class="kw">./install.sh</span></div>
-      <p style="font-size:14px;color:var(--text-secondary);margin-top:16px;" class="reveal">The install script verifies Python 3.11+, installs <code>uv</code>, creates workspace directories, configures MCP, and walks you through an interactive goals setup.</p>
+<span class="kw">./setup.sh</span></div>
+      <p style="font-size:14px;color:var(--text-secondary);margin-top:16px;" class="reveal"><code>setup.sh</code> installs MCP server dependencies, creates workspace directories, and walks you through an interactive goals setup. Then run <code>/refresh-goals</code> in Claude Code to populate your goals.</p>
     </div>
     <div class="tab-panel" id="tab-manual">
       <div class="code-block reveal"><span class="cmt"># Clone</span>
@@ -808,7 +797,7 @@
 <span class="kw">cd</span> pm-operating-system
 
 <span class="cmt"># Install MCP server dependencies</span>
-<span class="kw">cd</span> pm-operating-system/core/mcp &amp;&amp; <span class="kw">uv sync</span> &amp;&amp; <span class="kw">cd</span> ../../..
+<span class="kw">cd</span> core/mcp &amp;&amp; <span class="kw">uv sync</span> &amp;&amp; <span class="kw">cd</span> ../..
 
 <span class="cmt"># Create workspace directories</span>
 <span class="kw">mkdir -p</span> tasks projects knowledge/{research/projects,research/topics,meetings,journals,session-reviews,decisions,people,reference}
@@ -1084,99 +1073,18 @@
 </section>
 
 
-<!-- RELEASES -->
-<section id="releases">
-  <div class="container">
-    <div class="section-label reveal">Releases</div>
-    <div class="section-title reveal">What's new</div>
-    <p class="section-desc reveal">Each release below maps to a tagged version in <a href="https://github.com/Ninety2UA/pm-operating-system/releases" target="_blank" rel="noopener">GitHub Releases</a>. We follow semantic versioning — minor bumps add capabilities or fix user-visible bugs, patch bumps are docs and polish.</p>
-    <div style="max-width:860px;" class="reveal">
-
-      <div class="card" style="margin-bottom:24px;">
-        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
-          <div class="integ-name" style="font-size:20px;">v2.2.1</div>
-          <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
-        </div>
-        <div class="integ-desc" style="margin-bottom:14px;"><strong>Workspace bootstrap: fresh installs now have all the files they need.</strong> The SessionStart hook used to only create empty directories — <code>BACKLOG.md</code> and <code>GOALS.md</code> were missing on a fresh install, so <code>/process-backlog</code> and <code>/morning</code>'s OKR check would error or no-op. Now the hook also creates these files plus helpful <code>README.md</code> files explaining the layout.</div>
-        <ul style="margin:0 0 14px 18px; color:var(--text-secondary); font-size:14px;">
-          <li><strong style="color:var(--green);">Added</strong> — Hook creates <code>BACKLOG.md</code> (capture inbox template) and <code>GOALS.md</code> (full template prompting <code>/refresh-goals</code>) on first run.</li>
-          <li><strong style="color:var(--green);">Added</strong> — <code>README.md</code> files in <code>tasks/</code>, <code>projects/</code>, and <code>knowledge/</code> explaining the layout to new users.</li>
-          <li><strong style="color:var(--green);">Added</strong> — <code>tasks/archive/</code> pre-created (used by <code>prune_completed_tasks</code>).</li>
-          <li><strong style="color:var(--amber);">Changed</strong> — Hook logic moved from a single-line bash in <code>hooks.json</code> to <code>hooks/init-workspace.sh</code> for maintainability. Uses <code>${CLAUDE_PLUGIN_ROOT}</code>.</li>
-          <li><strong style="color:var(--purple);">Improved</strong> — Idempotent: files are only created when missing, so re-running the hook never overwrites user content.</li>
-        </ul>
-      </div>
-
-      <div class="card" style="margin-bottom:24px;">
-        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
-          <div class="integ-name" style="font-size:20px;">v2.2.0</div>
-          <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
-        </div>
-        <div class="integ-desc" style="margin-bottom:14px;"><strong>Plugin restructure + skill overhaul — aligned with Anthropic's plugin and skill-creator conventions.</strong> This release fixes the last install blocker (plugin content must live in a subdirectory, not at the repo root), converts all 6 commands to skills so the plugin has one consistent component type, and brings every skill up to <a href="https://github.com/anthropics/skills/tree/main/skills/skill-creator" target="_blank" rel="noopener">skill-creator</a> best practices.</div>
-        <ul style="margin:0 0 14px 18px; color:var(--text-secondary); font-size:14px;">
-          <li><strong style="color:var(--green);">Fixed</strong> — <code>/plugin install</code> now succeeds. Plugin content lives in <code>pm-operating-system/</code> subdirectory, following the pattern used by <code>anthropics/knowledge-work-plugins</code>. Previous releases failed at the schema validation step.</li>
-          <li><strong style="color:var(--amber);">Changed</strong> — All 6 commands (<code>/morning</code>, <code>/weekly</code>, <code>/quarterly</code>, <code>/launch</code>, <code>/process-backlog</code>, <code>/write</code>) converted to skills. User invocation (<code>/name</code>) unchanged.</li>
-          <li><strong style="color:var(--purple);">Improved</strong> — Every skill description rewritten with explicit trigger-phrase enumeration and a "push" clause (e.g. "even if the user doesn't say 'X' explicitly"). Improves auto-invocation reliability across all 25 skills.</li>
-          <li><strong style="color:var(--purple);">Improved</strong> — 9 skills with inline templates >65 lines now use progressive disclosure: templates moved to <code>references/&lt;name&gt;-template.md</code> and loaded on demand. SKILL.md bodies uniformly under 160 lines.</li>
-          <li><strong style="color:var(--green);">Added</strong> — <code>allowed-tools</code> frontmatter on the 6 former commands for consistency with the older skills.</li>
-          <li><strong style="color:var(--rose);">Removed</strong> — non-standard <code>user-invocable: true</code> field from <code>meeting-prep</code>.</li>
-        </ul>
-        <div class="integ-note" style="padding:12px 14px; background:rgba(251,191,36,.08); border-left:2px solid var(--amber); border-radius:6px;"><strong>Breaking change for repo-local developers:</strong> Plugin content is no longer at the repo root. If you were running Claude Code directly from the repo, install as a plugin instead. If you previously added the marketplace and hit v2.1.0/v2.1.1 schema errors, remove the stale entry first: <code>/plugin marketplace remove Ninety2UA-pm-operating-system</code>, then re-add and install.</div>
-      </div>
-
-      <div class="card" style="margin-bottom:24px;">
-        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
-          <div class="integ-name" style="font-size:20px;">v2.1.1</div>
-          <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
-        </div>
-        <div class="integ-desc" style="margin-bottom:14px;"><strong>Hotfix: <code>/plugin marketplace add</code> now actually clones and registers.</strong> v2.1.0 fixed the committed <code>.mcp.json</code> but two install-path issues remained: the repo was missing <code>.claude-plugin/marketplace.json</code> (required by Claude Code to treat a repo as a plugin marketplace), and the documented install command used the SSH form which fails without GitHub SSH keys configured.</div>
-        <ul style="margin:0 0 14px 18px; color:var(--text-secondary); font-size:14px;">
-          <li><strong style="color:var(--green);">Fixed</strong> — Added <code>.claude-plugin/marketplace.json</code> as a single-plugin marketplace manifest with <code>"source": "."</code>. Claude Code now recognizes the repo as a valid marketplace.</li>
-          <li><strong style="color:var(--green);">Fixed</strong> — README Option 1 and FAQ now document the HTTPS clone URL (<code>https://github.com/Ninety2UA/pm-operating-system.git</code>), which works without SSH keys. The shorter <code>Owner/Repo</code> form still works if you have SSH keys configured.</li>
-        </ul>
-      </div>
-
-      <div class="card" style="margin-bottom:24px;">
-        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
-          <div class="integ-name" style="font-size:20px;">v2.1.0</div>
-          <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
-        </div>
-        <div class="integ-desc" style="margin-bottom:14px;"><strong>Distribution fix: the Claude Code plugin install path now actually works.</strong> Before this release, <code>/plugin install pm-operating-system@pm-operating-system</code> completed but shipped zero MCP tools because <code>.mcp.json</code> was gitignored. Plugin-install users silently lost <code>manager-ai</code>, <code>perplexity</code>, and <code>granola</code>.</div>
-        <ul style="margin:0 0 14px 18px; color:var(--text-secondary); font-size:14px;">
-          <li><strong style="color:var(--green);">Fixed</strong> — README install command. Option 1 previously advertised <code>/install &lt;repo&gt;</code>, which is not a real Claude Code slash command. Corrected to the two-step marketplace flow.</li>
-          <li><strong style="color:var(--green);">Fixed</strong> — <code>.mcp.json</code> is now committed at the repo root with <code>${CLAUDE_PLUGIN_ROOT}</code>-based paths, matching the convention used by Anthropic's official plugins.</li>
-          <li><strong style="color:var(--amber);">Changed</strong> — <code>MANAGER_AI_BASE_DIR</code> defaults to <code>"."</code> (CWD) rather than a hard-coded absolute path, so the plugin works from any working directory.</li>
-          <li><strong style="color:var(--rose);">Removed</strong> — <code>.mcp.json.example</code> (redundant with the tracked <code>.mcp.json</code>), plus the MCP-config block in <code>install.sh</code> (no longer needed).</li>
-          <li><strong style="color:var(--purple);">Improved</strong> — Perplexity and Granola docs. The <code>mcpServers</code> entries are wired up in <code>.mcp.json</code> by default; you just install the CLI/desktop app and set your API key / auth.</li>
-        </ul>
-        <div class="integ-note" style="padding:12px 14px; background:rgba(251,191,36,.08); border-left:2px solid var(--amber); border-radius:6px;"><strong>Migration for existing users:</strong> If you were running in Option 2 mode (gitignored <code>.mcp.json</code> with absolute paths from <code>install.sh</code>'s sed rewrite), delete the local copy (<code>rm .mcp.json</code>) and pull the committed version. To use <code>manager-ai</code> going forward, install as a plugin: <code>/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git</code> then <code>/plugin install pm-operating-system@pm-operating-system</code>.</div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
-          <div class="integ-name" style="font-size:20px;">v2.0.0</div>
-          <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">Initial release</div>
-        </div>
-        <div class="integ-desc">Public debut of the plugin architecture: goal-driven task management, project pipeline evaluation, compounding knowledge loops (daily journals → weekly reviews → quarterly OKR scoring), custom <code>manager-ai</code> MCP server with 10 tools, and integration with Perplexity, Slack, and Granola. See <a href="https://github.com/Ninety2UA/pm-operating-system/commits/main" target="_blank" rel="noopener">git history</a> for per-commit detail.</div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-
 <!-- FAQ -->
 <section id="faq">
   <div class="container">
     <div class="section-label reveal">FAQ</div>
     <div class="section-title reveal">Frequently Asked Questions</div>
     <div style="max-width:720px;" class="reveal">
-      <div class="faq-item"><button class="faq-q">How do I get started with PM Operating System?<span class="faq-icon">+</span></button><div class="faq-a">Install the plugin with <code>/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git</code> then <code>/plugin install pm-operating-system@pm-operating-system</code>. The first time Claude Code runs in your working directory, the plugin auto-creates the workspace (<code>tasks/</code>, <code>projects/</code>, <code>knowledge/</code>) plus a blank <code>BACKLOG.md</code> and a <code>GOALS.md</code> template. Then run <code>/refresh-goals</code> for a guided walkthrough that fills in your goals, and <code>/morning</code> to start your first standup.</div></div>
+      <div class="faq-item"><button class="faq-q">How do I get started with PM Operating System?<span class="faq-icon">+</span></button><div class="faq-a">Clone the repo and run <code>./setup.sh</code>. It installs MCP server dependencies, creates the workspace (<code>tasks/</code>, <code>projects/</code>, <code>knowledge/</code>) plus a blank <code>BACKLOG.md</code> and a <code>GOALS.md</code> template, then walks you through an interactive goals setup. Then run <code>/refresh-goals</code> in Claude Code for a guided walkthrough that fills in your goals, and <code>/morning</code> to start your first standup.</div></div>
       <div class="faq-item"><button class="faq-q">Does it modify my existing files?<span class="faq-icon">+</span></button><div class="faq-a">No. The system creates new directories (tasks/, projects/, knowledge/) and markdown files. It never touches your existing code or documents. All personal data is gitignored by default.</div></div>
       <div class="faq-item"><button class="faq-q">Do I need all the integrations?<span class="faq-icon">+</span></button><div class="faq-a">No. All integrations are optional. The core system works entirely with local markdown files and the MCP server. Granola, Slack, Perplexity, and Google Workspace add extra capabilities but aren't required.</div></div>
-      <div class="faq-item"><button class="faq-q">What AI assistants does it work with?<span class="faq-icon">+</span></button><div class="faq-a">It's built as a Claude Code plugin, but the underlying system is just markdown files and an MCP server. Any AI assistant that can read markdown and call MCP tools can use it — including ChatGPT, Cursor, and other MCP-compatible tools.</div></div>
+      <div class="faq-item"><button class="faq-q">What AI assistants does it work with?<span class="faq-icon">+</span></button><div class="faq-a">It's built for Claude Code, but the underlying system is just markdown files and an MCP server. Any AI assistant that can read markdown and call MCP tools can use it — including ChatGPT, Cursor, and other MCP-compatible tools.</div></div>
       <div class="faq-item"><button class="faq-q">How does the AI know what to prioritize?<span class="faq-icon">+</span></button><div class="faq-a">Every session, the assistant reads GOALS.md (your strategic objectives) and AGENTS.md (the instruction set). Tasks and projects reference goals in their context sections. The AI cross-references to suggest what advances your objectives most.</div></div>
-      <div class="faq-item"><button class="faq-q">Can I customize skills and agents?<span class="faq-icon">+</span></button><div class="faq-a">Yes. Skills live in <code>pm-operating-system/skills/&lt;name&gt;/SKILL.md</code> and agents in <code>pm-operating-system/agents/&lt;name&gt;.md</code>. Each uses YAML frontmatter for configuration. Since v2.2.0 everything that used to be a slash command is also a skill — there's one consistent pattern. You can modify existing ones or create new ones by following the same shape.</div></div>
+      <div class="faq-item"><button class="faq-q">Can I customize skills and agents?<span class="faq-icon">+</span></button><div class="faq-a">Yes. Skills live in <code>.claude/skills/&lt;name&gt;/SKILL.md</code> and agents in <code>.claude/agents/&lt;name&gt;.md</code>. Each uses YAML frontmatter for configuration. Everything that you invoke as a slash command is also a skill — there's one consistent pattern. You can modify existing ones or create new ones by following the same shape.</div></div>
       <div class="faq-item"><button class="faq-q">What is knowledge compounding?<span class="faq-icon">+</span></button><div class="faq-a">The system learns through three loops: daily (journals), weekly (pattern detection + shipping summaries), and quarterly (OKR scoring + system audit). Each layer feeds the next — so your assistant gets smarter about your work patterns, estimates, and priorities over time.</div></div>
       <div class="faq-item"><button class="faq-q">How is my data stored?<span class="faq-icon">+</span></button><div class="faq-a">Everything is plain markdown with YAML frontmatter, stored locally on your machine. No cloud sync, no databases, no external storage. Personal directories (tasks/, knowledge/, etc.) are gitignored by default. You control exactly what gets committed.</div></div>
     </div>
@@ -1189,7 +1097,6 @@
     <div class="footer-links">
       <a href="https://github.com/Ninety2UA/pm-operating-system" target="_blank" rel="noopener">GitHub</a>
       <a href="https://github.com/Ninety2UA/pm-operating-system/issues" target="_blank" rel="noopener">Issues</a>
-      <a href="https://github.com/Ninety2UA/pm-operating-system/releases" target="_blank" rel="noopener">Releases</a>
       <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener">MIT License</a>
     </div>
     <p>PM Operating System — AI-powered productivity, built on markdown.</p>
