@@ -36,9 +36,6 @@ projects/*/competitive-analysis.md
 .claude/plans/
 .claude/commands/
 
-# ── MCP config (contains paths + credentials) ─────────
-.mcp.json
-
 # ── Personal/scratch files ────────────────────────────
 docs/brainstorms/
 docs/plans/

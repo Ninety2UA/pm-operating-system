@@ -543,6 +543,7 @@
       <li><a href="#skills">Skills</a></li>
       <li><a href="#commands">Commands</a></li>
       <li><a href="#agents">Agents</a></li>
+      <li><a href="#releases">Releases</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <div class="nav-right">
@@ -810,9 +811,6 @@
 <span class="cmt"># Create workspace directories</span>
 <span class="kw">mkdir -p</span> Tasks Projects knowledge/{research/projects,research/topics,Meetings,journals,session-reviews,decisions,People,Reference}
 
-<span class="cmt"># Configure MCP (edit paths to match your install)</span>
-<span class="kw">cp</span> .mcp.json.example .mcp.json
-
 <span class="cmt"># Set your goals</span>
 <span class="kw">./setup.sh</span></div>
     </div>
@@ -1047,8 +1045,7 @@
           <div class="integ-step"><strong>1.</strong> Get an API key from <a href="https://www.perplexity.ai/settings/api" target="_blank" rel="noopener">perplexity.ai/settings/api</a></div>
           <div class="integ-step"><strong>2.</strong> Add to your shell profile:</div>
           <code class="integ-cmd">export PERPLEXITY_API_KEY="pplx-..."</code>
-          <div class="integ-step"><strong>3.</strong> Add to <code>.mcp.json</code>:</div>
-          <code class="integ-cmd">"perplexity": { "command": "npx", "args": ["-y", "@nicepkg/perplexity-mcp"] }</code>
+          <div class="integ-note">Already wired up in <code>.mcp.json</code> — no manual edit needed.</div>
         </div>
       </div>
       <div class="card reveal reveal-delay-1">
@@ -1067,9 +1064,7 @@
         <div class="integ-desc">Sync meeting notes and transcripts into knowledge/meetings/ automatically via <code>/meeting-sync</code>. Requires <a href="https://granola.ai" target="_blank" rel="noopener">paid plan</a>.</div>
         <div class="integ-setup">
           <div class="integ-step"><strong>1.</strong> Install the <a href="https://granola.ai" target="_blank" rel="noopener">Granola</a> desktop app (paid plan required)</div>
-          <div class="integ-step"><strong>2.</strong> Add to <code>.mcp.json</code>:</div>
-          <code class="integ-cmd">"granola": { "type": "http", "url": "https://mcp.granola.ai/mcp" }</code>
-          <div class="integ-note">Authenticates via OAuth on first use. <a href="https://www.granola.ai/blog/granola-mcp" target="_blank" rel="noopener">Setup guide</a></div>
+          <div class="integ-note">Already wired up in <code>.mcp.json</code>. Authenticates via OAuth on first use. <a href="https://www.granola.ai/blog/granola-mcp" target="_blank" rel="noopener">Setup guide</a></div>
         </div>
       </div>
       <div class="card reveal reveal-delay-3">
@@ -1087,13 +1082,50 @@
 </section>
 
 
+<!-- RELEASES -->
+<section id="releases">
+  <div class="container">
+    <div class="section-label reveal">Releases</div>
+    <div class="section-title reveal">What's new</div>
+    <p class="section-desc reveal">Each release below maps to a tagged version in <a href="https://github.com/Ninety2UA/pm-operating-system/releases" target="_blank" rel="noopener">GitHub Releases</a>. We follow semantic versioning — minor bumps add capabilities or fix user-visible bugs, patch bumps are docs and polish.</p>
+    <div style="max-width:860px;" class="reveal">
+
+      <div class="card" style="margin-bottom:24px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
+          <div class="integ-name" style="font-size:20px;">v2.1.0</div>
+          <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
+        </div>
+        <div class="integ-desc" style="margin-bottom:14px;"><strong>Distribution fix: the Claude Code plugin install path now actually works.</strong> Before this release, <code>/plugin install pm-operating-system@pm-operating-system</code> completed but shipped zero MCP tools because <code>.mcp.json</code> was gitignored. Plugin-install users silently lost <code>manager-ai</code>, <code>perplexity</code>, and <code>granola</code>.</div>
+        <ul style="margin:0 0 14px 18px; color:var(--text-secondary); font-size:14px;">
+          <li><strong style="color:var(--green);">Fixed</strong> — README install command. Option 1 previously advertised <code>/install &lt;repo&gt;</code>, which is not a real Claude Code slash command. Corrected to the two-step marketplace flow.</li>
+          <li><strong style="color:var(--green);">Fixed</strong> — <code>.mcp.json</code> is now committed at the repo root with <code>${CLAUDE_PLUGIN_ROOT}</code>-based paths, matching the convention used by Anthropic's official plugins.</li>
+          <li><strong style="color:var(--amber);">Changed</strong> — <code>MANAGER_AI_BASE_DIR</code> defaults to <code>"."</code> (CWD) rather than a hard-coded absolute path, so the plugin works from any working directory.</li>
+          <li><strong style="color:var(--rose);">Removed</strong> — <code>.mcp.json.example</code> (redundant with the tracked <code>.mcp.json</code>), plus the MCP-config block in <code>install.sh</code> (no longer needed).</li>
+          <li><strong style="color:var(--purple);">Improved</strong> — Perplexity and Granola docs. The <code>mcpServers</code> entries are wired up in <code>.mcp.json</code> by default; you just install the CLI/desktop app and set your API key / auth.</li>
+        </ul>
+        <div class="integ-note" style="padding:12px 14px; background:rgba(251,191,36,.08); border-left:2px solid var(--amber); border-radius:6px;"><strong>Migration for existing users:</strong> If you were running in Option 2 mode (gitignored <code>.mcp.json</code> with absolute paths from <code>install.sh</code>'s sed rewrite), delete the local copy (<code>rm .mcp.json</code>) and pull the committed version. To use <code>manager-ai</code> going forward, install as a plugin: <code>/plugin marketplace add Ninety2UA/pm-operating-system</code> then <code>/plugin install pm-operating-system@pm-operating-system</code>.</div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
+          <div class="integ-name" style="font-size:20px;">v2.0.0</div>
+          <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">Initial release</div>
+        </div>
+        <div class="integ-desc">Public debut of the plugin architecture: goal-driven task management, project pipeline evaluation, compounding knowledge loops (daily journals → weekly reviews → quarterly OKR scoring), custom <code>manager-ai</code> MCP server with 10 tools, and integration with Perplexity, Slack, and Granola. See <a href="https://github.com/Ninety2UA/pm-operating-system/commits/main" target="_blank" rel="noopener">git history</a> for per-commit detail.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
 <!-- FAQ -->
 <section id="faq">
   <div class="container">
     <div class="section-label reveal">FAQ</div>
     <div class="section-title reveal">Frequently Asked Questions</div>
     <div style="max-width:720px;" class="reveal">
-      <div class="faq-item"><button class="faq-q">How do I get started with PM Operating System?<span class="faq-icon">+</span></button><div class="faq-a">Install the plugin with <code>/install Ninety2UA/pm-operating-system</code>, then run <code>./setup.sh</code> to configure your goals. The setup walks you through a 2-minute interactive questionnaire. After that, just say <code>/morning</code> to start your first standup.</div></div>
+      <div class="faq-item"><button class="faq-q">How do I get started with PM Operating System?<span class="faq-icon">+</span></button><div class="faq-a">Install the plugin with <code>/plugin marketplace add Ninety2UA/pm-operating-system</code> then <code>/plugin install pm-operating-system@pm-operating-system</code>, and run <code>./setup.sh</code> to configure your goals. The setup walks you through a 2-minute interactive questionnaire. After that, just say <code>/morning</code> to start your first standup.</div></div>
       <div class="faq-item"><button class="faq-q">Does it modify my existing files?<span class="faq-icon">+</span></button><div class="faq-a">No. The system creates new directories (tasks/, projects/, knowledge/) and markdown files. It never touches your existing code or documents. All personal data is gitignored by default.</div></div>
       <div class="faq-item"><button class="faq-q">Do I need all the integrations?<span class="faq-icon">+</span></button><div class="faq-a">No. All integrations are optional. The core system works entirely with local markdown files and the MCP server. Granola, Slack, Perplexity, and Google Workspace add extra capabilities but aren't required.</div></div>
       <div class="faq-item"><button class="faq-q">What AI assistants does it work with?<span class="faq-icon">+</span></button><div class="faq-a">It's built as a Claude Code plugin, but the underlying system is just markdown files and an MCP server. Any AI assistant that can read markdown and call MCP tools can use it — including ChatGPT, Cursor, and other MCP-compatible tools.</div></div>
@@ -1140,7 +1172,7 @@
 
   var mobileMenu = document.getElementById('mobileMenu');
   var hamburgerBtn = document.getElementById('hamburgerBtn');
-  var menuLinks = ['overview','philosophy','architecture','features','install','skills','commands','agents','faq'];
+  var menuLinks = ['overview','philosophy','architecture','features','install','skills','commands','agents','releases','faq'];
 
   menuLinks.forEach(function(id) {
     var a = document.createElement('a');

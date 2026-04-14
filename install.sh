@@ -113,19 +113,7 @@ for dir in "${DIRS[@]}"; do
 done
 ok "Workspace directories ready"
 
-# ── 4. Configure MCP server ───────────────────────────────────────────
-
-if [ ! -f "$SCRIPT_DIR/.mcp.json" ]; then
-  info "Creating .mcp.json from template..."
-  # Replace relative path with absolute path for the current install location
-  sed "s|\"./core/mcp\"|\"$SCRIPT_DIR/core/mcp\"|g; s|\".\"|\"$SCRIPT_DIR\"|g" \
-    "$SCRIPT_DIR/.mcp.json.example" > "$SCRIPT_DIR/.mcp.json"
-  ok ".mcp.json created with paths pointing to: $SCRIPT_DIR"
-else
-  info ".mcp.json already exists (skipping)"
-fi
-
-# ── 5. Create BACKLOG.md if missing ───────────────────────────────────
+# ── 4. Create BACKLOG.md if missing ───────────────────────────────────
 
 if [ ! -f "$SCRIPT_DIR/BACKLOG.md" ]; then
   cat > "$SCRIPT_DIR/BACKLOG.md" << 'EOF'
@@ -136,7 +124,7 @@ EOF
   ok "BACKLOG.md created"
 fi
 
-# ── 6. Verify MCP server ─────────────────────────────────────────────
+# ── 5. Verify MCP server ─────────────────────────────────────────────
 
 echo ""
 info "Verifying MCP server starts..."
@@ -154,7 +142,7 @@ else
   warn "  cd core/mcp && MANAGER_AI_BASE_DIR=$SCRIPT_DIR uv run server.py"
 fi
 
-# ── 7. Interactive goals setup ────────────────────────────────────────
+# ── 6. Interactive goals setup ────────────────────────────────────────
 
 if [ "$SKIP_GOALS" = false ] && [ ! -f "$SCRIPT_DIR/GOALS.md" ]; then
   echo ""
@@ -174,7 +162,7 @@ if [ "$SKIP_GOALS" = false ] && [ ! -f "$SCRIPT_DIR/GOALS.md" ]; then
   fi
 fi
 
-# ── 8. Summary ────────────────────────────────────────────────────────
+# ── 7. Summary ────────────────────────────────────────────────────────
 
 echo ""
 echo "============================================================"
@@ -184,7 +172,7 @@ echo ""
 echo "  Installed:"
 echo "    - MCP server (manager-ai) with task/project management"
 echo "    - Workspace directories (tasks/, projects/, knowledge/)"
-echo "    - .mcp.json configured for this directory"
+echo "    - MCP servers wired up via .mcp.json (manager-ai + perplexity + granola)"
 echo ""
 echo "  Next steps:"
 echo ""

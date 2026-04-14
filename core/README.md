@@ -140,14 +140,14 @@ The system automatically:
 
 ## Integrations
 
-Optional integrations are configured via `.mcp.json` in the project root. See the main [README](../README.md#optional-integrations) for setup instructions.
+Integrations are wired up in the committed `.mcp.json` at the repo root — no manual edits required. Each still needs its own auth or install step (API key, CLI, desktop app). See the main [README](../README.md#optional-integrations) for those.
 
-| Integration | Description | Config |
+| Integration | Description | Setup |
 |-------------|-------------|--------|
-| Perplexity | AI-powered web research | `.mcp.json` |
-| Slack | Team messaging | Claude Code plugin |
-| Granola | Meeting sync | `.mcp.json` |
-| Google Workspace | Gmail & Calendar | `gws` CLI |
+| Perplexity | AI-powered web research | `PERPLEXITY_API_KEY` env var + `npm install -g @nicepkg/perplexity-mcp` |
+| Slack | Team messaging | Claude Code plugin (`/plugin install slack`) |
+| Granola | Meeting sync | Granola desktop app + OAuth on first use |
+| Google Workspace | Gmail & Calendar | `gws` CLI (not MCP) |
 
 ## Customization
 

@@ -109,7 +109,8 @@ The system learns through three nested feedback loops. Each layer feeds the next
 ### Option 1: Install as a Claude Code Plugin
 
 ```
-/install Ninety2UA/pm-operating-system
+/plugin marketplace add Ninety2UA/pm-operating-system
+/plugin install pm-operating-system@pm-operating-system
 ```
 
 Then run the setup to create your goals:
@@ -130,7 +131,6 @@ The install script will:
 - Verify Python 3.11+ and install `uv` if needed
 - Install MCP server dependencies
 - Create workspace directories
-- Configure `.mcp.json`
 - Walk you through an interactive goals setup
 - Verify everything works
 
@@ -147,12 +147,11 @@ cd core/mcp && uv sync && cd ../..
 # Create workspace
 mkdir -p tasks projects knowledge/{research/projects,research/topics,Meetings,journals,session-reviews,decisions,People,Reference}
 
-# Configure MCP (edit paths to match your install location)
-cp .mcp.json.example .mcp.json
-
 # Set your goals
 ./setup.sh
 ```
+
+> **Note:** `.mcp.json` is already committed at the repo root and uses `${CLAUDE_PLUGIN_ROOT}` so it works automatically when installed as a Claude Code plugin. For manual/project-local use, `${CLAUDE_PLUGIN_ROOT}` will not resolve — install as a plugin (Option 1) for the fully-wired experience.
 
 ### Prerequisites
 
@@ -298,7 +297,7 @@ pm-operating-system/
 |-- BACKLOG.md                   Raw capture inbox
 |-- setup.sh                     Interactive goals setup
 |-- install.sh                   Full bootstrap installer
-+-- .mcp.json.example            MCP config template
++-- .mcp.json                    MCP server manifest (manager-ai + perplexity + granola)
 ```
 
 ---
@@ -360,14 +359,14 @@ Compiles a shipping summary, reads journals for plan-vs-actual patterns, reviews
 
 ### MCP Server (Required)
 
-The manager-ai MCP server provides 10 tools for task and project management. It is configured automatically by `install.sh`, or manually via `.mcp.json`:
+The manager-ai MCP server provides 10 tools for task and project management. It is wired up in the committed `.mcp.json` at the repo root — no manual configuration needed when the plugin is installed:
 
 ```json
 {
   "mcpServers": {
     "manager-ai": {
       "command": "uv",
-      "args": ["--directory", "/path/to/pm-operating-system/core/mcp", "run", "server.py"],
+      "args": ["--directory", "${CLAUDE_PLUGIN_ROOT}/core/mcp", "run", "server.py"],
       "env": {
         "MANAGER_AI_BASE_DIR": "/path/to/pm-operating-system"
       }
@@ -413,14 +412,7 @@ Powers the research capabilities of `/validate-project`, `/competitive-analysis`
 npm install -g @nicepkg/perplexity-mcp
 ```
 
-**Configure** — add to your `.mcp.json` under `mcpServers`:
-
-```json
-"perplexity": {
-  "command": "npx",
-  "args": ["-y", "@nicepkg/perplexity-mcp"]
-}
-```
+**Configure** — the Perplexity entry is already wired up in `.mcp.json` (runs via `npx -y @nicepkg/perplexity-mcp`). No manual edit needed.
 
 **Set your API key** — get one from [perplexity.ai/settings/api](https://www.perplexity.ai/settings/api), then:
 
@@ -473,16 +465,7 @@ Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `kno
 - Granola desktop app installed
 - Granola paid plan (required for MCP access)
 
-**Configure** — add to your `.mcp.json` under `mcpServers`:
-
-```json
-"granola": {
-  "type": "http",
-  "url": "https://mcp.granola.ai/mcp"
-}
-```
-
-You will be prompted to authenticate on first use. See [Granola MCP setup guide](https://www.granola.ai/blog/granola-mcp) for details.
+**Configure** — the Granola entry is already wired up in `.mcp.json` (HTTP MCP at `https://mcp.granola.ai/mcp`). You will be prompted to authenticate on first use. See [Granola MCP setup guide](https://www.granola.ai/blog/granola-mcp) for details.
 
 **Usage:** Run `/meeting-sync` during your morning standup or anytime to pull in recent meetings.
 
@@ -542,6 +525,30 @@ gws calendar events list --params '{"calendarId": "primary", "timeMin": "2026-04
 | Add a command | Create `commands/<name>.md` with frontmatter (`description`, `argument-hint`) |
 | Add an agent | Create `agents/<name>.md` with frontmatter (`name`, `description`, `model`, `tools`) |
 | Change behavior | Edit `AGENTS.md` to modify prioritization rules, categories, or interaction style |
+
+---
+
+## Releases
+
+Tagged releases and binaries: [github.com/Ninety2UA/pm-operating-system/releases](https://github.com/Ninety2UA/pm-operating-system/releases).
+
+### v2.1.0 — 2026-04-14
+
+**Distribution fix: the Claude Code plugin install path now actually works.**
+
+Before this release, `/plugin install pm-operating-system@pm-operating-system` completed but shipped zero MCP tools, because `.mcp.json` was gitignored. Plugin-install users silently lost `manager-ai`, `perplexity`, and `granola`.
+
+- **Fixed** — README install command. Option 1 previously advertised `/install <repo>`, which is not a real Claude Code slash command. Corrected to the two-step marketplace flow: `/plugin marketplace add Ninety2UA/pm-operating-system` then `/plugin install pm-operating-system@pm-operating-system`.
+- **Fixed** — `.mcp.json` is now committed at the repo root with `${CLAUDE_PLUGIN_ROOT}`-based paths, matching the convention used by Anthropic's official plugins.
+- **Changed** — `MANAGER_AI_BASE_DIR` defaults to `"."` (CWD) rather than a hard-coded absolute path, so the plugin works from any working directory.
+- **Removed** — `.mcp.json.example` (redundant with the tracked `.mcp.json`), plus the MCP-config block in `install.sh` (no longer needed).
+- **Improved** — Perplexity and Granola docs. The `mcpServers` entries are wired up in `.mcp.json` by default; you just install the CLI/desktop app and set your API key / auth.
+
+**Migration for existing users:** If you were running the repo in Option 2 mode (gitignored `.mcp.json` with absolute paths from `install.sh`'s sed rewrite), delete the local copy (`rm .mcp.json`) and pull the committed version. To use `manager-ai` going forward, install as a plugin: `/plugin marketplace add Ninety2UA/pm-operating-system` then `/plugin install pm-operating-system@pm-operating-system`.
+
+### v2.0.0 — Initial release
+
+Public debut of the plugin architecture: goal-driven task management, project pipeline evaluation, compounding knowledge loops (daily journals → weekly reviews → quarterly OKR scoring), custom `manager-ai` MCP server with 10 tools, and integration with Perplexity, Slack, and Granola. See [git history](https://github.com/Ninety2UA/pm-operating-system/commits/main) for per-commit detail.
 
 ---
 
