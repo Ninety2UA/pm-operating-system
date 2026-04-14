@@ -789,10 +789,12 @@
     </div>
     <div class="tab-panel active" id="tab-plugin">
       <div class="code-block reveal"><span class="cmt"># Install as a Claude Code plugin</span>
-<span class="kw">/install</span> Ninety2UA/pm-operating-system
+<span class="kw">/plugin marketplace add</span> <span class="str">https://github.com/Ninety2UA/pm-operating-system.git</span>
+<span class="kw">/plugin install</span> pm-operating-system@pm-operating-system
 
-<span class="cmt"># Then run setup to create your goals</span>
-<span class="kw">./setup.sh</span></div>
+<span class="cmt"># The SessionStart hook auto-creates BACKLOG.md, GOALS.md template, and the workspace dirs</span>
+<span class="cmt"># Populate your goals through a guided conversation:</span>
+<span class="kw">/refresh-goals</span></div>
     </div>
     <div class="tab-panel" id="tab-clone">
       <div class="code-block reveal"><span class="kw">git clone</span> <span class="str">https://github.com/Ninety2UA/pm-operating-system.git</span>
@@ -809,9 +811,9 @@
 <span class="kw">cd</span> pm-operating-system/core/mcp &amp;&amp; <span class="kw">uv sync</span> &amp;&amp; <span class="kw">cd</span> ../../..
 
 <span class="cmt"># Create workspace directories</span>
-<span class="kw">mkdir -p</span> Tasks Projects knowledge/{research/projects,research/topics,Meetings,journals,session-reviews,decisions,People,Reference}
+<span class="kw">mkdir -p</span> tasks projects knowledge/{research/projects,research/topics,meetings,journals,session-reviews,decisions,people,reference}
 
-<span class="cmt"># Set your goals</span>
+<span class="cmt"># Set your goals (interactive bash flow)</span>
 <span class="kw">./setup.sh</span></div>
     </div>
     <table class="prereqs reveal">
@@ -1169,7 +1171,7 @@
     <div class="section-label reveal">FAQ</div>
     <div class="section-title reveal">Frequently Asked Questions</div>
     <div style="max-width:720px;" class="reveal">
-      <div class="faq-item"><button class="faq-q">How do I get started with PM Operating System?<span class="faq-icon">+</span></button><div class="faq-a">Install the plugin with <code>/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git</code> then <code>/plugin install pm-operating-system@pm-operating-system</code>, and run <code>./setup.sh</code> to configure your goals. The HTTPS URL works without SSH keys. The setup walks you through a 2-minute interactive questionnaire. After that, just say <code>/morning</code> to start your first standup.</div></div>
+      <div class="faq-item"><button class="faq-q">How do I get started with PM Operating System?<span class="faq-icon">+</span></button><div class="faq-a">Install the plugin with <code>/plugin marketplace add https://github.com/Ninety2UA/pm-operating-system.git</code> then <code>/plugin install pm-operating-system@pm-operating-system</code>. The first time Claude Code runs in your working directory, the plugin auto-creates the workspace (<code>tasks/</code>, <code>projects/</code>, <code>knowledge/</code>) plus a blank <code>BACKLOG.md</code> and a <code>GOALS.md</code> template. Then run <code>/refresh-goals</code> for a guided walkthrough that fills in your goals, and <code>/morning</code> to start your first standup.</div></div>
       <div class="faq-item"><button class="faq-q">Does it modify my existing files?<span class="faq-icon">+</span></button><div class="faq-a">No. The system creates new directories (tasks/, projects/, knowledge/) and markdown files. It never touches your existing code or documents. All personal data is gitignored by default.</div></div>
       <div class="faq-item"><button class="faq-q">Do I need all the integrations?<span class="faq-icon">+</span></button><div class="faq-a">No. All integrations are optional. The core system works entirely with local markdown files and the MCP server. Granola, Slack, Perplexity, and Google Workspace add extra capabilities but aren't required.</div></div>
       <div class="faq-item"><button class="faq-q">What AI assistants does it work with?<span class="faq-icon">+</span></button><div class="faq-a">It's built as a Claude Code plugin, but the underlying system is just markdown files and an MCP server. Any AI assistant that can read markdown and call MCP tools can use it — including ChatGPT, Cursor, and other MCP-compatible tools.</div></div>

@@ -123,10 +123,18 @@ The system learns through three nested feedback loops. Each layer feeds the next
 
 > **Note on auth:** the HTTPS URL form above works without any setup. The shorter form `/plugin marketplace add Ninety2UA/pm-operating-system` only works if your local git is configured with GitHub SSH keys — otherwise you'll see `Permission denied (publickey)`.
 
-Then run the setup to create your goals:
+That's it. The first time Claude Code starts in your working directory, the plugin auto-creates the workspace (`tasks/`, `projects/`, `knowledge/`, `library/`) plus a blank `BACKLOG.md` and a `GOALS.md` template.
 
-```bash
-./setup.sh
+Next, populate your goals through a guided conversation:
+
+```
+/refresh-goals
+```
+
+Then start your first standup:
+
+```
+/morning
 ```
 
 ### Option 2: Clone and Bootstrap
