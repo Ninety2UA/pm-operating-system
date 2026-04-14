@@ -82,7 +82,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo ""
 info "Installing MCP server dependencies..."
-(cd "$SCRIPT_DIR/core/mcp" && uv sync --quiet)
+(cd "$SCRIPT_DIR/pm-operating-system/core/mcp" && uv sync --quiet)
 ok "Python dependencies installed"
 
 # ── 3. Set up workspace directories ───────────────────────────────────
@@ -129,7 +129,7 @@ fi
 echo ""
 info "Verifying MCP server starts..."
 MCP_PID=""
-(cd "$SCRIPT_DIR/core/mcp" && MANAGER_AI_BASE_DIR="$SCRIPT_DIR" uv run server.py &>/dev/null) &
+(cd "$SCRIPT_DIR/pm-operating-system/core/mcp" && MANAGER_AI_BASE_DIR="$SCRIPT_DIR" uv run server.py &>/dev/null) &
 MCP_PID=$!
 sleep 2
 
@@ -139,7 +139,7 @@ if kill -0 "$MCP_PID" 2>/dev/null; then
   wait "$MCP_PID" 2>/dev/null
 else
   warn "MCP server may have issues. Run manually to debug:"
-  warn "  cd core/mcp && MANAGER_AI_BASE_DIR=$SCRIPT_DIR uv run server.py"
+  warn "  cd pm-operating-system/core/mcp && MANAGER_AI_BASE_DIR=$SCRIPT_DIR uv run server.py"
 fi
 
 # ── 6. Interactive goals setup ────────────────────────────────────────

@@ -806,7 +806,7 @@
 <span class="kw">cd</span> pm-operating-system
 
 <span class="cmt"># Install MCP server dependencies</span>
-<span class="kw">cd</span> core/mcp &amp;&amp; <span class="kw">uv sync</span> &amp;&amp; <span class="kw">cd</span> ../..
+<span class="kw">cd</span> pm-operating-system/core/mcp &amp;&amp; <span class="kw">uv sync</span> &amp;&amp; <span class="kw">cd</span> ../../..
 
 <span class="cmt"># Create workspace directories</span>
 <span class="kw">mkdir -p</span> Tasks Projects knowledge/{research/projects,research/topics,Meetings,journals,session-reviews,decisions,People,Reference}
@@ -1092,6 +1092,23 @@
 
       <div class="card" style="margin-bottom:24px;">
         <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
+          <div class="integ-name" style="font-size:20px;">v2.2.0</div>
+          <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
+        </div>
+        <div class="integ-desc" style="margin-bottom:14px;"><strong>Plugin restructure + skill overhaul — aligned with Anthropic's plugin and skill-creator conventions.</strong> This release fixes the last install blocker (plugin content must live in a subdirectory, not at the repo root), converts all 6 commands to skills so the plugin has one consistent component type, and brings every skill up to <a href="https://github.com/anthropics/skills/tree/main/skills/skill-creator" target="_blank" rel="noopener">skill-creator</a> best practices.</div>
+        <ul style="margin:0 0 14px 18px; color:var(--text-secondary); font-size:14px;">
+          <li><strong style="color:var(--green);">Fixed</strong> — <code>/plugin install</code> now succeeds. Plugin content lives in <code>pm-operating-system/</code> subdirectory, following the pattern used by <code>anthropics/knowledge-work-plugins</code>. Previous releases failed at the schema validation step.</li>
+          <li><strong style="color:var(--amber);">Changed</strong> — All 6 commands (<code>/morning</code>, <code>/weekly</code>, <code>/quarterly</code>, <code>/launch</code>, <code>/process-backlog</code>, <code>/write</code>) converted to skills. User invocation (<code>/name</code>) unchanged.</li>
+          <li><strong style="color:var(--purple);">Improved</strong> — Every skill description rewritten with explicit trigger-phrase enumeration and a "push" clause (e.g. "even if the user doesn't say 'X' explicitly"). Improves auto-invocation reliability across all 25 skills.</li>
+          <li><strong style="color:var(--purple);">Improved</strong> — 9 skills with inline templates >65 lines now use progressive disclosure: templates moved to <code>references/&lt;name&gt;-template.md</code> and loaded on demand. SKILL.md bodies uniformly under 160 lines.</li>
+          <li><strong style="color:var(--green);">Added</strong> — <code>allowed-tools</code> frontmatter on the 6 former commands for consistency with the older skills.</li>
+          <li><strong style="color:var(--rose);">Removed</strong> — non-standard <code>user-invocable: true</code> field from <code>meeting-prep</code>.</li>
+        </ul>
+        <div class="integ-note" style="padding:12px 14px; background:rgba(251,191,36,.08); border-left:2px solid var(--amber); border-radius:6px;"><strong>Breaking change for repo-local developers:</strong> Plugin content is no longer at the repo root. If you were running Claude Code directly from the repo, install as a plugin instead. If you previously added the marketplace and hit v2.1.0/v2.1.1 schema errors, remove the stale entry first: <code>/plugin marketplace remove Ninety2UA-pm-operating-system</code>, then re-add and install.</div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
           <div class="integ-name" style="font-size:20px;">v2.1.1</div>
           <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
         </div>
@@ -1142,7 +1159,7 @@
       <div class="faq-item"><button class="faq-q">Do I need all the integrations?<span class="faq-icon">+</span></button><div class="faq-a">No. All integrations are optional. The core system works entirely with local markdown files and the MCP server. Granola, Slack, Perplexity, and Google Workspace add extra capabilities but aren't required.</div></div>
       <div class="faq-item"><button class="faq-q">What AI assistants does it work with?<span class="faq-icon">+</span></button><div class="faq-a">It's built as a Claude Code plugin, but the underlying system is just markdown files and an MCP server. Any AI assistant that can read markdown and call MCP tools can use it — including ChatGPT, Cursor, and other MCP-compatible tools.</div></div>
       <div class="faq-item"><button class="faq-q">How does the AI know what to prioritize?<span class="faq-icon">+</span></button><div class="faq-a">Every session, the assistant reads GOALS.md (your strategic objectives) and AGENTS.md (the instruction set). Tasks and projects reference goals in their context sections. The AI cross-references to suggest what advances your objectives most.</div></div>
-      <div class="faq-item"><button class="faq-q">Can I customize skills, commands, and agents?<span class="faq-icon">+</span></button><div class="faq-a">Yes. Skills live in skills/name/SKILL.md, commands in commands/name.md, and agents in agents/name.md. Each uses YAML frontmatter for configuration. You can modify existing ones or create new ones following the same patterns.</div></div>
+      <div class="faq-item"><button class="faq-q">Can I customize skills and agents?<span class="faq-icon">+</span></button><div class="faq-a">Yes. Skills live in <code>pm-operating-system/skills/&lt;name&gt;/SKILL.md</code> and agents in <code>pm-operating-system/agents/&lt;name&gt;.md</code>. Each uses YAML frontmatter for configuration. Since v2.2.0 everything that used to be a slash command is also a skill — there's one consistent pattern. You can modify existing ones or create new ones by following the same shape.</div></div>
       <div class="faq-item"><button class="faq-q">What is knowledge compounding?<span class="faq-icon">+</span></button><div class="faq-a">The system learns through three loops: daily (journals), weekly (pattern detection + shipping summaries), and quarterly (OKR scoring + system audit). Each layer feeds the next — so your assistant gets smarter about your work patterns, estimates, and priorities over time.</div></div>
       <div class="faq-item"><button class="faq-q">How is my data stored?<span class="faq-icon">+</span></button><div class="faq-a">Everything is plain markdown with YAML frontmatter, stored locally on your machine. No cloud sync, no databases, no external storage. Personal directories (tasks/, knowledge/, etc.) are gitignored by default. You control exactly what gets committed.</div></div>
     </div>

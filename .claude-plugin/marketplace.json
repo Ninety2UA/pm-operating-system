@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "pm-operating-system",
-      "source": ".",
+      "source": "./pm-operating-system",
       "description": "AI-powered personal productivity plugin for Claude Code with goal-driven task management, project pipeline evaluation, and compounding knowledge workflows"
     }
   ]
