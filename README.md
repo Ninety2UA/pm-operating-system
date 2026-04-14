@@ -1,6 +1,8 @@
-<p align="center">
-  <img src="docs/images/hero-banner.svg" alt="PM Operating System" width="100%">
-</p>
+<div align="center">
+
+![PM Operating System](docs/images/hero-banner.svg)
+
+</div>
 
 <p align="center">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT"></a>&nbsp;
@@ -65,17 +67,21 @@ The result: each session makes the next one more effective. Your assistant does 
 
 ### System Overview
 
-<p align="center">
-  <img src="docs/images/system-overview.svg" alt="System Overview — BACKLOG.md flows through /process-backlog into Tasks and Projects, managed by the MCP server" width="100%">
-</p>
+<div align="center">
+
+![System Overview — BACKLOG.md flows through /process-backlog into Tasks and Projects, managed by the MCP server](docs/images/system-overview.svg)
+
+</div>
 
 ### Project Pipeline
 
 When a project enters the pipeline via `/launch`, it passes through six evaluation stages with a Go/No-Go gate after each:
 
-<p align="center">
-  <img src="docs/images/project-pipeline.svg" alt="Project Pipeline — Validate, Lean Canvas, GTM Plan, Competitive, Pre-Mortem, User Stories" width="100%">
-</p>
+<div align="center">
+
+![Project Pipeline — Validate, Lean Canvas, GTM Plan, Competitive, Pre-Mortem, User Stories](docs/images/project-pipeline.svg)
+
+</div>
 
 > Each stage produces a markdown artifact saved to the project folder. Skip ahead with `/launch my-project --from gtm-plan`.
 
@@ -83,9 +89,11 @@ When a project enters the pipeline via `/launch`, it passes through six evaluati
 
 The system learns through three nested feedback loops. Each layer feeds the next.
 
-<p align="center">
-  <img src="docs/images/compounding-loop.svg" alt="The Compounding Loop — Daily feeds Weekly feeds Quarterly feeds back to Daily" width="100%">
-</p>
+<div align="center">
+
+![The Compounding Loop — Daily feeds Weekly feeds Quarterly feeds back to Daily](docs/images/compounding-loop.svg)
+
+</div>
 
 ---
 
