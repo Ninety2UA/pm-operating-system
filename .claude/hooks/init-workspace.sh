@@ -6,7 +6,7 @@
 # Exits 0 unconditionally so a hook failure never blocks the session.
 #
 # Operates against $CLAUDE_PROJECT_DIR — the directory the user opened
-# Claude Code in, NOT the plugin install location.
+# Claude Code in.
 
 set +e  # never block the session on a hook error
 
@@ -15,6 +15,13 @@ if [ -z "$CLAUDE_PROJECT_DIR" ]; then
 fi
 
 cd "$CLAUDE_PROJECT_DIR" || exit 0
+
+# Repo guard: only bootstrap if this looks like a personal-os workspace.
+# AGENTS.md is the load-bearing marker — it ships with the repo and instructs
+# the assistant. Without it, we're probably in some unrelated directory.
+if [ ! -f AGENTS.md ]; then
+  exit 0
+fi
 
 # ── Workspace directories ──────────────────────────────────────────────
 
@@ -29,6 +36,7 @@ mkdir -p \
   knowledge/decisions \
   knowledge/people \
   knowledge/reference \
+  knowledge/voice-samples \
   library/prompts \
   library/systems \
   library/skills \
@@ -164,7 +172,7 @@ if [ ! -f projects/README.md ]; then
 Multi-step initiatives and ideas. One folder per project.
 
 - **idea.md** — lightweight capture (created by `/process-backlog`)
-- **prd.md** — full Product Requirements Doc (`/PRD`)
+- **prd.md** — full Product Requirements Doc (`/prd`)
 - **lean-canvas.md** — business model (`/lean-canvas`)
 - **gtm-plan.md** — go-to-market strategy (`/gtm-plan`)
 - **pre-mortem.md** — risk analysis (`/pre-mortem`)

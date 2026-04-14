@@ -5,9 +5,8 @@ description: >
   a structured brief to knowledge/. Use when the user asks to "research",
   "look into", "find out about", "investigate", "deep dive into",
   or wants to understand a topic, technology, or market before making decisions.
-disable-model-invocation: true
 allowed-tools: Read Write Edit Glob Bash mcp__perplexity__*
-argument-hint: "<topic> [--model quick|deep|reason]"
+argument-hint: "<topic> [--model quick|search|deep|reason]"
 ---
 
 # Research Topic
@@ -89,7 +88,7 @@ Do NOT use role-playing instructions ("Act as an expert...").
 
 ### Step 5: Combine into Research Brief
 
-Read the shared template at `${CLAUDE_SKILL_DIR}/references/research-brief-template.md`.
+Read the shared template at `.claude/skills/research-topic/references/research-brief-template.md`.
 
 Combine Perplexity results into a structured brief following the template. Fill in frontmatter fields including `query_used`. Omit `project_ref` (this is general research, not project-specific).
 

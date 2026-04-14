@@ -12,37 +12,16 @@ A reusable task management system for AI assistants (Claude, GPT, etc.) with int
 
 ## Quick Start
 
-### 1. Setup
+The repo's top-level `setup.sh` handles the full install. If you want to run the MCP server standalone:
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/task-manager.git
-cd task-manager
-
-# Install dependencies
-pip install pyyaml mcp
-
-# Create directories
-mkdir -p tasks projects knowledge library
-touch BACKLOG.md
+cd core/mcp
+uv sync
+uv run server.py
 ```
 
-### 2. Configure
+The MCP server is wired into the project's `.mcp.json` at the repo root. Claude Code launches it automatically on session start. Tell your assistant:
 
-Copy `templates/AGENTS.md` to your root and customize:
-- Categories for your workflow
-- Priority definitions
-- Personal goals (optional)
-
-### 3. Start MCP Server
-
-```bash
-python manager_ai_mcp/server_core.py
-```
-
-### 4. Use with AI Assistant
-
-Tell your AI assistant:
 ```
 "Read AGENTS.md for instructions on managing my tasks"
 ```
@@ -90,11 +69,15 @@ What needs to be done and why.
 | Tool | Description |
 |------|-------------|
 | `list_tasks` | Filter and view tasks |
-| `create_task` | Create new task with metadata |
-| `update_task_status` | Change task status |
-| `process_backlog_with_dedup` | Smart backlog processing |
-| `get_task_summary` | Statistics and overview |
-| `prune_completed_tasks` | Clean old completed tasks |
+| `get_task_summary` | Priority/category/status counts + time estimates |
+| `check_priority_limits` | Alerts if P0 > 3 or P1 > 7 |
+| `prune_completed_tasks` | Archive done tasks older than 30 days |
+| `list_projects` | Filter and view projects |
+| `get_pipeline_status` | Count of projects at each pipeline stage |
+| `get_project_artifacts` | Check which artifacts exist for a project |
+| `get_project_summary` | Aggregate project stats |
+| `get_system_status` | Full dashboard |
+| `process_backlog_with_dedup` | Duplicate detection across tasks/ AND projects/ |
 
 ## Configuration
 
@@ -156,7 +139,7 @@ The system is designed to be extended:
 - **Categories**: Add your own in config.yaml
 - **Priorities**: Define what's urgent for you
 - **Workflows**: Modify AGENTS.md instructions
-- **Integrations**: Add external tools via [integrations/](./integrations/)
+- **Integrations**: Add external tools via the repo-root [`.mcp.json`](../.mcp.json) and the optional integrations described in the top-level [README](../README.md#optional-integrations)
 
 ## Example Workflow
 

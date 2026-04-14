@@ -77,7 +77,7 @@ where Z_α/2 = 1.96 (95% confidence), Z_β = 0.84 (80% power)
 
 ### Step 4: Present Results
 
-Read the output template at `${CLAUDE_PLUGIN_ROOT}/skills/ab-test/references/ab-test-output-template.md` and fill each section with the computed statistics from Step 3.
+Read the output template at `.claude/skills/ab-test/references/ab-test-output-template.md` and fill each section with the computed statistics from Step 3.
 
 ### Step 5: Offer Follow-ups
 

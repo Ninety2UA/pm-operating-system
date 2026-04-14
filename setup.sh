@@ -14,10 +14,21 @@
 # │ Follow these steps:                                                 │
 # │                                                                     │
 # │ 1. CREATE WORKSPACE STRUCTURE                                       │
-# │    - Ensure these directories exist: tasks/, knowledge/             │
+# │    - Ensure these directories exist:                                │
+# │        tasks/, tasks/archive/                                       │
+# │        projects/                                                    │
+# │        knowledge/research/projects, knowledge/research/topics       │
+# │        knowledge/meetings, knowledge/journals                       │
+# │        knowledge/session-reviews, knowledge/decisions               │
+# │        knowledge/people, knowledge/reference                        │
+# │        knowledge/voice-samples                                      │
+# │        library/{prompts,systems,skills,agents,commands}             │
 # │    - AGENTS.md ships with the repo (no copy needed)                 │
 # │    - If .gitignore doesn't exist, copy from core/templates/gitignore│
 # │    - If BACKLOG.md doesn't exist, create it with a short intro      │
+# │    NOTE: the SessionStart hook (.claude/hooks/init-workspace.sh)    │
+# │    creates the same set on every session — setup.sh is the manual   │
+# │    fallback for users running the script directly.                  │
 # │                                                                     │
 # │ 2. ASK THE USER THESE 5 QUESTIONS (use AskUserQuestion if you      │
 # │    have it, otherwise ask inline):                                  │
@@ -119,7 +130,27 @@ read -p "Press Enter to begin..."
 # Create directories
 print_header "Creating Workspace"
 
-for dir in "tasks" "knowledge"; do
+WORKSPACE_DIRS=(
+    "tasks"
+    "tasks/archive"
+    "projects"
+    "knowledge/research/projects"
+    "knowledge/research/topics"
+    "knowledge/meetings"
+    "knowledge/journals"
+    "knowledge/session-reviews"
+    "knowledge/decisions"
+    "knowledge/people"
+    "knowledge/reference"
+    "knowledge/voice-samples"
+    "library/prompts"
+    "library/systems"
+    "library/skills"
+    "library/agents"
+    "library/commands"
+)
+
+for dir in "${WORKSPACE_DIRS[@]}"; do
     if [ -d "$dir" ]; then
         print_info "Directory exists: $dir/"
     else

@@ -2,7 +2,7 @@
 name: pre-mortem
 description: >
   Runs a pre-mortem risk analysis on a project — imagines the project has
-  already failed twelve months out and works backward to identify what went
+  already failed 6 months out and works backward to identify what went
   wrong. Produces a ranked risk matrix with mitigations and a Go/No-Go
   recommendation. Use this skill whenever the user mentions "what could go
   wrong", "risk analysis", "pre-mortem", "stress test this project",
@@ -71,7 +71,7 @@ For each category, generate 1-3 specific failure scenarios grounded in the proje
 
 ### Step 6: Write the Pre-mortem
 
-Read the template at `${CLAUDE_PLUGIN_ROOT}/skills/pre-mortem/references/pre-mortem-template.md` and fill each section from the project context and failure scenarios generated in Step 5.
+Read the template at `.claude/skills/pre-mortem/references/pre-mortem-template.md` and fill each section from the project context and failure scenarios generated in Step 5.
 
 ### Step 7: Save the Pre-mortem
 

@@ -52,8 +52,8 @@ In his [Stanford talk](https://www.youtube.com/watch?v=c3b-JASoPi0) and subseque
 | LLM OS Concept | How It Works Here |
 |---|---|
 | **Strategic memory** | `GOALS.md` is read every session to prioritize your work |
-| **Specialized capabilities** | 19 skills the LLM can invoke (validation, risk analysis, sprint planning) |
-| **Recurring workflows** | 6 commands for daily standups, weekly reviews, quarterly scoring |
+| **Specialized capabilities** | 25 skills the LLM can invoke (validation, risk analysis, sprint planning) plus 1 standalone command (`/analyze`) |
+| **Recurring workflows** | Workflow skills (`/morning`, `/weekly`, `/quarterly`, `/process-backlog`, `/launch`, `/write`) for daily, weekly, and quarterly cycles |
 | **Autonomous sub-processes** | 3 agents that run in the background (research, evaluation, diagnostics) |
 | **Structured tool use** | MCP server with 10 tools for task and project management |
 | **Long-term memory** | `knowledge/` compounds from daily journals to quarterly assessments |
@@ -82,7 +82,7 @@ When a project enters the pipeline via `/launch`, it passes through six evaluati
 
 </div>
 
-> Each stage produces a markdown artifact saved to the project folder. Skip ahead with `/launch my-project --from gtm-plan`.
+> Each stage produces a markdown artifact saved to the project folder. Skip ahead with `/launch my-project --from gtm` (valid stages: `validate`, `lean-canvas`, `competitive`, `gtm`, `pre-mortem`, `user-stories`).
 
 ### The Compounding Loop
 
@@ -100,8 +100,8 @@ The system learns through three nested feedback loops. Each layer feeds the next
 
 | Category | What You Get |
 |---|---|
-| **Skills** | 19 specialized skills covering ideation, validation, planning, and execution |
-| **Commands** | 6 slash commands for daily, weekly, and quarterly workflows |
+| **Skills** | 25 specialized skills covering ideation, validation, planning, execution, and recurring workflows |
+| **Commands** | 1 standalone command (`/analyze`); workflow slash-invocations are skills |
 | **Agents** | 3 autonomous agents for deep research, batch evaluation, and system diagnostics |
 | **MCP Server** | 10 tools with fuzzy deduplication for tasks and projects |
 | **Prioritization** | Goal-driven P0-P3 levels tied to your strategic objectives |
@@ -165,7 +165,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 ## What You Get
 
 <details>
-<summary><strong>Skills Reference (19 skills)</strong></summary>
+<summary><strong>Skills Reference (25 skills)</strong></summary>
 
 <br>
 
@@ -190,7 +190,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 
 | Skill | Description |
 |-------|-------------|
-| `/PRD` | Generate a Product Requirements Document for a project |
+| `/prd` | Generate a Product Requirements Document for a project |
 | `/user-stories` | Decompose a PRD into structured user stories with acceptance criteria |
 | `/sprint-plan` | Create a weekly sprint plan from current tasks and user stories |
 | `/plan-okrs` | Create or refresh measurable OKRs aligned to your goals |
@@ -216,7 +216,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 </details>
 
 <details>
-<summary><strong>Commands Reference (6 commands)</strong></summary>
+<summary><strong>Workflow Slash-Invocations (6 skills used as commands)</strong></summary>
 
 <br>
 
@@ -252,21 +252,27 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 pm-operating-system/
 |
 |-- .claude/
-|   |-- skills/                  25 skills (19 original + 6 workflow skills)
+|   |-- skills/                  25 specialized skills
 |   |   |-- morning/SKILL.md
 |   |   |-- weekly/SKILL.md
 |   |   |-- launch/SKILL.md
-|   |   |-- PRD/SKILL.md
+|   |   |-- prd/SKILL.md
 |   |   |-- validate-project/SKILL.md
 |   |   +-- ...                  (20 more)
+|   |
+|   |-- commands/                1 standalone slash command
+|   |   +-- analyze.md
 |   |
 |   |-- agents/                  3 autonomous agents
 |   |   |-- deep-research.md
 |   |   |-- batch-evaluator.md
 |   |   +-- system-health.md
 |   |
-|   +-- hooks/
-|       +-- hooks.json           Session hooks (workspace bootstrap)
+|   |-- hooks/
+|   |   +-- init-workspace.sh    SessionStart bootstrap (wired in settings.json)
+|   |
+|   |-- settings.json            Hook wiring (committed)
+|   +-- settings.local.json      Per-user permissions + plugin enablement (gitignored)
 |
 |-- core/
 |   +-- mcp/                     manager-ai MCP server (10 tools + dedup)
@@ -457,7 +463,7 @@ Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `kno
 
 **Usage:** Run `/meeting-sync` during your morning standup or anytime to pull in recent meetings.
 
-**Available tools:** `list_meetings`, `get_meetings`, `get_meeting_transcript`, `query_granola_meetings`, `list_meeting_folders`
+**Available tools (post-authentication):** `list_meetings`, `get_meetings`, `get_meeting_transcript` (paid plans), `list_meeting_folders` (paid plans), `query_granola_meetings`. Auth tools (`authenticate`, `complete_authentication`) are exposed only until first successful auth.
 
 </details>
 

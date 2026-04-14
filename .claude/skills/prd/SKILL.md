@@ -1,5 +1,5 @@
 ---
-name: PRD
+name: prd
 description: >
   Generate a Product Requirements Document for a project. Use when creating a PRD,
   writing product specs, documenting requirements for a new feature, or when a project
@@ -11,8 +11,6 @@ description: >
   this skill applies. Do not use for early brainstorming or idea capture — use idea.md
   for that. This skill applies when formalizing requirements, not exploring.
 allowed-tools: Read Write Edit Glob Bash mcp__perplexity__*
-disable-model-invocation: true
-user-invocable: true
 argument-hint: "<project-name>"
 ---
 
@@ -24,12 +22,12 @@ practicality for a solo builder or small team.
 
 ## Quick Start
 
-User: `/PRD ad-spend-anomaly-detector`
+User: `/prd ad-spend-anomaly-detector`
 Result: Reads idea.md and existing artifacts, optionally asks clarifying questions,
 writes a 10-section PRD to `projects/ad-spend-anomaly-detector/prd.md`, and presents
 a summary with suggested next pipeline step.
 
-For a complete example, read `${CLAUDE_SKILL_DIR}/references/example-prd.md`.
+For a complete example, read `.claude/skills/prd/references/example-prd.md`.
 
 ## Instructions
 
@@ -96,7 +94,7 @@ Before drafting, work through these questions:
 
 ### Step 5: Write the PRD
 
-Read the PRD template at `${CLAUDE_SKILL_DIR}/references/prd-template.md` and fill in
+Read the PRD template at `.claude/skills/prd/references/prd-template.md` and fill in
 each section. The template has 10 sections — use all of them, adapting depth to the
 project's pipeline stage.
 

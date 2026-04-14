@@ -9,9 +9,8 @@ description: >
   research for", "is this worth building", "does this market exist", or
   proactively whenever a new project idea is mentioned and hasn't been
   validated — market research is cheap compared to building the wrong thing.
-disable-model-invocation: true
 allowed-tools: Read Write Edit Glob Bash mcp__perplexity__*
-argument-hint: "<project-name> [--model quick|deep|reason]"
+argument-hint: "<project-name> [--model quick|search|deep|reason]"
 ---
 
 # Validate Project
@@ -102,7 +101,7 @@ If this call fails or returns empty results, proceed with the brief and note the
 
 ### Step 7: Combine into Research Brief
 
-Read the shared template at `${CLAUDE_SKILL_DIR}/references/research-brief-template.md`.
+Read the shared template at `.claude/skills/validate-project/references/research-brief-template.md`.
 
 Combine the deep research results and social sentiment results into a structured brief following the template. Fill in frontmatter fields including `query_used`.
 

@@ -8,151 +8,145 @@ description: >
   "check for new meetings", "sync Granola", or mentions recent meetings that
   haven't been captured — even if they don't explicitly request a sync.
 allowed-tools: Read Write Edit Glob Bash mcp__granola__*
-argument-hint: "[--all | --skip]"
+argument-hint: "[--all | --skip | --since YYYY-MM-DD]"
 ---
 
 # Meeting Sync
 
-Check for new Granola meetings and offer to sync them to your local knowledge/meetings folder.
+Pull recent Granola meetings into local markdown via the official Granola MCP server (`https://mcp.granola.ai/mcp`), then enrich People profiles and extract action items.
 
-Uses the official Granola MCP server (`https://mcp.granola.ai/mcp`).
+## Tool Surface
+
+The official Granola MCP exposes these tools (post-authentication):
+
+- `mcp__granola__list_meetings` — list recent meetings with metadata
+- `mcp__granola__get_meetings` — fetch full content + enhanced notes for one or more meeting IDs
+- `mcp__granola__get_meeting_transcript` — fetch raw transcript (paid plan only)
+- `mcp__granola__list_meeting_folders` — browse meeting folders (paid plan only)
+- `mcp__granola__query_granola_meetings` — natural-language Q&A across all meetings
+
+If a call returns an auth error, the MCP server disconnects and the tools become unavailable until the user re-authenticates via Claude Settings → Connectors → Granola (or the manual `authenticate` flow).
 
 ## Instructions
 
-### Step 1: Check for New Meetings
+### Step 1: Determine Sync Window
 
-Call `mcp__granola__list_meetings` to find recent meetings. If `knowledge/.granola-sync.json` exists, read it to determine the last sync timestamp and filter to meetings after that date.
+Read `knowledge/.granola-sync.json` if it exists — use `last_sync` as the cutoff. Otherwise default to the last 7 days. If `--since YYYY-MM-DD` was passed, use that.
 
-If `.granola-sync.json` doesn't exist, fetch the last 7 days of meetings.
+### Step 2: List Recent Meetings
 
-### Step 2: Present Results
+Call `mcp__granola__list_meetings` with the cutoff. Filter to meetings with notes/content (skip placeholders).
 
-If new meetings are found, present them to the user:
+If the call fails with auth error, tell the user: "Granola MCP requires re-authentication. Open Claude Settings → Connectors → Granola, or run the manual auth flow."
+
+If no new meetings are found, tell the user and skip to Step 7.
+
+### Step 3: Present & Confirm
 
 ```
-I found X new meeting(s) since your last sync:
+I found N new meeting(s) since YYYY-MM-DD:
 
-1. **Meeting Title** (Date)
-2. **Meeting Title** (Date)
+1. **Title** (Date) — N attendees, N min
+2. **Title** (Date) — N attendees, N min
 ...
 
 Add to knowledge folder?
 ```
 
-If no new meetings are found, say so and continue to the morning planning workflow.
-
-### Step 3: Ask User for Selection
-
-Use AskUserQuestion with these options:
+Use AskUserQuestion (skip if `--all` or `--skip` was passed):
 
 | Option | Description |
 |--------|-------------|
-| Sync all | Add all new meetings to knowledge/meetings |
-| Select specific | Let user choose which meetings to sync |
+| Sync all | Add every meeting |
+| Select specific | Pick which to sync |
 | Skip for now | Continue without syncing |
 
-If `--all` flag was passed, skip this step and sync all.
-If `--skip` flag was passed, skip syncing entirely.
+### Step 4: Fetch Content for Selected Meetings
 
-### Step 4: Sync Selected Meetings
+For each selected meeting:
 
-For each meeting the user wants to sync:
-1. Call `mcp__granola__get_meetings` with the meeting ID to get content and enhanced notes
-2. Call `mcp__granola__get_meeting_transcript` with the meeting ID to get the raw transcript (paid plans only — skip gracefully if unavailable)
-3. Write the meeting content to `knowledge/meetings/YYYY/MM/DD.md` using the Write tool (append if multiple meetings on the same day, separated by `---`)
-4. Update `knowledge/.granola-sync.json` with the new last-sync timestamp
+1. Call `mcp__granola__get_meetings` with the meeting ID(s) — returns title, attendees, time, enhanced notes.
+2. Call `mcp__granola__get_meeting_transcript` with the meeting ID — paid plan only. If it errors with "subscription required", proceed without transcript.
+3. Compute path `knowledge/meetings/YYYY/MM/DD.md` from the meeting date. Create the directory with `mkdir -p` if missing.
+4. If the file already exists, append the new meeting block separated by `---` (one file per day, multiple meetings allowed).
+5. Write a block in this format:
 
-Ensure the date-nested directory exists (create with `mkdir -p knowledge/meetings/YYYY/MM/` if needed).
+```markdown
+---
+date: YYYY-MM-DD
+time: HH:MM
+title: <meeting title>
+attendees: <comma-separated names>
+duration_min: <number>
+granola_id: <id>
+---
 
-### Step 4b: Extract Action Items
+## Enhanced Notes
+<content from get_meetings>
 
-After syncing, scan the enhanced notes of each synced meeting for action items and commitments.
+## Transcript
+<content from get_meeting_transcript, or "(transcript unavailable — requires paid plan)">
+```
 
-**What to look for:**
-- Explicit action items or next steps sections in Granola's enhanced notes
+### Step 5: Update Sync Cursor
+
+Write `knowledge/.granola-sync.json`:
+
+```json
+{
+  "last_sync": "<today's date in YYYY-MM-DD>",
+  "synced_count": <N>,
+  "synced_ids": ["<id>", ...]
+}
+```
+
+### Step 6: Extract & Route Action Items
+
+Walk the enhanced notes of each synced meeting for action items. Look for:
+- Explicit "Action Items" or "Next Steps" sections
 - Phrases: "will do", "action item", "follow up", "committed to", "need to", "by [date]"
 - Unchecked checkboxes (`- [ ]`)
 
-**For each extracted item, determine:**
-- **Owner:** Who committed? (me vs. them vs. unclear)
-- **Description:** What needs to be done
-- **Due date:** If mentioned, otherwise leave blank
-- **Source meeting:** Title and date
-
-**Present extracted items to the user:**
+Group by owner (me / them / unclear):
 
 ```
-I found X action items from [Meeting Title]:
-
 **For you:**
-1. [Action] — due: [date or "not specified"]
-2. [Action]
+1. <action> — due: <date>
 
-**For them ([Name]):**
-1. [Action]
+**For them (<Name>):**
+1. <action>
 
 **Unclear owner:**
-1. [Action]
+1. <action>
 ```
 
-Use AskUserQuestion with these options for each group:
+Use AskUserQuestion per group:
 
 | Option | Description |
 |--------|-------------|
-| Create tasks | Create as tasks/ files with meeting reference |
-| Add to People | Append to attendee's Interaction History |
-| Both | Create tasks AND note in People profiles |
-| Skip | Don't track these |
+| Create tasks | Write tasks/ files with meeting reference in resource_refs |
+| Add to People | Append to attendee's Interaction History (Step 7) |
+| Both | Both |
+| Skip | Drop these |
 
-If "Create tasks" or "Both": create task files in `tasks/` using the standard template. Set `resource_refs` to the transcript file path. Set category based on content. Set priority to P2 unless the item is clearly urgent.
+For "Create tasks" / "Both": create files in `tasks/` using the standard task template. `category` inferred from action verb. `priority: P2` unless clearly urgent. `resource_refs` points at the meeting file.
 
-If "Add to People" or "Both": include the items in the People profile update (Step 4c).
+### Step 7: Update People Profiles
 
-### Step 4c: Update People Profiles (Auto-Enriched)
+For each attendee, enrich `knowledge/people/<firstname-lastname>.md` following the procedure at `.claude/skills/meeting-sync/references/people-enrichment.md`. The reference covers the People template structure, gws email enrichment, and group dynamics.
 
-For each attendee encountered, enrich `knowledge/people/<name>.md` following the procedure at `${CLAUDE_PLUGIN_ROOT}/skills/meeting-sync/references/people-enrichment.md`. That reference covers interaction history format, gws email lookup, and group dynamics.
+### Step 8: Continue
 
-### Step 5: Continue with Morning Flow
-
-After syncing (or skipping), continue with the normal morning planning workflow:
-- Check tasks
-- Review priorities
-- Suggest focus items for the day
-
-**Suggested next step:** "Now let's plan your day — checking your tasks and pipeline."
+Suggest: "Now let's plan your day — checking your tasks and pipeline."
 
 ## Additional Capabilities
 
-The official Granola MCP also provides:
-
-- `mcp__granola__query_granola_meetings` — Ask natural language questions across all your meeting notes (e.g., "What did we decide about pricing last week?"). Use this when the user asks about past meetings without specifying a specific one.
-- `mcp__granola__list_meeting_folders` — Browse meeting folders (paid plans only). Use when the user wants to find meetings by folder/project.
-
-## Example Flow
-
-**User:** "What should I do today?"
-
-**Claude:**
-1. Calls `mcp__granola__list_meetings` to find recent meetings
-2. "I found 3 new meetings since your last sync..."
-3. Presents AskUserQuestion with sync options
-4. User selects "Sync all" or specific meetings
-5. Gets content via `get_meetings`, writes to knowledge/meetings/
-6. "Synced 3 meetings. Now for your day..."
-7. Continues with task planning (morning standup workflow)
-
-**User:** "What did we discuss about the Q2 roadmap?"
-
-**Claude:**
-1. Calls `mcp__granola__query_granola_meetings` with the question
-2. Returns synthesized answer across all matching meetings
+- **Natural-language queries:** When the user asks about past meetings without specifying one (e.g., "What did we decide about pricing last week?"), call `mcp__granola__query_granola_meetings` instead of syncing — it answers across all meetings.
+- **Folder browsing:** When the user wants to find meetings by folder/project, call `mcp__granola__list_meeting_folders` (paid plan only).
 
 ## Notes
 
-- Only Granola meetings with notes/content are worth syncing
-- Meetings marked "(no notes)" may be empty placeholders — skip these
-- Sync state is tracked in `knowledge/.granola-sync.json`
-- Files are saved to `knowledge/meetings/` with sanitized filenames (lowercase, hyphens, no special chars)
-- `get_meeting_transcript` requires a paid Granola plan — skip gracefully on free plans
-- If Granola MCP server is unavailable, skip meeting sync gracefully and proceed with morning planning
-- Rate limit: ~100 requests/minute across all Granola tools
+- Sync state lives at `knowledge/.granola-sync.json`. Delete to force a full re-sync.
+- `get_meeting_transcript` requires a paid Granola plan — degrade gracefully on free plans.
+- If the MCP server is unreachable or auth expires, skip gracefully and proceed with morning planning.
+- Date-nest meeting files (`knowledge/meetings/YYYY/MM/DD.md`) so weekly/quarterly reviews can scan by date range.

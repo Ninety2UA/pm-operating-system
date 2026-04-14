@@ -54,7 +54,7 @@ Projects that don't map to any outcome should be flagged as "unaligned."
 
 ### Step 4: Generate the Roadmap
 
-Read the template at `${CLAUDE_PLUGIN_ROOT}/skills/outcome-roadmap/references/outcome-roadmap-template.md` and fill each section from the projects, goals, and outcomes gathered in Steps 2-3.
+Read the template at `.claude/skills/outcome-roadmap/references/outcome-roadmap-template.md` and fill each section from the projects, goals, and outcomes gathered in Steps 2-3.
 
 ### Step 5: Save or Present
 

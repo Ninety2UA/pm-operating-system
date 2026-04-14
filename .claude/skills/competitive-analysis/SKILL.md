@@ -9,9 +9,8 @@ description: >
   "how do I differentiate", "who else is doing this", "battlecards", or is
   deciding positioning for a project — even if they just say "look into the
   competition."
-allowed-tools: Read Write Edit Glob Bash mcp__perplexity__*
-disable-model-invocation: true
-argument-hint: "<project-name> [--model quick|deep|reason]"
+allowed-tools: Read Write Edit Glob mcp__perplexity__*
+argument-hint: "<project-name> [--model quick|search|deep|reason]"
 ---
 
 # Competitive Analysis
@@ -85,7 +84,7 @@ Use `perplexity_ask` with `search_domain_filter: ["g2.com", "capterra.com", "pro
 
 ### Step 6: Build the Analysis
 
-Read the template at `${CLAUDE_PLUGIN_ROOT}/skills/competitive-analysis/references/competitive-analysis-template.md` and fill each section from the competitor research in Step 5 — it defines the full analysis structure (market landscape, competitor map, feature matrix, deep dives, pricing analysis, gaps, differentiation strategy, and battlecard).
+Read the template at `.claude/skills/competitive-analysis/references/competitive-analysis-template.md` and fill each section from the competitor research in Step 5 — it defines the full analysis structure (market landscape, competitor map, feature matrix, deep dives, pricing analysis, gaps, differentiation strategy, and battlecard).
 
 ### Step 7: Save the Analysis
 

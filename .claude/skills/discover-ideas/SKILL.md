@@ -8,9 +8,8 @@ description: >
   mentions feeling stuck for ideas, wants inspiration, asks about market
   trends, or says they want to explore new directions — even if they don't use
   the word "discover". Accepts optional topic argument to narrow focus.
-disable-model-invocation: true
 allowed-tools: Read Write Edit Glob mcp__perplexity__*
-argument-hint: "[topic] [--model quick|deep|reason]"
+argument-hint: "[topic] [--model quick|search|deep|reason]"
 ---
 
 # Discover Ideas

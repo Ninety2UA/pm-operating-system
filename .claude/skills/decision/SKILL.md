@@ -97,5 +97,5 @@ Tell the user where the decision was saved and any follow-up actions identified.
 
 - Keep decisions concise. The goal is to capture the "why" so future-you understands the reasoning.
 - For deferred decisions, set a `revisit_date` and status `deferred`.
-- Decisions are searchable by `/weekly` and `/quarterly` for pattern analysis.
+- `/weekly` and `/quarterly` scan `knowledge/decisions/` for recent decisions and surface repeat patterns.
 - If you notice the user making the same type of decision repeatedly, suggest codifying it as a rule in AGENTS.md.

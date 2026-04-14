@@ -35,7 +35,7 @@ For items that pass dedup:
 - **Single outcome, < ~2 hrs** → create a task file in `tasks/`.
 - **Multi-step, exploratory, or not yet decided** → create a project folder:
   - Create `projects/<project-name>/idea.md` using the Project Template from AGENTS.md.
-  - Invoke the `/PRD` skill to generate `projects/<project-name>/prd.md`.
+  - Invoke the `/prd` skill to generate `projects/<project-name>/prd.md`.
 
 ## Step 4: Check priority limits
 

@@ -47,7 +47,7 @@ Read in order:
 2. `projects/<project-name>/idea.md` (for context and goals alignment)
 3. `projects/<project-name>/lean-canvas.md` (if exists — for customer segment context)
 
-If no prd.md exists, stop and tell the user: "No PRD found. Run `/PRD <project-name>` first to generate a product spec."
+If no prd.md exists, stop and tell the user: "No PRD found. Run `/prd <project-name>` first to generate a product spec."
 
 ### Step 4: Check for Existing Stories
 
@@ -68,7 +68,7 @@ Group stories by epic (major feature area from the PRD).
 
 ### Step 6: Write the Stories Document
 
-Read the template at `${CLAUDE_PLUGIN_ROOT}/skills/user-stories/references/user-stories-template.md` and fill each section from the stories generated in Step 5 — it defines the full document structure (frontmatter, summary table, MVP/v1/Future scope sections grouped by epic, and the story map).
+Read the template at `.claude/skills/user-stories/references/user-stories-template.md` and fill each section from the stories generated in Step 5 — it defines the full document structure (frontmatter, summary table, MVP/v1/Future scope sections grouped by epic, and the story map).
 
 ### Step 7: Save the Stories
 
@@ -76,7 +76,7 @@ Save to `projects/<project-name>/user-stories.md`.
 
 ### Step 8: Create Task Files (if --tasks flag)
 
-If `--tasks` was passed, create individual task files in `tasks/` for each P0 and P1 story. Read the template at `${CLAUDE_PLUGIN_ROOT}/skills/user-stories/references/task-from-story-template.md` and fill each section from the corresponding story — it defines the per-task frontmatter and the Context / User Story / Acceptance Criteria / Progress Log body.
+If `--tasks` was passed, create individual task files in `tasks/` for each P0 and P1 story. Read the template at `.claude/skills/user-stories/references/task-from-story-template.md` and fill each section from the corresponding story — it defines the per-task frontmatter and the Context / User Story / Acceptance Criteria / Progress Log body.
 
 ### Step 9: Update Project Resource Refs
 

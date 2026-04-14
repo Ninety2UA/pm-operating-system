@@ -3,7 +3,8 @@ name: sprint-plan
 description: >
   Creates a weekly sprint plan at 70% capacity from current tasks and user
   stories — selects stories, identifies dependencies and risks, produces a
-  day-by-day schedule saved to knowledge/sprint-WXX.md. Use this skill
+  day-by-day schedule saved to knowledge/sprint-YYYY-MM-DD.md (Monday date
+  of the sprint week). Use this skill
   whenever the user says "plan my sprint", "what should I build this week",
   "weekly plan", "sprint planning", mentions feeling behind, has tasks
   piling up without a plan, or at the start of the week — even if they just
@@ -79,7 +80,7 @@ If there are more P0 items than capacity allows, flag this as a planning problem
 
 ### Step 5: Write the Sprint Plan
 
-Read the template at `${CLAUDE_PLUGIN_ROOT}/skills/sprint-plan/references/sprint-plan-template.md` and fill each section from the tasks, stories, capacity, and selected sprint items gathered in Steps 2-4.
+Read the template at `.claude/skills/sprint-plan/references/sprint-plan-template.md` and fill each section from the tasks, stories, capacity, and selected sprint items gathered in Steps 2-4.
 
 ### Step 6: Save the Sprint Plan
 

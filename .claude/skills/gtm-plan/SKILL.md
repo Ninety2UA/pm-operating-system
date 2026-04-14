@@ -9,8 +9,7 @@ description: >
   project has a validated business model and needs a launch strategy — even
   if they don't say "GTM" explicitly.
 allowed-tools: Read Write Edit Glob mcp__perplexity__*
-disable-model-invocation: true
-argument-hint: "<project-name> [--model quick|deep|reason]"
+argument-hint: "<project-name> [--model quick|search|deep|reason]"
 ---
 
 # Go-to-Market Plan
@@ -77,7 +76,7 @@ Focus on indie/solo launches and bootstrapped products since 2024.
 
 ### Step 6: Build the GTM Plan
 
-Read the template at `${CLAUDE_PLUGIN_ROOT}/skills/gtm-plan/references/gtm-plan-template.md` and fill each section from the project context (Step 3) and the research results (Step 5). The template has 8 sections: ICP, Beachhead, Positioning, Channels, Pricing, Growth Loops, Metrics/Timeline, Risks.
+Read the template at `.claude/skills/gtm-plan/references/gtm-plan-template.md` and fill each section from the project context (Step 3) and the research results (Step 5). The template has 8 sections: ICP, Beachhead, Positioning, Channels, Pricing, Growth Loops, Metrics/Timeline, Risks.
 
 ### Step 7: Save the Plan
 

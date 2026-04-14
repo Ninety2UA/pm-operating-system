@@ -100,10 +100,12 @@ Invoke `/plan-okrs` for the upcoming quarter, informed by:
 
 Review Claude Code memories:
 
-- Read all memory files from the memory directory
+- Read `MEMORY.md` from this project's memory directory (typically `~/.claude/projects/<encoded-cwd>/memory/MEMORY.md`) and every file it links to
 - Flag memories that reference outdated information (old project statuses, completed goals)
 - Propose updates or deletions for stale memories
 - Save any new quarterly context as project memories
+
+Also scan `knowledge/decisions/` for decisions made this quarter — patterns there often suggest new memories or AGENTS.md rules.
 
 Present: "These memories need updating: [list]. Update them now?"
 

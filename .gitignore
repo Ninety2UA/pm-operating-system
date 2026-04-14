@@ -10,8 +10,10 @@ tasks/*.md
 BACKLOG.md
 GOALS.md
 
-knowledge/people/
-knowledge/reference/
+knowledge/people/*
+!knowledge/people/_template.md
+knowledge/reference/*
+!knowledge/reference/okr-history.md
 knowledge/journals/
 knowledge/meetings/
 knowledge/session-reviews/
@@ -33,12 +35,10 @@ projects/*/competitive-analysis.md
 # ── Claude Code local config ──────────────────────────
 .claude/settings.local.json
 .claude/plans/
-.claude/commands/
 
 # ── Personal/scratch files ────────────────────────────
 docs/brainstorms/
 docs/plans/
-sync_docs.py
 
 # ── Python ────────────────────────────────────────────
 __pycache__/

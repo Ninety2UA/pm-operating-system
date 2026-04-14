@@ -95,7 +95,7 @@ If misalignment found, flag it: "Your top 3 priorities mention X, but your activ
 
 Based on the refreshed goals:
 - "Run `/plan-okrs` to create measurable key results for this quarter"
-- "Run `/prioritize` to rank your 105+ project ideas against these updated goals"
+- "Run `/prioritize` to rank your idea-stage projects against these updated goals"
 - "Run `/outcome-roadmap --save` to map projects to your goals"
 
 ## Notes

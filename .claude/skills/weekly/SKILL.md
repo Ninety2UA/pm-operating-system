@@ -146,10 +146,12 @@ Present 0–2 specific AGENTS.md changes. **Never auto-apply.** Always present f
 
 ### 8d: Memory maintenance
 
-Check Claude Code memories for:
+Read `MEMORY.md` from this project's memory directory (typically `~/.claude/projects/<encoded-cwd>/memory/MEMORY.md`) and check the linked memory files for:
 
 - Stale memories that should be updated (project states that changed)
 - New feedback worth saving (patterns confirmed this week)
+
+Also scan `knowledge/decisions/` for decisions made this week — surface them in the review and look for repeat patterns worth codifying.
 
 Propose updates: "Memory X is outdated — want me to update it?"
 

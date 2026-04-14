@@ -8,7 +8,7 @@ description: >
   names a person before a meeting ("I'm about to talk to X"), references an
   upcoming 1on1, customer call, or review — even if they name a person without
   explicitly requesting prep.
-allowed-tools: Read Glob Grep mcp__granola__query_granola_meetings
+allowed-tools: Read Glob Grep mcp__granola__*
 argument-hint: "<person-name> [--type 1on1|review|planning|customer]"
 ---
 

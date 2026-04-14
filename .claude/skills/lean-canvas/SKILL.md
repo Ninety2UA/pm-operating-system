@@ -10,8 +10,7 @@ description: >
   they don't say "lean canvas" explicitly. Push toward this before committing
   build effort to a project that hasn't had its business model examined.
 allowed-tools: Read Write Edit Glob mcp__perplexity__*
-disable-model-invocation: true
-argument-hint: "<project-name> [--model quick|deep|reason]"
+argument-hint: "<project-name> [--model quick|search|deep|reason]"
 ---
 
 # Lean Canvas
@@ -82,7 +81,7 @@ If a validation brief already exists with competitor/market data, use it as prim
 
 ### Step 6: Build the Lean Canvas
 
-Using the project context and research, fill in all 9 blocks. Read the template at `${CLAUDE_PLUGIN_ROOT}/skills/lean-canvas/references/lean-canvas-template.md` and fill each section from the project context and research.
+Using the project context and research, fill in all 9 blocks. Read the template at `.claude/skills/lean-canvas/references/lean-canvas-template.md` and fill each section from the project context and research.
 
 ### Step 7: Save the Canvas
 
