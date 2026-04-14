@@ -1092,6 +1092,21 @@
 
       <div class="card" style="margin-bottom:24px;">
         <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
+          <div class="integ-name" style="font-size:20px;">v2.2.1</div>
+          <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
+        </div>
+        <div class="integ-desc" style="margin-bottom:14px;"><strong>Workspace bootstrap: fresh installs now have all the files they need.</strong> The SessionStart hook used to only create empty directories — <code>BACKLOG.md</code> and <code>GOALS.md</code> were missing on a fresh install, so <code>/process-backlog</code> and <code>/morning</code>'s OKR check would error or no-op. Now the hook also creates these files plus helpful <code>README.md</code> files explaining the layout.</div>
+        <ul style="margin:0 0 14px 18px; color:var(--text-secondary); font-size:14px;">
+          <li><strong style="color:var(--green);">Added</strong> — Hook creates <code>BACKLOG.md</code> (capture inbox template) and <code>GOALS.md</code> (full template prompting <code>/refresh-goals</code>) on first run.</li>
+          <li><strong style="color:var(--green);">Added</strong> — <code>README.md</code> files in <code>tasks/</code>, <code>projects/</code>, and <code>knowledge/</code> explaining the layout to new users.</li>
+          <li><strong style="color:var(--green);">Added</strong> — <code>tasks/archive/</code> pre-created (used by <code>prune_completed_tasks</code>).</li>
+          <li><strong style="color:var(--amber);">Changed</strong> — Hook logic moved from a single-line bash in <code>hooks.json</code> to <code>hooks/init-workspace.sh</code> for maintainability. Uses <code>${CLAUDE_PLUGIN_ROOT}</code>.</li>
+          <li><strong style="color:var(--purple);">Improved</strong> — Idempotent: files are only created when missing, so re-running the hook never overwrites user content.</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:8px;">
           <div class="integ-name" style="font-size:20px;">v2.2.0</div>
           <div style="color:var(--text-muted); font-size:13px; font-family:'JetBrains Mono', monospace;">2026-04-14</div>
         </div>

@@ -541,6 +541,18 @@ gws calendar events list --params '{"calendarId": "primary", "timeMin": "2026-04
 
 Tagged releases and binaries: [github.com/Ninety2UA/pm-operating-system/releases](https://github.com/Ninety2UA/pm-operating-system/releases).
 
+### v2.2.1 — 2026-04-14
+
+**Workspace bootstrap: fresh installs now have all the files they need.**
+
+The SessionStart hook used to only create empty directories — `BACKLOG.md` and `GOALS.md` were missing on a fresh install, so `/process-backlog` and `/morning`'s OKR check would error or no-op. Now the hook also creates these files (and helpful `README.md` files in `tasks/`, `projects/`, `knowledge/`).
+
+- **Added** — Hook now creates `BACKLOG.md` (capture inbox template) and `GOALS.md` (full template prompting `/refresh-goals`) on first run.
+- **Added** — `README.md` files in `tasks/`, `projects/`, and `knowledge/` explaining the layout to new users.
+- **Added** — `tasks/archive/` directory pre-created (used by `prune_completed_tasks` MCP tool).
+- **Changed** — Hook logic moved from a single-line bash command in `hooks.json` to `hooks/init-workspace.sh` for maintainability. Uses `${CLAUDE_PLUGIN_ROOT}` so it works for both `/plugin install` users and local-clone users.
+- **Idempotent** — files are only created when missing, so re-running the hook never overwrites user content.
+
 ### v2.2.0 — 2026-04-14
 
 **Plugin restructure + skill overhaul — aligned with Anthropic's plugin and skill-creator conventions.**
