@@ -40,6 +40,14 @@ projects/*/competitive-analysis.md
 docs/brainstorms/
 docs/plans/
 
+# Browser downloads and throwaway artifacts at repo root
+/*.html
+/*.pdf
+
+# ── Node (make-slides / playwright deps) ──────────────
+node_modules/
+package-lock.json
+
 # ── Python ────────────────────────────────────────────
 __pycache__/
 *.py[cod]

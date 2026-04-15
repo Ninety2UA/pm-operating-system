@@ -4,12 +4,12 @@
       "command": "uv",
       "args": [
         "--directory",
-        "${CLAUDE_PROJECT_DIR}/core/mcp",
+        "./core/mcp",
         "run",
         "server.py"
       ],
       "env": {
-        "MANAGER_AI_BASE_DIR": "${CLAUDE_PROJECT_DIR}"
+        "MANAGER_AI_BASE_DIR": "."
       }
     },
     "perplexity": {

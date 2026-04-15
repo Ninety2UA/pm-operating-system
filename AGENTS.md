@@ -33,6 +33,9 @@ project/
 │   ├── skills/   # SKILL.md references
 │   ├── agents/   # Agent references
 │   └── commands/ # Command references
+├── core/         # Runtime source (not user-authored markdown)
+│   ├── mcp/      # manager-ai MCP server (list_tasks, list_projects, etc.)
+│   └── templates/
 ├── BACKLOG.md    # Raw capture inbox
 ├── GOALS.md      # Goals, themes, priorities, OKRs
 └── AGENTS.md     # Your instructions
@@ -185,7 +188,31 @@ When drafting communications, encourage bold asks:
 - Offer best-guess suggestions with confirmation instead of stalling.
 - Never delete or rewrite user notes outside the defined flow.
 
-## MCP Tools Available
+## Context Management
+
+Context is your most valuable resource. Proactively delegate exploration, research, and verbose operations to subagents (Agent tool) instead of bloating the main conversation.
+
+**Default to spawning a subagent for:**
+- Reading 3+ files to answer one question
+- Web research, doc lookups, library investigation
+- Codebase exploration that produces verbose output
+- Any task where only the summary matters
+
+**Stay in main context for:**
+- Direct file edits the user requested
+- Short, targeted reads (1–2 specific files)
+- Conversations requiring iterative back-and-forth
+- Markdown writing/editing the user is reviewing live
+
+**Rule of thumb:** If a task will read >3 files or produce output the user doesn't need verbatim, delegate to a subagent and return a summary.
+
+For broad codebase exploration use `subagent_type: "Explore"`. For multi-source research use the `deep-research` agent. For parallel project evaluation use `batch-evaluator`.
+
+## Available Tools
+
+### MCP servers (see `.mcp.json`)
+
+**manager-ai** (local Python server, source in `core/mcp/`):
 - `list_tasks` — query tasks with filters (priority, status, category)
 - `get_task_summary` — priority/category/status counts + time estimates
 - `check_priority_limits` — alerts if P0 > 3 or P1 > 7
@@ -196,7 +223,13 @@ When drafting communications, encourage bold asks:
 - `get_project_summary` — aggregate project stats and artifact coverage
 - `get_system_status` — full dashboard (tasks + projects + backlog + time insights)
 - `process_backlog_with_dedup` — duplicate detection against tasks/ AND projects/
-- Slack tools (`mcp__plugin_slack_slack__*`) — post messages, read channels, search history. Channels: #os-progress (standups/reviews), #os-backlog (inbound items)
+
+**perplexity** — web-grounded search, research, and reasoning (used by research/validate skills).
+
+**granola** — meeting transcripts and metadata (used by `/meeting-sync`, `/meeting-prep`).
+
+### Native Claude Code tools
+- Slack (`mcp__plugin_slack_slack__*`, delivered via the Slack plugin, not `.mcp.json`) — post messages, read channels, search history. Channels: #os-progress (standups/reviews), #os-backlog (inbound items).
 - When a command offers to post to Slack, always ask before posting. Never post silently.
 
 ## Session-End Reflection

@@ -152,3 +152,8 @@ If any of these are missing, flag them at the bottom:
 - For group meetings with multiple people, run prep for the most important attendee or the meeting host
 - Keep the prep document concise — aim for scannable output, not exhaustive dumps
 - If Granola MCP is unavailable, skip Step 3's query and rely on local transcripts only
+
+## Related Skills
+
+- `/meeting-sync` — pull Granola-captured meetings into `knowledge/meetings/`
+- `/log-meeting` — create a structured note artifact for meetings that aren't in Granola (1on1 / interview / one-off). Pair with `/meeting-prep` when you want both a briefing and a notes file ready before a meeting.

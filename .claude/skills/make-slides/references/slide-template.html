@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{SLIDE_TITLE}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* Default: dark theme. Override per-slide if needed. */
+      --bg: #0f172a;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent: #3b82f6;
+      --grid-gap: 48px;
+      --pad-outer: 100px;
+    }
+
+    html, body {
+      width: 1920px;
+      height: 1080px;
+      background: #1e1e1e;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Center the slide on the page when previewing in a normal browser window */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .slide {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      position: relative;
+      padding: var(--pad-outer);
+      background: var(--bg);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    /* Layout: hero (centered, single statement) */
+    .slide.layout-hero {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Layout: title + body */
+    .slide.layout-title-body { gap: 48px; }
+
+    /* Layout: split (left/right) */
+    .slide.layout-split {
+      flex-direction: row;
+      gap: 80px;
+      align-items: stretch;
+    }
+    .slide.layout-split > .col { flex: 1; display: flex; flex-direction: column; gap: 32px; }
+
+    /* Layout: headline + chart */
+    .slide.layout-headline-chart {
+      flex-direction: column;
+      gap: 48px;
+    }
+    .slide.layout-headline-chart .chart { flex: 1; display: flex; align-items: center; justify-content: center; }
+
+    /* Layout: big number */
+    .slide.layout-big-number {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 24px;
+    }
+    .slide.layout-big-number .hero-number {
+      font-size: 280px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    .slide.layout-big-number .caption {
+      font-size: 44px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .slide.layout-big-number .source {
+      position: absolute;
+      bottom: 60px;
+      font-size: 24px;
+      color: var(--text-secondary);
+    }
+
+    /* Typography */
+    h1.title-hero {
+      font-size: 110px;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+    h1.title-slide {
+      font-size: 72px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    h2.subtitle {
+      font-size: 52px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      line-height: 1.2;
+    }
+    p.body, ul.body li {
+      font-size: 40px;
+      font-weight: 400;
+      line-height: 1.4;
+      color: var(--text-primary);
+    }
+    ul.body {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    ul.body li {
+      padding-left: 48px;
+      position: relative;
+    }
+    ul.body li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 24px;
+      width: 24px;
+      height: 4px;
+      background: var(--accent);
+    }
+    .caption, .source {
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    .accent { color: var(--accent); }
+    .underline-accent {
+      background: linear-gradient(transparent 70%, var(--accent) 70%, var(--accent) 90%, transparent 90%);
+    }
+
+    /* Footer source caption (data slides) */
+    .source-footer {
+      position: absolute;
+      bottom: 60px;
+      left: var(--pad-outer);
+      right: var(--pad-outer);
+      font-size: 24px;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Replace this block with one of the layout patterns below.
+       Layouts: layout-hero | layout-title-body | layout-split | layout-headline-chart | layout-big-number -->
+
+  <div class="slide layout-title-body">
+    <h1 class="title-slide">{{SLIDE_TITLE}}</h1>
+    <ul class="body">
+      <li>{{POINT_1}}</li>
+      <li>{{POINT_2}}</li>
+      <li>{{POINT_3}}</li>
+    </ul>
+    <div class="source-footer">{{SOURCE_OPTIONAL}}</div>
+  </div>
+
+  <!-- ========================================================================
+  LAYOUT EXAMPLES (uncomment & adapt as needed)
+  ============================================================================
+
+  HERO (slide 1, hero statements, full-bleed quotes):
+  <div class="slide layout-hero">
+    <h1 class="title-hero">{{HERO_STATEMENT}}</h1>
+    <h2 class="subtitle" style="margin-top: 32px;">{{SUBTITLE}}</h2>
+  </div>
+
+  BIG NUMBER (one stat per slide):
+  <div class="slide layout-big-number">
+    <div class="hero-number">287%</div>
+    <div class="caption">YoY pipeline growth</div>
+    <div class="source">Source: Internal CRM, Q1 2026 vs. Q1 2025</div>
+  </div>
+
+  SPLIT (comparison, before/after, you vs. competitor):
+  <div class="slide layout-split">
+    <div class="col">
+      <h2 class="subtitle">Before</h2>
+      <p class="body">{{LEFT_CONTENT}}</p>
+    </div>
+    <div class="col">
+      <h2 class="subtitle">After</h2>
+      <p class="body">{{RIGHT_CONTENT}}</p>
+    </div>
+  </div>
+
+  HEADLINE + CHART (data slide):
+  <div class="slide layout-headline-chart">
+    <h1 class="title-slide">Conversion dropped <span class="accent">18%</span> after Friday push</h1>
+    <div class="chart">
+      <!-- Inline SVG chart, or img tag pointing to a chart PNG -->
+    </div>
+    <div class="source-footer">Source: GA4, Mar 1–28 2026, n=12,481 sessions</div>
+  </div>
+  ======================================================================== -->
+
+</body>
+</html>

@@ -50,12 +50,21 @@
 # │    Use the answers to populate GOALS.md following the template      │
 # │    defined at the bottom of this script (search for "cat > GOALS") │
 # │                                                                     │
-# │ 4. SUMMARIZE                                                        │
+# │ 4. OFFER TO INSTALL /make-slides DEPENDENCIES                       │
+# │    Ask: "The /make-slides skill uses Playwright (HTML → PNG +       │
+# │    Google Slides push). Install now? (~50MB npm + ~150MB Chromium   │
+# │    if not cached)"                                                  │
+# │    If yes and npm is available: run `npm install` at repo root      │
+# │    (package.json declares playwright; postinstall runs              │
+# │    `npx playwright install chromium`).                              │
+# │    If skipped, the skill will install lazily on first use.          │
+# │                                                                     │
+# │ 5. SUMMARIZE                                                        │
 # │    Tell the user what was created and suggest next steps:           │
 # │    - Review GOALS.md and refine as needed                           │
 # │    - Read AGENTS.md to understand how the AI agent works            │
 # │    - Start adding tasks or notes to BACKLOG.md                      │
-# │    - Say "process my backlog" to begin triage                       │
+# │    - Say `/process-backlog` to triage, or `/morning` to begin       │
 # └─────────────────────────────────────────────────────────────────────┘
 
 set -e
@@ -180,7 +189,13 @@ if [ ! -f "BACKLOG.md" ]; then
     cat > "BACKLOG.md" << 'EOF'
 # Backlog
 
-Drop raw notes or todos here. Say `process my backlog` when you're ready for triage.
+Drop raw notes, ideas, or todos here. No structure needed — one bullet per item.
+
+When ready, say `/process-backlog` and the assistant will classify each item
+into a task or project, check for duplicates, and ask about anything ambiguous.
+
+## Inbox
+
 EOF
     print_success "Created: BACKLOG.md"
 else
@@ -343,6 +358,37 @@ EOF
 
 print_success "Created: GOALS.md"
 
+# ── Optional: Install Node deps for /make-slides ──────────────────────
+print_header "Optional: /make-slides dependencies"
+
+echo "The /make-slides skill builds presentation decks as HTML/CSS and"
+echo "optionally pushes them to Google Slides. It requires Playwright."
+echo ""
+echo "Install now?"
+echo "  - playwright npm package (~50MB)"
+echo "  - Chromium browser (~150MB, skipped if already cached)"
+echo ""
+read -p "Install Playwright? [Y/n] " install_pw
+install_pw=${install_pw:-Y}
+
+if [[ "$install_pw" =~ ^[Yy] ]]; then
+    if command -v npm >/dev/null 2>&1; then
+        print_info "Running: npm install (this may take a minute)..."
+        if npm install --no-audit --no-fund; then
+            print_success "Playwright installed — /make-slides is ready"
+        else
+            print_warning "npm install failed — check Node.js version (requires >=18)"
+            print_info "You can retry later by running 'npm install' in this directory"
+        fi
+    else
+        print_warning "npm not found — install Node.js 18+ from https://nodejs.org"
+        print_info "After installing Node, run 'npm install' in this directory to enable /make-slides"
+    fi
+else
+    print_info "Skipped. You can install later with 'npm install' in this directory"
+    print_info "The /make-slides skill will also prompt to install on first use"
+fi
+
 # Final summary
 print_header "Setup Complete!"
 
@@ -352,8 +398,8 @@ echo "📋 Next Steps:"
 echo ""
 echo "1. Review GOALS.md and refine as needed"
 echo "2. Read AGENTS.md to understand how your AI agent works"
-echo "3. Start adding tasks or notes to BACKLOG.md"
-echo "4. Tell your AI: 'Read AGENTS.md and help me process my backlog'"
+echo "3. Drop raw notes or todos into BACKLOG.md"
+echo "4. Run /process-backlog to triage, or /morning to start your day"
 echo ""
 print_success "Happy organizing!"
 echo ""

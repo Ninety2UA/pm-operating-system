@@ -8,12 +8,17 @@
 - `/process-backlog` — Process BACKLOG.md with duplicate detection
 - `/write <content-type> <topic>` — Generate content in your authentic voice
 - `/launch <project-name> [--from <stage>]` — Full evaluation pipeline with Go/No-Go gates
+- `/analyze <github-url or local-path>` — Deep compatibility analysis of an external repo against our system
 
 ## Skills
 
 - **prd** — Generate Product Requirements Document for a project
+- **spin-up** — Scaffold a project's CLAUDE.md (artifact links, stage, recommended skills, context-mgmt rule)
 - **meeting-sync** — Sync Granola meetings to knowledge/meetings
 - **meeting-prep** — Pre-meeting context gathering from People, transcripts, and tasks
+- **log-meeting** — Manual meeting note artifact (1on1 / interview / one-off / standup) for non-Granola meetings
+- **weekly-update** — Outbound stakeholder weekly memo (different from `/weekly` internal retro)
+- **make-slides** — Build 1920x1080 HTML/CSS slides with Playwright render loop; optional `--google-slides` push via gws CLI
 - **validate-project** — Market research and validation brief
 - **lean-canvas** — Business model evaluation
 - **competitive-analysis** — Competitor landscape mapping

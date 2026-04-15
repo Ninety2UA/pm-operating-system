@@ -1,0 +1,12 @@
+{
+  "name": "personal-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Node dependencies for the personal-os workspace. Primarily supports the /make-slides skill, which uses Playwright to render HTML slides to PNG and build the measure→screenshot loop.",
+  "scripts": {
+    "postinstall": "npx --yes playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}
