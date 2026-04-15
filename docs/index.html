@@ -1042,9 +1042,9 @@
         <div class="integ-desc">Powers research for validation, competitive analysis, and topic research. Required for <code>/validate-project</code>, <code>/research-topic</code>, and <code>/discover-ideas</code>. Uses the <a href="https://github.com/perplexityai/modelcontextprotocol" target="_blank" rel="noopener">official Perplexity MCP server</a> (<code>@perplexity-ai/mcp-server</code>).</div>
         <div class="integ-setup">
           <div class="integ-step"><strong>1.</strong> Get an API key from the <a href="https://www.perplexity.ai/account/api/group" target="_blank" rel="noopener">Perplexity API Portal</a></div>
-          <div class="integ-step"><strong>2.</strong> Install at the user level so every project inherits it — matches the <a href="https://github.com/perplexityai/modelcontextprotocol#claude-code" target="_blank" rel="noopener">official Claude Code setup</a>:</div>
-          <code class="integ-cmd">claude mcp add perplexity -s user --env PERPLEXITY_API_KEY="your_key_here" -- npx -y @perplexity-ai/mcp-server</code>
-          <div class="integ-note">Drop <code>-s user</code> to install only in the current project.</div>
+          <div class="integ-step"><strong>2.</strong> Install using the <a href="https://github.com/perplexityai/modelcontextprotocol#claude-code" target="_blank" rel="noopener">official Claude Code install command</a>:</div>
+          <code class="integ-cmd">claude mcp add perplexity --env PERPLEXITY_API_KEY="your_key_here" -- npx -y @perplexity-ai/mcp-server</code>
+          <div class="integ-note">Add <code>-s user</code> before <code>--env</code> to register at user scope so every Claude Code project picks it up.</div>
         </div>
       </div>
       <div class="card reveal reveal-delay-1">

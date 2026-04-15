@@ -414,13 +414,13 @@ Uses the [official Perplexity MCP server](https://github.com/perplexityai/modelc
 
 **1. Get your API key** from the [Perplexity API Portal](https://www.perplexity.ai/account/api/group).
 
-**2. Install** at the user level so every Claude Code project picks it up:
+**2. Install** using the official [Claude Code install command](https://github.com/perplexityai/modelcontextprotocol#claude-code):
 
 ```bash
-claude mcp add perplexity -s user --env PERPLEXITY_API_KEY="your_key_here" -- npx -y @perplexity-ai/mcp-server
+claude mcp add perplexity --env PERPLEXITY_API_KEY="your_key_here" -- npx -y @perplexity-ai/mcp-server
 ```
 
-Drop `-s user` to install only in the current project. See the official [Claude Code install command](https://github.com/perplexityai/modelcontextprotocol#claude-code) for details.
+Add `-s user` before `--env` to register at user scope (available in every Claude Code project, not just the directory where you ran the command).
 
 **Available tools:**
 
