@@ -119,7 +119,7 @@ cd pm-operating-system
 ./setup.sh
 ```
 
-`setup.sh` installs MCP server dependencies, creates your workspace directories (`tasks/`, `projects/`, `knowledge/`, `library/`), and walks you through an interactive goals setup.
+`setup.sh` creates your workspace directories (`tasks/`, `projects/`, `knowledge/`, `library/`), walks you through an interactive goals setup, and optionally installs Playwright for `/make-slides`. MCP server dependencies install automatically on first `uv run`.
 
 Next, populate your goals through a guided conversation:
 
