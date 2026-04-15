@@ -411,21 +411,23 @@ Powers the research capabilities of `/validate-project`, `/competitive-analysis`
 
 Uses the [official Perplexity MCP server](https://github.com/perplexityai/modelcontextprotocol) (`@perplexity-ai/mcp-server`).
 
-**Get your API key** from the [Perplexity API Portal](https://www.perplexity.ai/account/api/group), then export it:
+**1. Get your API key** from the [Perplexity API Portal](https://www.perplexity.ai/account/api/group).
+
+**2. Export it** in your shell profile (`~/.zshrc` or `~/.bashrc`) so it persists across sessions:
 
 ```bash
-export PERPLEXITY_API_KEY="pplx-..."
+export PERPLEXITY_API_KEY="your_key_here"
 ```
 
-Add this to your `~/.zshrc` or `~/.bashrc` to persist across sessions.
+**3. Install** — the Perplexity server is already wired up in this repo's `.mcp.json` (runs `npx -y @perplexity-ai/mcp-server` and reads `PERPLEXITY_API_KEY` from your environment), so cloning this repo is enough.
 
-**Configure** — the Perplexity entry is already wired up in `.mcp.json` (runs via `npx -y @perplexity-ai/mcp-server` and reads `PERPLEXITY_API_KEY` from your environment). No manual edit needed.
-
-If you prefer to register it at the user level so every project inherits it, run:
+If you want the server available in **every** Claude Code project, use the official [Claude Code install command](https://github.com/perplexityai/modelcontextprotocol#claude-code):
 
 ```bash
-claude mcp add perplexity -s user --env PERPLEXITY_API_KEY="$PERPLEXITY_API_KEY" -- npx -y @perplexity-ai/mcp-server
+claude mcp add perplexity --env PERPLEXITY_API_KEY="your_key_here" -- npx -y @perplexity-ai/mcp-server
 ```
+
+Add `-s user` before `--env` to register it at the user level (available in every project, not just the directory where you ran the command).
 
 **Available tools:**
 
