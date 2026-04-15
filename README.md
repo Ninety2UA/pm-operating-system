@@ -225,7 +225,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 </details>
 
 <details>
-<summary><strong>Workflow Slash-Invocations (6 skills used as commands)</strong></summary>
+<summary><strong>Slash Commands (7 total — 6 skills + 1 standalone)</strong></summary>
 
 <br>
 
@@ -237,6 +237,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 | `/process-backlog` | Process BACKLOG.md with duplicate detection against existing tasks and projects | `/process-backlog` |
 | `/launch` | Full evaluation pipeline with Go/No-Go gates at each stage | `/launch my-project` or `/launch my-project --from gtm-plan` |
 | `/write` | Generate content (blog posts, emails, social) in your authentic voice | `/write blog-post AI trends` |
+| `/analyze` | Deep compatibility analysis of an external repo/resource against our system | `/analyze https://github.com/owner/repo` or `/analyze ./local/path` |
 
 </details>
 
@@ -413,21 +414,13 @@ Uses the [official Perplexity MCP server](https://github.com/perplexityai/modelc
 
 **1. Get your API key** from the [Perplexity API Portal](https://www.perplexity.ai/account/api/group).
 
-**2. Export it** in your shell profile (`~/.zshrc` or `~/.bashrc`) so it persists across sessions:
+**2. Install** at the user level so every Claude Code project picks it up:
 
 ```bash
-export PERPLEXITY_API_KEY="your_key_here"
+claude mcp add perplexity -s user --env PERPLEXITY_API_KEY="your_key_here" -- npx -y @perplexity-ai/mcp-server
 ```
 
-**3. Install** — the Perplexity server is already wired up in this repo's `.mcp.json` (runs `npx -y @perplexity-ai/mcp-server` and reads `PERPLEXITY_API_KEY` from your environment), so cloning this repo is enough.
-
-If you want the server available in **every** Claude Code project, use the official [Claude Code install command](https://github.com/perplexityai/modelcontextprotocol#claude-code):
-
-```bash
-claude mcp add perplexity --env PERPLEXITY_API_KEY="your_key_here" -- npx -y @perplexity-ai/mcp-server
-```
-
-Add `-s user` before `--env` to register it at the user level (available in every project, not just the directory where you ran the command).
+Drop `-s user` to install only in the current project. See the official [Claude Code install command](https://github.com/perplexityai/modelcontextprotocol#claude-code) for details.
 
 **Available tools:**
 

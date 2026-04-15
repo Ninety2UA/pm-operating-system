@@ -763,7 +763,7 @@
     <div class="section-title reveal">Everything You Get</div>
     <p class="section-desc center reveal">A complete productivity system — from ideation to execution to compounding knowledge.</p>
     <div class="grid-4">
-      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f3af;</div><div class="card-title">23 Skills</div><div class="card-text">Ideation, validation, planning, execution, content output, and analysis — all invocable by your AI assistant.</div></div>
+      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f3af;</div><div class="card-title">29 Skills</div><div class="card-text">Ideation, validation, planning, execution, content output, and analysis — all invocable by your AI assistant.</div></div>
       <div class="card feature-card reveal reveal-delay-1"><div class="card-icon green">&#x2318;</div><div class="card-title">7 Commands</div><div class="card-text">Daily standups, weekly reviews, quarterly scoring, backlog processing, project launching, and repo analysis.</div></div>
       <div class="card feature-card reveal reveal-delay-2"><div class="card-icon purple">&#x1f916;</div><div class="card-title">3 Agents</div><div class="card-text">Deep research, batch evaluation, and system diagnostics — each runs autonomously in the background.</div></div>
       <div class="card feature-card reveal reveal-delay-3"><div class="card-icon amber">&#x1f527;</div><div class="card-title">10 MCP Tools</div><div class="card-text">Fuzzy deduplication, task queries, project pipeline status, system dashboard, and priority alerts.</div></div>
@@ -1042,11 +1042,9 @@
         <div class="integ-desc">Powers research for validation, competitive analysis, and topic research. Required for <code>/validate-project</code>, <code>/research-topic</code>, and <code>/discover-ideas</code>. Uses the <a href="https://github.com/perplexityai/modelcontextprotocol" target="_blank" rel="noopener">official Perplexity MCP server</a> (<code>@perplexity-ai/mcp-server</code>).</div>
         <div class="integ-setup">
           <div class="integ-step"><strong>1.</strong> Get an API key from the <a href="https://www.perplexity.ai/account/api/group" target="_blank" rel="noopener">Perplexity API Portal</a></div>
-          <div class="integ-step"><strong>2.</strong> Export it in your shell profile:</div>
-          <code class="integ-cmd">export PERPLEXITY_API_KEY="your_key_here"</code>
-          <div class="integ-step"><strong>3.</strong> (Optional) Install at the user level so every project inherits it — matches the <a href="https://github.com/perplexityai/modelcontextprotocol#claude-code" target="_blank" rel="noopener">official Claude Code setup</a>:</div>
-          <code class="integ-cmd">claude mcp add perplexity --env PERPLEXITY_API_KEY="your_key_here" -- npx -y @perplexity-ai/mcp-server</code>
-          <div class="integ-note">Already wired up in this repo's <code>.mcp.json</code> — runs <code>npx -y @perplexity-ai/mcp-server</code> automatically for project-scope use.</div>
+          <div class="integ-step"><strong>2.</strong> Install at the user level so every project inherits it — matches the <a href="https://github.com/perplexityai/modelcontextprotocol#claude-code" target="_blank" rel="noopener">official Claude Code setup</a>:</div>
+          <code class="integ-cmd">claude mcp add perplexity -s user --env PERPLEXITY_API_KEY="your_key_here" -- npx -y @perplexity-ai/mcp-server</code>
+          <div class="integ-note">Drop <code>-s user</code> to install only in the current project.</div>
         </div>
       </div>
       <div class="card reveal reveal-delay-1">
