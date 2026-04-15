@@ -52,7 +52,7 @@ In his [Stanford talk](https://www.youtube.com/watch?v=c3b-JASoPi0) and subseque
 | LLM OS Concept | How It Works Here |
 |---|---|
 | **Strategic memory** | `GOALS.md` is read every session to prioritize your work |
-| **Specialized capabilities** | 25 skills the LLM can invoke (validation, risk analysis, sprint planning) plus 1 standalone command (`/analyze`) |
+| **Specialized capabilities** | 29 skills the LLM can invoke (validation, risk analysis, sprint planning, slide generation) plus 1 standalone command (`/analyze`) |
 | **Recurring workflows** | Workflow skills (`/morning`, `/weekly`, `/quarterly`, `/process-backlog`, `/launch`, `/write`) for daily, weekly, and quarterly cycles |
 | **Autonomous sub-processes** | 3 agents that run in the background (research, evaluation, diagnostics) |
 | **Structured tool use** | MCP server with 10 tools for task and project management |
@@ -100,7 +100,7 @@ The system learns through three nested feedback loops. Each layer feeds the next
 
 | Category | What You Get |
 |---|---|
-| **Skills** | 25 specialized skills covering ideation, validation, planning, execution, and recurring workflows |
+| **Skills** | 29 skills covering ideation, validation, planning, execution, communication, and recurring workflows |
 | **Commands** | 1 standalone command (`/analyze`); workflow slash-invocations are skills |
 | **Agents** | 3 autonomous agents for deep research, batch evaluation, and system diagnostics |
 | **MCP Server** | 10 tools with fuzzy deduplication for tasks and projects |
@@ -143,7 +143,7 @@ cd pm-operating-system
 cd core/mcp && uv sync && cd ../..
 
 # Create workspace
-mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,journals,session-reviews,decisions,people,reference}
+mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,journals,session-reviews,decisions,people,reference,updates,decks,voice-samples}
 
 # Set your goals
 ./setup.sh
@@ -165,7 +165,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 ## What You Get
 
 <details>
-<summary><strong>Skills Reference (25 skills)</strong></summary>
+<summary><strong>Skills Reference (23 specialized skills)</strong></summary>
 
 <br>
 
@@ -196,6 +196,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 | `/plan-okrs` | Create or refresh measurable OKRs aligned to your goals |
 | `/outcome-roadmap` | Generate an outcome-focused roadmap from active projects |
 | `/prioritize` | Rank projects or tasks using ICE/RICE frameworks |
+| `/spin-up` | Scaffold a project's CLAUDE.md with artifact links, stage, and recommended next skills |
 
 **Analysis and Review**
 
@@ -206,12 +207,20 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 | `/session-review` | Capture session learnings, prompts, and patterns for weekly analysis |
 | `/refresh-goals` | Review and fill gaps in GOALS.md through conversation |
 
+**Content and Output**
+
+| Skill | Description |
+|-------|-------------|
+| `/make-slides` | Build 1920x1080 HTML/CSS slide decks with a Playwright render loop (optional push to Google Slides) |
+| `/weekly-update` | Draft an outbound stakeholder weekly memo (status, progress, blockers, asks) |
+
 **Integrations**
 
 | Skill | Description |
 |-------|-------------|
 | `/meeting-sync` | Sync Granola meetings to local knowledge folder |
 | `/meeting-prep` | Prepare context for an upcoming meeting from People, transcripts, and tasks |
+| `/log-meeting` | Capture a meeting not synced by Granola (1-on-1, interview, one-off, standup) |
 
 </details>
 
@@ -252,13 +261,13 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 pm-operating-system/
 |
 |-- .claude/
-|   |-- skills/                  25 specialized skills
+|   |-- skills/                  29 skills
 |   |   |-- morning/SKILL.md
 |   |   |-- weekly/SKILL.md
 |   |   |-- launch/SKILL.md
 |   |   |-- prd/SKILL.md
 |   |   |-- validate-project/SKILL.md
-|   |   +-- ...                  (20 more)
+|   |   +-- ...                  (24 more)
 |   |
 |   |-- commands/                1 standalone slash command
 |   |   +-- analyze.md

@@ -589,11 +589,11 @@
 
     <div class="stats-row reveal" id="statsRow">
       <div class="stat-item">
-        <div class="stat-num" data-target="19">0</div>
+        <div class="stat-num" data-target="23">0</div>
         <div class="stat-label">Skills</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num" data-target="6">0</div>
+        <div class="stat-num" data-target="7">0</div>
         <div class="stat-label">Commands</div>
       </div>
       <div class="stat-item">
@@ -629,12 +629,12 @@
       <div class="card reveal reveal-delay-1">
         <div class="card-icon" style="background:rgba(167,139,250,.12)">&#x26a1;</div>
         <div class="card-title">Specialized Capabilities</div>
-        <div class="card-text">19 skills the LLM can invoke — validation, risk analysis, sprint planning, and more.</div>
+        <div class="card-text">23 skills the LLM can invoke — validation, risk analysis, sprint planning, slide generation, and more.</div>
       </div>
       <div class="card reveal reveal-delay-2">
         <div class="card-icon" style="background:rgba(52,211,153,.12)">&#x1f504;</div>
         <div class="card-title">Recurring Workflows</div>
-        <div class="card-text">6 commands for daily standups, weekly reviews, and quarterly OKR scoring.</div>
+        <div class="card-text">7 commands for daily standups, weekly reviews, quarterly OKR scoring, and repo analysis.</div>
       </div>
       <div class="card reveal reveal-delay-1">
         <div class="card-icon" style="background:rgba(251,191,36,.12)">&#x1f916;</div>
@@ -763,8 +763,8 @@
     <div class="section-title reveal">Everything You Get</div>
     <p class="section-desc center reveal">A complete productivity system — from ideation to execution to compounding knowledge.</p>
     <div class="grid-4">
-      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f3af;</div><div class="card-title">19 Skills</div><div class="card-text">Ideation, validation, planning, execution, and analysis — all invocable by your AI assistant.</div></div>
-      <div class="card feature-card reveal reveal-delay-1"><div class="card-icon green">&#x2318;</div><div class="card-title">6 Commands</div><div class="card-text">Daily standups, weekly reviews, quarterly scoring, backlog processing, and project launching.</div></div>
+      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f3af;</div><div class="card-title">23 Skills</div><div class="card-text">Ideation, validation, planning, execution, content output, and analysis — all invocable by your AI assistant.</div></div>
+      <div class="card feature-card reveal reveal-delay-1"><div class="card-icon green">&#x2318;</div><div class="card-title">7 Commands</div><div class="card-text">Daily standups, weekly reviews, quarterly scoring, backlog processing, project launching, and repo analysis.</div></div>
       <div class="card feature-card reveal reveal-delay-2"><div class="card-icon purple">&#x1f916;</div><div class="card-title">3 Agents</div><div class="card-text">Deep research, batch evaluation, and system diagnostics — each runs autonomously in the background.</div></div>
       <div class="card feature-card reveal reveal-delay-3"><div class="card-icon amber">&#x1f527;</div><div class="card-title">10 MCP Tools</div><div class="card-text">Fuzzy deduplication, task queries, project pipeline status, system dashboard, and priority alerts.</div></div>
       <div class="card feature-card reveal"><div class="card-icon rose">&#x1f4cb;</div><div class="card-title">Prioritization</div><div class="card-text">Goal-driven P0-P3 levels tied to your strategic objectives. ICE/RICE framework scoring.</div></div>
@@ -800,7 +800,7 @@
 <span class="kw">cd</span> core/mcp &amp;&amp; <span class="kw">uv sync</span> &amp;&amp; <span class="kw">cd</span> ../..
 
 <span class="cmt"># Create workspace directories</span>
-<span class="kw">mkdir -p</span> tasks projects knowledge/{research/projects,research/topics,meetings,journals,session-reviews,decisions,people,reference}
+<span class="kw">mkdir -p</span> tasks projects knowledge/{research/projects,research/topics,meetings,journals,session-reviews,decisions,people,reference,updates,decks,voice-samples}
 
 <span class="cmt"># Set your goals (interactive bash flow)</span>
 <span class="kw">./setup.sh</span></div>
@@ -821,7 +821,7 @@
 <section id="skills">
   <div class="container">
     <div class="section-label reveal">Skills</div>
-    <div class="section-title reveal">19 Specialized Skills</div>
+    <div class="section-title reveal">23 Specialized Skills</div>
     <p class="section-desc reveal">Each skill teaches your AI assistant a focused capability — from market validation to sprint planning.</p>
     <div class="skills-group reveal">
       <div class="skills-group-title">Ideation &amp; Discovery</div>
@@ -844,6 +844,7 @@
       <div class="skill-row"><span class="skill-name">/plan-okrs</span><span class="skill-desc">Create or refresh measurable OKRs aligned to your goals</span></div>
       <div class="skill-row"><span class="skill-name">/outcome-roadmap</span><span class="skill-desc">Generate an outcome-focused roadmap from active projects</span></div>
       <div class="skill-row"><span class="skill-name">/prioritize</span><span class="skill-desc">Rank projects or tasks using ICE/RICE frameworks</span></div>
+      <div class="skill-row"><span class="skill-name">/spin-up</span><span class="skill-desc">Scaffold a project's CLAUDE.md with artifact links and recommended next skills</span></div>
     </div>
     <div class="skills-group reveal">
       <div class="skills-group-title">Analysis &amp; Review</div>
@@ -853,9 +854,15 @@
       <div class="skill-row"><span class="skill-name">/refresh-goals</span><span class="skill-desc">Review and fill gaps in GOALS.md through conversation</span></div>
     </div>
     <div class="skills-group reveal">
+      <div class="skills-group-title">Content &amp; Output</div>
+      <div class="skill-row"><span class="skill-name">/make-slides</span><span class="skill-desc">Build 1920x1080 HTML/CSS slide decks with a Playwright render loop (optional push to Google Slides)</span></div>
+      <div class="skill-row"><span class="skill-name">/weekly-update</span><span class="skill-desc">Draft an outbound stakeholder weekly memo — status, progress, blockers, asks</span></div>
+    </div>
+    <div class="skills-group reveal">
       <div class="skills-group-title">Integrations</div>
       <div class="skill-row"><span class="skill-name">/meeting-sync</span><span class="skill-desc">Sync Granola meetings to local knowledge folder</span></div>
       <div class="skill-row"><span class="skill-name">/meeting-prep</span><span class="skill-desc">Prepare context for an upcoming meeting from People, transcripts, and tasks</span></div>
+      <div class="skill-row"><span class="skill-name">/log-meeting</span><span class="skill-desc">Capture a meeting not synced by Granola — 1-on-1, interview, one-off, or standup</span></div>
     </div>
   </div>
 </section>
@@ -864,7 +871,7 @@
 <section id="commands">
   <div class="container">
     <div class="section-label reveal">Commands</div>
-    <div class="section-title reveal">6 Slash Commands</div>
+    <div class="section-title reveal">7 Slash Commands</div>
     <p class="section-desc reveal">Workflow automation at your fingertips — from daily standups to quarterly reviews.</p>
     <div class="cmd-grid">
       <div class="cmd-card reveal"><div class="cmd-slash">/morning</div><div class="cmd-desc">Daily standup with meeting sync, top tasks, pipeline project, OKR check, and journal save.</div></div>
@@ -873,6 +880,7 @@
       <div class="cmd-card reveal"><div class="cmd-slash">/process-backlog</div><div class="cmd-desc">Process BACKLOG.md with duplicate detection against existing tasks and projects.</div></div>
       <div class="cmd-card reveal reveal-delay-1"><div class="cmd-slash">/launch</div><div class="cmd-desc">Full evaluation pipeline with Go/No-Go gates at each stage. Skip with <code>--from</code>.</div></div>
       <div class="cmd-card reveal reveal-delay-2"><div class="cmd-slash">/write</div><div class="cmd-desc">Generate content — blog posts, emails, social media — in your authentic voice.</div></div>
+      <div class="cmd-card reveal"><div class="cmd-slash">/analyze</div><div class="cmd-desc">Deep compatibility analysis of an external repo/resource against our system.</div></div>
     </div>
   </div>
 </section>
