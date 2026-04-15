@@ -127,7 +127,7 @@ Integrations are wired up in the committed `.mcp.json` at the repo root — no m
 
 | Integration | Description | Setup |
 |-------------|-------------|--------|
-| Perplexity | AI-powered web research | `PERPLEXITY_API_KEY` env var + `npm install -g @nicepkg/perplexity-mcp` |
+| Perplexity | AI-powered web research | `PERPLEXITY_API_KEY` env var; official [`@perplexity-ai/mcp-server`](https://github.com/perplexityai/modelcontextprotocol) auto-runs via `npx` (wired in `.mcp.json`) |
 | Slack | Team messaging | Claude Code plugin (`/plugin install slack`) |
 | Granola | Meeting sync | Granola desktop app + OAuth on first use |
 | Google Workspace | Gmail & Calendar | `gws` CLI (not MCP) |

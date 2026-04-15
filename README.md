@@ -409,21 +409,23 @@ These integrations are optional but unlock powerful capabilities. Install whiche
 
 Powers the research capabilities of `/validate-project`, `/competitive-analysis`, `/research-topic`, `/discover-ideas`, and `/gtm-plan`. Without Perplexity, these skills will not have access to live web data.
 
-**Install:**
+Uses the [official Perplexity MCP server](https://github.com/perplexityai/modelcontextprotocol) (`@perplexity-ai/mcp-server`).
 
-```bash
-npm install -g @nicepkg/perplexity-mcp
-```
-
-**Configure** — the Perplexity entry is already wired up in `.mcp.json` (runs via `npx -y @nicepkg/perplexity-mcp`). No manual edit needed.
-
-**Set your API key** — get one from [perplexity.ai/settings/api](https://www.perplexity.ai/settings/api), then:
+**Get your API key** from the [Perplexity API Portal](https://www.perplexity.ai/account/api/group), then export it:
 
 ```bash
 export PERPLEXITY_API_KEY="pplx-..."
 ```
 
 Add this to your `~/.zshrc` or `~/.bashrc` to persist across sessions.
+
+**Configure** — the Perplexity entry is already wired up in `.mcp.json` (runs via `npx -y @perplexity-ai/mcp-server` and reads `PERPLEXITY_API_KEY` from your environment). No manual edit needed.
+
+If you prefer to register it at the user level so every project inherits it, run:
+
+```bash
+claude mcp add perplexity -s user --env PERPLEXITY_API_KEY="$PERPLEXITY_API_KEY" -- npx -y @perplexity-ai/mcp-server
+```
 
 **Available tools:**
 
