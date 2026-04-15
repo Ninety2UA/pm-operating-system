@@ -21,6 +21,10 @@ knowledge/decisions/
 knowledge/research/**
 knowledge/sprint-*.md
 knowledge/outcome-roadmap.md
+knowledge/updates/
+knowledge/decks/
+knowledge/voice-samples/
+knowledge/voice-guide.md
 !knowledge/README.md
 !knowledge/.gitkeep
 

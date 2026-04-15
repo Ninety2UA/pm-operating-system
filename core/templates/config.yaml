@@ -7,7 +7,9 @@ categories:
   - outreach       # Emails, meetings, networking
   - research       # Learning, analysis, investigation
   - writing        # Documentation, blogs, reports
+  - content        # Blog posts, social media, public writing
   - admin          # Administrative, organizational
+  - personal       # Health, routines
   - other          # Miscellaneous
 
 # Priority levels
@@ -23,6 +25,7 @@ statuses:
   s: started
   b: blocked
   d: done
+  r: recurring
 
 # Deduplication settings
 deduplication:
@@ -33,7 +36,7 @@ deduplication:
 # Priority limits (warning thresholds)
 priority_limits:
   P0: 3  # Warn if more than 3 P0 tasks
-  P1: 5  # Warn if more than 5 P1 tasks
+  P1: 7  # Warn if more than 7 P1 tasks
 
 # Task aging (in days)
 task_aging:

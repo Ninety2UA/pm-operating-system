@@ -23,8 +23,12 @@ project/
 │   ├── session-reviews/  # Session review artifacts (YYYY/MM/DD_summary.md)
 │   ├── decisions/     # Decision records (YYYY-MM-DD-topic.md)
 │   ├── people/        # One file per person (auto-enriched from meetings + email)
-│   ├── reference/     # Stable context docs (OKR history, consultancy profile)
+│   ├── reference/     # Stable context docs (OKR history, etc.)
 │   ├── meetings/      # /meeting-sync output (YYYY/MM/DD.md)
+│   ├── updates/       # /weekly-update output (YYYY-WXX[-audience].md)
+│   ├── decks/         # /make-slides output (HTML + rendered PNGs)
+│   ├── voice-guide.md # Voice principles for /write
+│   ├── voice-samples/ # Source writing for /write to learn from
 │   ├── outcome-roadmap.md  # /outcome-roadmap --save output
 │   └── sprint-*.md    # /sprint-plan output
 ├── library/      # Catalog of reusable AI artifacts (reference only)
@@ -35,11 +39,17 @@ project/
 │   └── commands/ # Command references
 ├── core/         # Runtime source (not user-authored markdown)
 │   ├── mcp/      # manager-ai MCP server (list_tasks, list_projects, etc.)
-│   └── templates/
+│   ├── templates/  # Scaffolding templates copied by setup.sh
+│   ├── README.md
+│   └── requirements.txt
 ├── BACKLOG.md    # Raw capture inbox
 ├── GOALS.md      # Goals, themes, priorities, OKRs
 └── AGENTS.md     # Your instructions
 ```
+
+> **Not shown:** `docs/`, `examples/`, `site/` — repo infrastructure, not user workspace.
+>
+> **Skill-as-command convention:** every skill under `.claude/skills/<name>/SKILL.md` is invokable both via the Skill tool and as the slash command `/<name>`. The `## Commands` section of `CLAUDE.md` highlights the primary daily-workflow commands; `## Skills` lists the full catalog.
 
 ### tasks/ vs projects/
 

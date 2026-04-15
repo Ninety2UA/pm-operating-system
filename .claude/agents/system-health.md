@@ -38,6 +38,8 @@ description: >
 
 model: sonnet
 color: yellow
+# This agent is diagnostic-only. Read-only MCP tools only.
+# Deliberately excluded: process_backlog_with_dedup and prune_completed_tasks (both mutate state).
 tools: ["Read", "Glob", "Grep", "Bash", "mcp__manager-ai__list_tasks", "mcp__manager-ai__get_task_summary", "mcp__manager-ai__check_priority_limits", "mcp__manager-ai__list_projects", "mcp__manager-ai__get_pipeline_status", "mcp__manager-ai__get_project_artifacts", "mcp__manager-ai__get_project_summary", "mcp__manager-ai__get_system_status"]
 ---
 
