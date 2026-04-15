@@ -28,13 +28,9 @@ knowledge/voice-guide.md
 !knowledge/README.md
 !knowledge/.gitkeep
 
-# Project artifacts (generated per-user)
-projects/*/prd.md
-projects/*/lean-canvas.md
-projects/*/gtm-plan.md
-projects/*/pre-mortem.md
-projects/*/user-stories.md
-projects/*/competitive-analysis.md
+# Projects are personal; only the template README is tracked.
+projects/*
+!projects/README.md
 
 # ── Claude Code local config ──────────────────────────
 .claude/settings.local.json
