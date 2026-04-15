@@ -158,7 +158,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 | git | any | Yes | `brew install git` |
 | Claude Code | latest | Yes | [claude.ai/download](https://claude.ai/download) |
 | Node.js / npm | 18+ | For Perplexity | `brew install node` |
-| gws | latest | For Google Workspace | `brew tap nicholasgasior/gws && brew install gws` |
+| [gws](https://github.com/googleworkspace/cli) | latest | For Google Workspace | `brew install googleworkspace-cli` |
 
 ---
 
@@ -483,28 +483,31 @@ Syncs meeting notes and transcripts from [Granola](https://granola.ai) into `kno
 
 Gmail and Calendar integration for enriching `/meeting-prep` with email history, checking your calendar in `/morning`, and searching past correspondence.
 
+Source: [github.com/googleworkspace/cli](https://github.com/googleworkspace/cli) (official Google Workspace CLI).
+
 **Install:**
 
 ```bash
-# macOS
-brew tap nicholasgasior/gws
-brew install gws
+# macOS (Homebrew)
+brew install googleworkspace-cli
 
-# Or from source
-go install github.com/nicholasgasior/gws@latest
+# npm
+npm install -g @googleworkspace/cli
+
+# From source (Cargo)
+cargo install --git https://github.com/googleworkspace/cli --locked
 ```
 
 **Authenticate:**
 
-1. Create a Google Cloud project and enable the Gmail, Calendar, and Drive APIs
-2. Download the OAuth client credentials JSON
-3. Run the initial auth:
+Requires the [`gcloud` CLI](https://cloud.google.com/sdk/docs/install) for the initial setup.
 
 ```bash
-gws gmail users messages list --params '{"userId": "me", "maxResults": 1}'
+gws auth setup   # walks through Google Cloud project config (one-time)
+gws auth login   # subsequent logins
 ```
 
-This will open a browser for OAuth consent. Credentials are stored at `~/.config/gws/`.
+Credentials are encrypted at rest (AES-256-GCM) and stored under `~/.config/gws/`.
 
 **Example commands:**
 
