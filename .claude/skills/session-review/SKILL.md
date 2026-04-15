@@ -31,7 +31,7 @@ Review the full conversation context. Extract:
 
 1. **User prompts (verbatim)** — every substantive request the user made, quoted exactly. This is the most important section. These feed the weekly pattern analysis that suggests new commands and skills.
 2. **What was accomplished** — concrete outcomes (files created, tasks processed, decisions made)
-3. **Commands, skills, and tools used** — which /commands, /skills, and MCP tools were invoked
+3. **Commands, skills, and tools used** — which commands, skills, and MCP tools were invoked
 4. **Workflow chains** — sequences of actions that were run together (e.g., "/validate-project then /lean-canvas then /gtm-plan")
 5. **What worked well** — approaches that were efficient or got good results
 6. **What didn't work** — friction points, retries, confusion, dead ends

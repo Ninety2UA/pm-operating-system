@@ -37,6 +37,8 @@ mkdir -p \
   knowledge/people \
   knowledge/reference \
   knowledge/voice-samples \
+  knowledge/updates \
+  knowledge/decks \
   library/prompts \
   library/systems \
   library/skills \
@@ -197,6 +199,9 @@ Long-term memory: research, journals, decisions, meetings, people.
 - **meetings/YYYY/MM/DD.md** — synced from Granola via `/meeting-sync`
 - **people/<name>.md** — auto-enriched contact profiles
 - **reference/** — stable context (OKR history, system guides)
+- **updates/YYYY-WXX[-audience].md** — outbound stakeholder memos (`/weekly-update`)
+- **decks/** — rendered slide decks (`/make-slides`)
+- **voice-guide.md** + **voice-samples/** — `/write` voice calibration
 
 This folder compounds over time. Weekly and quarterly reviews mine it for patterns.
 EOF
