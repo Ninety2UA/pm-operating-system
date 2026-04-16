@@ -44,3 +44,7 @@ Every skill listed here is invokable as `/<skill-name>` (skill-as-command conven
 - **deep-research** — Background multi-source research, saves briefs to knowledge/
 - **batch-evaluator** — Parallel project evaluation with comparative ranking
 - **system-health** — Diagnostic scan of tasks, projects, goals, and backlog
+
+## Framework Self-Audit
+
+- **`core/scripts/validate.py`** — run `uv run core/scripts/validate.py` to check the framework for drift (frontmatter issues, broken cross-refs, MCP tool parity, workspace shape). Useful after bulk edits to skills/agents or before a release.

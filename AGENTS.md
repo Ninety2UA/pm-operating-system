@@ -19,8 +19,9 @@ project/
 │   │   ├── projects/  # /validate-project and /competitive-analysis output
 │   │   └── topics/    # /research-topic output
 │   ├── journals/      # Daily plans + actuals (YYYY/MM/DD.md)
-│   │   └── YYYY/weekly/  # Weekly review summaries (WXX.md)
-│   ├── session-reviews/  # Session review artifacts (YYYY/MM/DD_summary.md)
+│   │   ├── YYYY/weekly/     # Weekly review summaries (WXX.md)
+│   │   └── YYYY/quarterly/  # Quarterly review summaries (QX.md)
+│   ├── session-reviews/  # Session review artifacts (YYYY/MM/DD_<session-type>.md)
 │   ├── decisions/     # Decision records (YYYY-MM-DD-topic.md)
 │   ├── people/        # One file per person (auto-enriched from meetings + email)
 │   ├── reference/     # Stable context docs (OKR history, etc.)

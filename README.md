@@ -165,7 +165,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 ## What You Get
 
 <details>
-<summary><strong>Skills Reference (23 specialized skills)</strong></summary>
+<summary><strong>Skills Reference (29 skills — 23 specialized below + 6 daily-workflow commands in the next section)</strong></summary>
 
 <br>
 

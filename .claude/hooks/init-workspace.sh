@@ -17,9 +17,10 @@ fi
 cd "$CLAUDE_PROJECT_DIR" || exit 0
 
 # Repo guard: only bootstrap if this looks like a personal-os workspace.
-# AGENTS.md is the load-bearing marker — it ships with the repo and instructs
-# the assistant. Without it, we're probably in some unrelated directory.
-if [ ! -f AGENTS.md ]; then
+# We require TWO markers to reduce false positives — AGENTS.md alone is too
+# generic (other repos use it for agent instructions). .mcp.json AND the
+# core/mcp/server.py entry point together are personal-os-specific.
+if [ ! -f AGENTS.md ] || [ ! -f .mcp.json ] || [ ! -f core/mcp/server.py ]; then
   exit 0
 fi
 

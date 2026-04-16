@@ -7,10 +7,7 @@
         "./core/mcp",
         "run",
         "server.py"
-      ],
-      "env": {
-        "MANAGER_AI_BASE_DIR": "."
-      }
+      ]
     },
     "granola": {
       "type": "http",
