@@ -38,7 +38,7 @@ description: >
 
 model: inherit
 color: green
-tools: ["Read", "Write", "Glob", "Grep", "WebFetch", "WebSearch", "mcp__perplexity__perplexity_search", "mcp__perplexity__perplexity_research", "mcp__perplexity__perplexity_ask", "mcp__perplexity__perplexity_reason", "mcp__manager-ai__list_projects", "mcp__manager-ai__get_project_artifacts"]
+tools: ["Read", "Write", "Glob", "Grep", "Bash", "WebFetch", "WebSearch", "mcp__perplexity__perplexity_search", "mcp__perplexity__perplexity_research", "mcp__perplexity__perplexity_ask", "mcp__perplexity__perplexity_reason", "mcp__manager-ai__list_projects", "mcp__manager-ai__get_project_artifacts"]
 ---
 
 You are a batch project evaluator that assesses multiple projects in parallel and produces a comparative ranking to help the user decide which projects to pursue.

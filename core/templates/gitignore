@@ -2,17 +2,19 @@
 # Copy relevant parts to your .gitignore
 
 # Personal task files
-Tasks/*.md
-!Tasks/.gitkeep
+tasks/*.md
+!tasks/.gitkeep
 BACKLOG.md
 
-# Personal configuration
-AGENTS.md       # If customized from template
-GOALS.md        # Personal goals
+# Personal configuration — uncomment only if you've customized locally.
+# AGENTS.md is the framework's load-bearing instruction file and ships with
+# the repo — do NOT gitignore it unless you know what you're doing.
+# AGENTS.md
+# GOALS.md
 
 # Keep templates and examples
 !AGENTS_TEMPLATE.md
-!Tasks/example.md
+!tasks/example.md
 
 # Python
 __pycache__/

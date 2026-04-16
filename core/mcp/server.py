@@ -40,7 +40,15 @@ class DateTimeEncoder(json.JSONEncoder):
 
 
 # Configuration
-BASE_DIR = Path(os.environ.get('MANAGER_AI_BASE_DIR', Path.cwd()))
+# Resolve BASE_DIR to the repo root. server.py lives at <repo>/core/mcp/server.py,
+# so parents[2] = <repo>. This avoids the cwd trap when launched via `uv --directory`,
+# which changes cwd into core/mcp/ and would otherwise make relative paths resolve there.
+# An explicit MANAGER_AI_BASE_DIR env var overrides (must be an absolute path).
+_env_base = os.environ.get('MANAGER_AI_BASE_DIR', '').strip()
+if _env_base and _env_base != '.':
+    BASE_DIR = Path(_env_base).resolve()
+else:
+    BASE_DIR = Path(__file__).resolve().parents[2]
 TASKS_DIR = BASE_DIR / 'tasks'
 PROJECTS_DIR = BASE_DIR / 'projects'
 KNOWLEDGE_DIR = BASE_DIR / 'knowledge'

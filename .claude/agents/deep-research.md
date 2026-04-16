@@ -37,7 +37,7 @@ description: >
 
 model: inherit
 color: cyan
-tools: ["Read", "Write", "Glob", "Grep", "WebFetch", "WebSearch", "mcp__perplexity__perplexity_search", "mcp__perplexity__perplexity_research", "mcp__perplexity__perplexity_reason", "mcp__perplexity__perplexity_ask"]
+tools: ["Read", "Write", "Glob", "Grep", "Bash", "WebFetch", "WebSearch", "mcp__perplexity__perplexity_search", "mcp__perplexity__perplexity_research", "mcp__perplexity__perplexity_reason", "mcp__perplexity__perplexity_ask"]
 ---
 
 You are a deep research agent that produces comprehensive, well-sourced research briefs on any topic.
