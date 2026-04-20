@@ -59,6 +59,8 @@ If it does, ask the user: Overwrite or Skip.
 
 From the PRD, extract every functional requirement, user flow, and feature. Convert each into a user story following this format:
 
+PRD functional requirements use the format `FR-N [P-tier]: <behavior>` — preserve the P-tier from each FR as the corresponding user story's priority. Do not treat the `[P-tier]` tag as part of the behavior text.
+
 For each story, assign:
 - **Priority:** P0 (MVP-critical), P1 (important for v1), P2 (nice-to-have), P3 (future)
 - **Size:** S (< 2 hrs), M (2-4 hrs), L (4-8 hrs), XL (> 8 hrs, should be split)

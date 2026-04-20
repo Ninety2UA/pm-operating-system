@@ -1,6 +1,6 @@
 # PRD Template
 
-Always use this exact template structure. Fill in each section based on the project context. Adapt depth to the project's pipeline stage — idea-stage PRDs can be lighter on sections 6-8, active-stage PRDs need full detail.
+Always use this exact template structure. Fill in each section based on the project context. See SKILL.md Step 6 for the stage-specific depth rubric (80–150 lines for idea, 150–250 for evaluating, 200–300 for active).
 
 ```markdown
 ---
@@ -9,11 +9,15 @@ project: <project-name>
 date: YYYY-MM-DD
 status: draft
 author: [User name from GOALS.md or git config]
+hypothesis: "[one-sentence testable hypothesis]"
+stage: idea  # idea | evaluating | ready | active | paused | archived
 ---
 
 # [Project Name] — Product Requirements Document
 
 ## 1. Summary
+
+**Hypothesis:** We believe [user] will [behavior] because [reason]; we'll know if [metric crosses threshold].
 
 2-3 sentences: What is this product/feature? What does it do? Who is it for?
 
@@ -21,7 +25,8 @@ author: [User name from GOALS.md or git config]
 
 - **Context:** What is this initiative about? What led to it?
 - **Why now:** Has something changed — new technology, market shift, user pain?
-- **Connection to goals:** Which goal or OKR from GOALS.md does this advance?
+- **Primary goal/OKR:** GOALS.md › [Objective] › [KR#]
+- **vs. alternatives:** How is this better than what users do today? (1–2 sentences)
 
 ## 3. Objective
 
@@ -43,24 +48,20 @@ Who are we building this for? Define by problem/job, not demographics.
 
 **Primary segment:** [Which segment to focus on first and why]
 
-## 5. Value Proposition
+## 5. Solution
 
-- What customer jobs/needs does this address?
-- What will users gain that they don't have today?
-- Which pains will they avoid?
-- How is this better than existing alternatives?
-
-## 6. Solution
-
-### 6.1 Key Features
+### 5.1 Key Features
 
 | Feature | Description | Priority | Effort |
 |---------|------------|----------|--------|
-| [Feature 1] | [What it does] | Must-have | [S/M/L] |
-| [Feature 2] | [What it does] | Must-have | [S/M/L] |
-| [Feature 3] | [What it does] | Nice-to-have | [S/M/L] |
+| [Feature 1] | [What it does] | P0 | [S/M/L] |
+| [Feature 2] | [What it does] | P0 | [S/M/L] |
+| [Feature 3] | [What it does] | P1 | [S/M/L] |
+| [Feature 4] | [What it does] | P2 | [S/M/L] |
 
-### 6.2 User Flow
+Priority: **P0** = blocks MVP, **P1** = ship in v1 after MVP, **P2** = deferred / nice-to-have.
+
+### 5.2 User Flow
 
 Describe the primary user journey from entry to value:
 1. User arrives at [entry point]
@@ -68,49 +69,50 @@ Describe the primary user journey from entry to value:
 3. System responds with [result]
 4. User achieves [outcome]
 
-### 6.3 User Stories
+### 5.3 User Stories
 
-Initial high-level stories — the `/user-stories` skill later decomposes these into
-detailed buildable stories with full acceptance criteria when the project is activated.
+One primary story per P0 feature, plus one edge-case story for each P0 feature. The `/user-stories` skill later decomposes these into full buildable stories when the project is activated.
 
 #### US-001: [Title]
 **Description:** As a [user], I want [feature] so that [benefit].
+**Tied to FR:** FR-X, FR-Y
 **Acceptance Criteria:**
 - [ ] [Specific, verifiable criterion]
 - [ ] [Another criterion]
 
 #### US-002: [Title]
 **Description:** As a [user], I want [feature] so that [benefit].
+**Tied to FR:** FR-Z
 **Acceptance Criteria:**
 - [ ] [Specific, verifiable criterion]
 - [ ] [Another criterion]
 
-Keep stories small — each should represent a single outcome achievable in one focused session. Acceptance criteria must be verifiable, not vague ("works correctly" is bad; "shows confirmation dialog before deleting" is good).
+Keep stories small. Acceptance criteria must be verifiable, not vague ("works correctly" is bad; "shows confirmation dialog before deleting" is good).
 
-### 6.4 Functional Requirements
+### 5.4 Functional Requirements
 
-Numbered list of specific system behaviors. Each requirement should be testable.
+Numbered list of specific system behaviors. Tag each with P-tier inline. Each requirement should be testable.
 
-- FR-1: The system must [specific behavior]
-- FR-2: When a user [action], the system must [response]
-- FR-3: The system shall [constraint or capability]
+- FR-1 [P0]: The system must [specific behavior]
+- FR-2 [P0]: When a user [action], the system must [response]
+- FR-3 [P1]: The system shall [constraint or capability]
+- FR-4 [P2]: The system should [deferred capability]
 
 Be explicit and unambiguous — these are the contract between the spec and the build.
 
-### 6.5 Technical Considerations
+### 5.5 Technical Considerations
 
 Only if relevant — stack choices, API dependencies, data requirements,
 infrastructure needs. Skip if not applicable for this project.
 
-### 6.6 Assumptions
+### 5.6 Assumptions
 
-What we believe but haven't proven. Flag these clearly so they can be
-validated before or during building.
+What we believe but haven't proven. Flag these clearly so they can be validated before or during building.
 
-- [Assumption 1] — risk if wrong: [impact]
-- [Assumption 2] — risk if wrong: [impact]
+- [Assumption 1] — risk if wrong: [impact] — tested-in-MVP: [yes/no + method]
+- [Assumption 2] — risk if wrong: [impact] — tested-in-MVP: [yes/no + method]
 
-## 7. Scope & Phases
+## 6. Scope & Phases
 
 Use relative timeframes ("3 weeks after MVP") rather than calendar dates — PRDs outlive
 the original schedule.
@@ -121,39 +123,62 @@ deliver the core value proposition with minimum features.
 
 - [Feature/capability included]
 - [Feature/capability included]
-- **Explicitly excluded:** [Things that feel important but aren't MVP]
+- **Won't build:**
+  - [Thing deferred to Phase 2]
+  - [Thing never to be built] (permanent)
+- **Entry criteria:** [Verifiable conditions to start MVP]
+- **Exit criteria:** [Verifiable conditions for MVP to be considered done]
+- **Kill criteria:** [Evidence under which to shelve the project]
 
 ### Phase 2+
 What comes after the MVP proves the concept?
 
 - [Enhancement 1]
 - [Enhancement 2]
+- **Entry criteria:** [What triggers Phase 2 work]
 
-### Non-Goals
-Things this project intentionally does NOT do:
-- [Non-goal 1]
-- [Non-goal 2]
-
-## 8. Success Criteria
+## 7. Success Criteria
 
 How will we know this worked? Link back to the Key Results in Section 3.
 
-| Metric | Baseline | Target | Measurement Method |
-|--------|----------|--------|-------------------|
-| [Metric 1] | [Current state] | [Goal] | [How to measure] |
-| [Metric 2] | [Current state] | [Goal] | [How to measure] |
+### 7a. Leading indicators (weekly or faster)
+
+| Metric | Baseline | Target | Frequency | Measurement Method |
+|--------|----------|--------|-----------|-------------------|
+| [Metric 1] | [Current state] | [Goal] | [Weekly] | [How to measure] |
+| [Metric 2] | [Current state] | [Goal] | [Daily] | [How to measure] |
+
+### 7b. Lagging indicators (monthly or slower)
+
+| Metric | Baseline | Target | Frequency | Measurement Method |
+|--------|----------|--------|-----------|-------------------|
+| [Metric 1] | [Current state] | [Goal] | [Monthly] | [How to measure] |
+
+## 8. Evidence
+
+Quotes, usage stats, competitor signals, or customer-discovery notes that back the hypothesis. Concrete beats hand-wavy.
+
+- [Quote or signal 1]
+- [Quote or signal 2]
+- [Quote or signal 3]
+
+If no direct evidence exists yet, use this exact flag in place of the bullets:
+
+> No direct evidence yet — PRD proceeds on hypothesis; validate via [method] before Phase 2.
 
 ## 9. Open Questions
 
-Remaining questions or areas needing clarification before building:
-- [Question 1]
-- [Question 2]
+Remaining questions or areas needing clarification before building. Tag each with who unblocks it.
 
-## 10. Contacts (Optional)
+- [Owner: eng] [Question text] — needed by [stage]
+- [Owner: user-research] [Question text] — needed by [stage]
+- [Owner: self] [Question text] — needed by [stage]
+
+## 10. Contacts
 
 Even for solo projects, naming domain experts, early users, or advisors creates accountability.
 
-| Name | Role | How to Reach |
-|------|------|-------------|
-| [Name] | [Domain expert / Early user / Advisor] | [Email / Slack / etc.] |
+| Name | Role | Why them | How to Reach |
+|------|------|----------|-------------|
+| [Name] | [Domain expert / Early user / Advisor] | [Specific reason — ties to an open question, assumption, or story] | [Email / Slack / LinkedIn] |
 ```
