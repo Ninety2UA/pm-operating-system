@@ -52,7 +52,7 @@ In his [Stanford talk](https://www.youtube.com/watch?v=c3b-JASoPi0) and subseque
 | LLM OS Concept | How It Works Here |
 |---|---|
 | **Strategic memory** | `GOALS.md` is read every session to prioritize your work |
-| **Specialized capabilities** | 29 skills the LLM can invoke (validation, risk analysis, sprint planning, slide generation) plus 1 standalone command (`/analyze`) |
+| **Specialized capabilities** | 30 skills the LLM can invoke (validation, risk analysis, technical spec, sprint planning, slide generation) plus 1 standalone command (`/analyze`) |
 | **Recurring workflows** | Workflow skills (`/morning`, `/weekly`, `/quarterly`, `/process-backlog`, `/launch`, `/write`) for daily, weekly, and quarterly cycles |
 | **Autonomous sub-processes** | 3 agents that run in the background (research, evaluation, diagnostics) |
 | **Structured tool use** | MCP server with 10 tools for task and project management |
@@ -74,15 +74,15 @@ The result: each session makes the next one more effective. Your assistant does 
 
 ### Project Pipeline
 
-When a project enters the pipeline via `/launch`, it passes through six evaluation stages with a Go/No-Go gate after each:
+When a project enters the pipeline via `/launch`, it passes through seven stages — five evaluation stages with a Go/No-Go gate, a non-blocking technical-spec stage, and a final story-decomposition stage that promotes the project to active:
 
 <div align="center">
 
-![Project Pipeline — Validate, Lean Canvas, GTM Plan, Competitive, Pre-Mortem, User Stories](docs/images/project-pipeline.svg)
+![Project Pipeline — Validate, Lean Canvas, GTM Plan, Competitive, Pre-Mortem, Spec, User Stories](docs/images/project-pipeline.svg)
 
 </div>
 
-> Each stage produces a markdown artifact saved to the project folder. Skip ahead with `/launch my-project --from gtm` (valid stages: `validate`, `lean-canvas`, `competitive`, `gtm`, `pre-mortem`, `user-stories`).
+> Each stage produces a markdown artifact saved to the project folder. Skip ahead with `/launch my-project --from gtm` (valid stages: `validate`, `lean-canvas`, `competitive`, `gtm`, `pre-mortem`, `spec`, `user-stories`).
 
 ### The Compounding Loop
 
@@ -100,7 +100,7 @@ The system learns through three nested feedback loops. Each layer feeds the next
 
 | Category | What You Get |
 |---|---|
-| **Skills** | 29 skills covering ideation, validation, planning, execution, communication, and recurring workflows |
+| **Skills** | 30 skills covering ideation, validation, technical spec, planning, execution, communication, and recurring workflows |
 | **Commands** | 1 standalone command (`/analyze`); workflow slash-invocations are skills |
 | **Agents** | 3 autonomous agents for deep research, batch evaluation, and system diagnostics |
 | **MCP Server** | 10 tools with fuzzy deduplication for tasks and projects |
@@ -165,7 +165,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 ## What You Get
 
 <details>
-<summary><strong>Skills Reference (29 skills — 23 specialized below + 6 daily-workflow commands in the next section)</strong></summary>
+<summary><strong>Skills Reference (30 skills — 24 specialized below + 6 daily-workflow commands in the next section)</strong></summary>
 
 <br>
 
@@ -191,6 +191,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 | Skill | Description |
 |-------|-------------|
 | `/prd` | Generate a Product Requirements Document for a project |
+| `/spec` | Synthesize PRD + artifacts into a 23-section technical design spec (architecture, data model, API, ops, ADR, milestones) |
 | `/user-stories` | Decompose a PRD into structured user stories with acceptance criteria |
 | `/sprint-plan` | Create a weekly sprint plan from current tasks and user stories |
 | `/plan-okrs` | Create or refresh measurable OKRs aligned to your goals |
@@ -262,11 +263,12 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 pm-operating-system/
 |
 |-- .claude/
-|   |-- skills/                  29 skills
+|   |-- skills/                  30 skills
 |   |   |-- morning/SKILL.md
 |   |   |-- weekly/SKILL.md
 |   |   |-- launch/SKILL.md
 |   |   |-- prd/SKILL.md
+|   |   |-- spec/SKILL.md
 |   |   |-- validate-project/SKILL.md
 |   |   +-- ...                  (24 more)
 |   |
@@ -336,18 +338,19 @@ The processor reads every item in `BACKLOG.md`, checks for duplicates against ex
 /launch my-project-name
 ```
 
-Runs the full evaluation pipeline with a Go/No-Go gate after each stage:
+Runs the full pipeline with a Go/No-Go gate after each evaluation stage (1–5), a non-blocking technical-spec stage (6), and a final decomposition stage that promotes the project to `active`:
 
-| Stage | Skill | Output |
-|-------|-------|--------|
-| 1 | `/validate-project` | Market research and validation brief |
-| 2 | `/lean-canvas` | Business model viability |
-| 3 | `/gtm-plan` | Go-to-market strategy |
-| 4 | `/competitive-analysis` | Competitor landscape |
-| 5 | `/pre-mortem` | Risk analysis |
-| 6 | `/user-stories` | Decomposed buildable stories |
+| Stage | Skill | Output | Gate |
+|-------|-------|--------|------|
+| 1 | `/validate-project` | Market research and validation brief | Go / No-Go |
+| 2 | `/lean-canvas` | Business model viability | Go / No-Go |
+| 3 | `/gtm-plan` | Go-to-market strategy | Go / No-Go |
+| 4 | `/competitive-analysis` | Competitor landscape | Go / No-Go |
+| 5 | `/pre-mortem` | Risk analysis | Go / No-Go |
+| 6 | `/spec` | 23-section technical design spec | Build contract (non-blocking) |
+| 7 | `/user-stories` | Decomposed buildable stories | Promote to `active` |
 
-Skip ahead: `/launch my-project --from gtm-plan`
+Skip ahead: `/launch my-project --from spec`
 
 ### Weekly Review
 

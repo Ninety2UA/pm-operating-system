@@ -589,7 +589,7 @@
 
     <div class="stats-row reveal" id="statsRow">
       <div class="stat-item">
-        <div class="stat-num" data-target="23">0</div>
+        <div class="stat-num" data-target="24">0</div>
         <div class="stat-label">Skills</div>
       </div>
       <div class="stat-item">
@@ -629,7 +629,7 @@
       <div class="card reveal reveal-delay-1">
         <div class="card-icon" style="background:rgba(167,139,250,.12)">&#x26a1;</div>
         <div class="card-title">Specialized Capabilities</div>
-        <div class="card-text">23 skills the LLM can invoke — validation, risk analysis, sprint planning, slide generation, and more.</div>
+        <div class="card-text">24 skills the LLM can invoke — validation, risk analysis, technical spec, sprint planning, slide generation, and more.</div>
       </div>
       <div class="card reveal reveal-delay-2">
         <div class="card-icon" style="background:rgba(52,211,153,.12)">&#x1f504;</div>
@@ -709,7 +709,7 @@
             <div class="flow-node">projects/</div>
             <div class="map-card-detail">
               Multi-step initiatives<br>
-              <code>/launch</code> runs 6-stage pipeline<br>
+              <code>/launch</code> runs 7-stage pipeline<br>
               <span class="map-promote">&#x2192; /user-stories promotes to tasks/</span>
             </div>
           </div>
@@ -731,14 +731,15 @@
 
     <div class="arch-sub">
       <h3 class="reveal">Project Pipeline</h3>
-      <p class="arch-desc reveal">Each project passes through six evaluation stages with a Go/No-Go gate after each. Skip ahead with <code>--from</code>.</p>
+      <p class="arch-desc reveal">Each project passes through seven stages — five evaluation stages with a Go/No-Go gate, a non-blocking technical-spec stage, and a final decomposition stage that promotes to active. Skip ahead with <code>--from</code>.</p>
       <div class="pipeline-track reveal">
         <div class="pipeline-stage"><div class="pipeline-num">STAGE 1</div><div class="pipeline-name">Validate</div><div class="pipeline-out">Market research brief</div><div class="pipeline-gate">Go / No-Go</div></div>
         <div class="pipeline-stage"><div class="pipeline-num">STAGE 2</div><div class="pipeline-name">Lean Canvas</div><div class="pipeline-out">Business model</div><div class="pipeline-gate">Go / No-Go</div></div>
         <div class="pipeline-stage"><div class="pipeline-num">STAGE 3</div><div class="pipeline-name">GTM Plan</div><div class="pipeline-out">Go-to-market strategy</div><div class="pipeline-gate">Go / No-Go</div></div>
         <div class="pipeline-stage"><div class="pipeline-num">STAGE 4</div><div class="pipeline-name">Competitive</div><div class="pipeline-out">Competitor landscape</div><div class="pipeline-gate">Go / No-Go</div></div>
         <div class="pipeline-stage"><div class="pipeline-num">STAGE 5</div><div class="pipeline-name">Pre-Mortem</div><div class="pipeline-out">Risk analysis</div><div class="pipeline-gate">Go / No-Go</div></div>
-        <div class="pipeline-stage"><div class="pipeline-num">STAGE 6</div><div class="pipeline-name">User Stories</div><div class="pipeline-out">Buildable stories</div><div class="pipeline-gate">Ready to Build</div></div>
+        <div class="pipeline-stage"><div class="pipeline-num">STAGE 6</div><div class="pipeline-name">Spec</div><div class="pipeline-out">Technical design (23 sections)</div><div class="pipeline-gate">Build contract</div></div>
+        <div class="pipeline-stage"><div class="pipeline-num">STAGE 7</div><div class="pipeline-name">User Stories</div><div class="pipeline-out">Buildable stories</div><div class="pipeline-gate">Ready to Build</div></div>
       </div>
     </div>
 
@@ -763,12 +764,12 @@
     <div class="section-title reveal">Everything You Get</div>
     <p class="section-desc center reveal">A complete productivity system — from ideation to execution to compounding knowledge.</p>
     <div class="grid-4">
-      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f3af;</div><div class="card-title">29 Skills</div><div class="card-text">Ideation, validation, planning, execution, content output, and analysis — all invocable by your AI assistant.</div></div>
+      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f3af;</div><div class="card-title">30 Skills</div><div class="card-text">Ideation, validation, technical spec, planning, execution, content output, and analysis — all invocable by your AI assistant.</div></div>
       <div class="card feature-card reveal reveal-delay-1"><div class="card-icon green">&#x2318;</div><div class="card-title">7 Commands</div><div class="card-text">Daily standups, weekly reviews, quarterly scoring, backlog processing, project launching, and repo analysis.</div></div>
       <div class="card feature-card reveal reveal-delay-2"><div class="card-icon purple">&#x1f916;</div><div class="card-title">3 Agents</div><div class="card-text">Deep research, batch evaluation, and system diagnostics — each runs autonomously in the background.</div></div>
       <div class="card feature-card reveal reveal-delay-3"><div class="card-icon amber">&#x1f527;</div><div class="card-title">10 MCP Tools</div><div class="card-text">Fuzzy deduplication, task queries, project pipeline status, system dashboard, and priority alerts.</div></div>
       <div class="card feature-card reveal"><div class="card-icon rose">&#x1f4cb;</div><div class="card-title">Prioritization</div><div class="card-text">Goal-driven P0-P3 levels tied to your strategic objectives. ICE/RICE framework scoring.</div></div>
-      <div class="card feature-card reveal reveal-delay-1"><div class="card-icon blue">&#x1f680;</div><div class="card-title">Pipeline</div><div class="card-text">6-stage project evaluation with Go/No-Go gates. Skip ahead or kill early with data.</div></div>
+      <div class="card feature-card reveal reveal-delay-1"><div class="card-icon blue">&#x1f680;</div><div class="card-title">Pipeline</div><div class="card-text">7-stage project pipeline — 5 evaluation stages with Go/No-Go, a non-blocking spec stage, and story decomposition.</div></div>
       <div class="card feature-card reveal reveal-delay-2"><div class="card-icon green">&#x1f4d6;</div><div class="card-title">Knowledge</div><div class="card-text">Compounding loops from daily journals to session reviews to quarterly OKR assessments.</div></div>
       <div class="card feature-card reveal reveal-delay-3"><div class="card-icon purple">&#x1f50c;</div><div class="card-title">Integrations</div><div class="card-text">Optional: Granola meetings, Slack messaging, Perplexity research, Google Workspace.</div></div>
     </div>
@@ -821,7 +822,7 @@
 <section id="skills">
   <div class="container">
     <div class="section-label reveal">Skills</div>
-    <div class="section-title reveal">23 Specialized Skills</div>
+    <div class="section-title reveal">24 Specialized Skills</div>
     <p class="section-desc reveal">Each skill teaches your AI assistant a focused capability — from market validation to sprint planning.</p>
     <div class="skills-group reveal">
       <div class="skills-group-title">Ideation &amp; Discovery</div>
@@ -839,6 +840,7 @@
     <div class="skills-group reveal">
       <div class="skills-group-title">Execution &amp; Planning</div>
       <div class="skill-row"><span class="skill-name">/prd</span><span class="skill-desc">Generate a Product Requirements Document for a project</span></div>
+      <div class="skill-row"><span class="skill-name">/spec</span><span class="skill-desc">Synthesize PRD + artifacts into a 23-section technical design spec (architecture, data model, API, ops, ADR, milestones)</span></div>
       <div class="skill-row"><span class="skill-name">/user-stories</span><span class="skill-desc">Decompose a PRD into structured user stories with acceptance criteria</span></div>
       <div class="skill-row"><span class="skill-name">/sprint-plan</span><span class="skill-desc">Create a weekly sprint plan from current tasks and user stories</span></div>
       <div class="skill-row"><span class="skill-name">/plan-okrs</span><span class="skill-desc">Create or refresh measurable OKRs aligned to your goals</span></div>
