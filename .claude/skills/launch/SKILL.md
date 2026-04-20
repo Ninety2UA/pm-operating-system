@@ -1,6 +1,6 @@
 ---
 name: launch
-description: Run a specific project through the full evaluation pipeline — validate → lean canvas → GTM → competitive analysis → pre-mortem → user stories — with a Go/No-Go gate after each stage and project-status updates as the project moves through idea → evaluating → ready → active. Use this skill whenever the user wants to evaluate, validate, or launch a specific project end-to-end, runs `/launch <project-name>`, or says anything like "run the pipeline on X," "full evaluation of Y," "is Z worth building," or "take this project through the evaluation flow." Starts from the first missing artifact unless `--from <stage>` is specified.
+description: Run a specific project through the full evaluation pipeline — validate → lean canvas → GTM → competitive analysis → pre-mortem → spec → user stories — with a Go/No-Go gate after each evaluation stage and project-status updates as the project moves through idea → evaluating → ready → active. Use this skill whenever the user wants to evaluate, validate, or launch a specific project end-to-end, runs `/launch <project-name>`, or says anything like "run the pipeline on X," "full evaluation of Y," "is Z worth building," or "take this project through the evaluation flow." Starts from the first missing artifact unless `--from <stage>` is specified.
 allowed-tools: Read Write Edit Glob Bash mcp__manager-ai__* mcp__plugin_slack_slack__*
 argument-hint: "<project-name> [--from <stage>]"
 ---
@@ -14,7 +14,7 @@ Chain the full evaluation pipeline for a project. Each step produces an artifact
 - Required: `<project-name>` — the folder name under `projects/`.
 - Optional: `--from <stage>` — start from a specific stage (skip earlier ones).
 
-Valid stages: `validate`, `lean-canvas`, `competitive`, `gtm`, `pre-mortem`, `user-stories`.
+Valid stages: `validate`, `lean-canvas`, `competitive`, `gtm`, `pre-mortem`, `spec`, `user-stories`.
 
 ## Step 2: Check current state
 
@@ -53,7 +53,12 @@ Execute each stage in order. After each, present the key findings and ask **Go /
 - Present: Critical risks? Top 3 actions? Go/No-Go recommendation?
 - Go/No-Go: "Are the risks acceptable? Ready to build?"
 
-**Stage 6: User Stories**
+**Stage 6: Spec**
+- Invoke `/spec <project-name>`.
+- Present: System shape, chosen stack, P0 components, INFERRED count.
+- No blocking Go/No-Go — spec is the build contract, not a kill-decision gate. Continue to Stage 7.
+
+**Stage 7: User Stories**
 - Invoke `/user-stories <project-name> --tasks`.
 - Present: MVP scope, story count, estimated hours.
 - "Project is now active. Run `/sprint-plan` to plan your first sprint."
@@ -64,7 +69,9 @@ After each Go decision, update the project's `idea.md` frontmatter:
 
 - After Stage 1 (Validate): `project_status: evaluating`
 - After Stage 5 (Pre-mortem Go): `project_status: ready`
-- After Stage 6 (User Stories): `project_status: active`
+- After Stage 7 (User Stories): `project_status: active`
+
+Stage 6 (Spec) does not change `project_status` — the project remains `ready` until Stage 7 completes.
 
 ## No-Go handling
 
