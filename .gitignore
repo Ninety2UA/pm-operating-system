@@ -35,6 +35,8 @@ projects/*
 # ── Claude Code local config ──────────────────────────
 .claude/settings.local.json
 .claude/plans/
+.claude/*.lock
+.claude/hooks/*.log
 
 # ── Personal/scratch files ────────────────────────────
 docs/brainstorms/

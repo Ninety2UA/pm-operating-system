@@ -48,4 +48,4 @@ Every skill listed here is invokable as `/<skill-name>` (skill-as-command conven
 
 ## Framework Self-Audit
 
-- **`core/scripts/validate.py`** — run `uv run core/scripts/validate.py` to check the framework for drift (frontmatter issues, broken cross-refs, MCP tool parity, workspace shape). Useful after bulk edits to skills/agents or before a release.
+- **`core/scripts/validate.py`** — run `uv run core/scripts/validate.py` to check the framework for drift (frontmatter issues, broken cross-refs, MCP tool parity, workspace shape, pipeline artifact conformance, external CLI deps, bidirectional skill registry, MCP handler presence, BACKLOG.md structure, stale lock files, PIPELINE_STAGES parity). Inline `# /// script` metadata auto-installs pyyaml. Useful after bulk edits to skills/agents or before a release. Non-blocking warnings (pipeline-artifact drift, external CLI deps not on PATH) are reported separately from hard failures.

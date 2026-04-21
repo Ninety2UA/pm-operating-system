@@ -25,7 +25,11 @@ Read `knowledge/people/_template.md` for the full profile structure.
    - How they structure communication (bullet points? long prose? one-liners?)
    - What topics they email about vs. discuss in meetings
    
-   If no email history exists or gws is unavailable, skip gracefully.
+   **Error handling (in order):**
+   - If `gws` is not installed (exit 127 / command not found): skip enrichment silently.
+   - If `gws` returns HTTP 401 / 403 or mentions "invalid_grant" / "expired": stop enrichment and tell the user: `"gws auth expired — run 'gws auth login' to refresh, then re-sync"`. Do NOT repeatedly retry.
+   - If no email history exists (empty result set): skip gracefully, note "no email history" in the person's file.
+   - Any other error: log the raw error in the person's file under a `## Enrichment errors` section so the user can triage.
 
 4. Set `auto_enriched: true` in the frontmatter.
 

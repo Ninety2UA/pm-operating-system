@@ -157,7 +157,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 | uv | latest | Yes | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
 | git | any | Yes | `brew install git` |
 | Claude Code | latest | Yes | [claude.ai/download](https://claude.ai/download) |
-| Node.js / npm | 18+ | For Perplexity | `brew install node` |
+| Node.js / npm | 18+ | For `/make-slides` (Playwright slide rendering) | `brew install node` |
 | [gws](https://github.com/googleworkspace/cli) | latest | For Google Workspace | `brew install googleworkspace-cli` |
 
 ---

@@ -36,6 +36,7 @@ For items that pass dedup:
 - **Multi-step, exploratory, or not yet decided** → create a project folder:
   - Create `projects/<project-name>/idea.md` using the Project Template from AGENTS.md.
   - Invoke the `/prd` skill to generate `projects/<project-name>/prd.md`.
+    - `/prd` defaults to non-interactive auto-inference. For backlog items with <1 paragraph of context, most PRD sections will be flagged `[INFERRED]` — tell the user to re-run `/prd <project-name> --ask` later to refine, or pass `--ask` directly here if the item needs clarification up-front.
 
 ## Step 4: Check priority limits
 

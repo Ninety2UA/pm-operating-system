@@ -61,6 +61,7 @@ Execute each stage in order. After each, present the key findings and ask **Go /
 **Stage 7: User Stories**
 - Invoke `/user-stories <project-name> --tasks`.
 - Present: MVP scope, story count, estimated hours.
+- Note: `/user-stories` is explicitly a decomposer — it will NOT change `project_status`. That update is owned by `/launch` in Step 4 below (set to `active` only after `/user-stories` completes successfully).
 - "Project is now active. Run `/sprint-plan` to plan your first sprint."
 
 ## Step 4: Update project status

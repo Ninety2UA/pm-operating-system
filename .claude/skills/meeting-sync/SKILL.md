@@ -29,6 +29,17 @@ If a call returns an auth error, the MCP server disconnects and the tools become
 
 ## Instructions
 
+### Step 0: Granola auth pre-flight
+
+Before doing anything else, verify the Granola MCP is authenticated:
+
+- Try `mcp__granola__list_meetings` with a tiny window (e.g. `limit: 1`). If it succeeds, proceed.
+- If the call fails with an auth error, OR the only Granola tools exposed are `authenticate` / `complete_authentication`, the user is NOT authenticated. Stop the sync and tell the user:
+
+  > "Granola isn't authenticated in Claude. Open Claude Settings → Connectors → Granola to authenticate, OR call `mcp__granola__authenticate` → follow the flow → `mcp__granola__complete_authentication`. Re-run `/meeting-sync` after auth succeeds."
+
+- Do NOT attempt to sync without auth; failing deep inside Step 4 after partial work wastes tokens and leaves `knowledge/.granola-sync.json` in an inconsistent state.
+
 ### Step 1: Determine Sync Window
 
 Read `knowledge/.granola-sync.json` if it exists — use `last_sync` as the cutoff. Otherwise default to the last 7 days. If `--since YYYY-MM-DD` was passed, use that.

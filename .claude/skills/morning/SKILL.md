@@ -26,7 +26,7 @@ If no journal exists for yesterday, skip silently.
 Check the day of the week.
 
 - **Monday:** Ask "What's your focus theme for this week?" Save the answer as a `## Weekly Theme` line in today's journal (Step 7).
-- **Tuesday–Friday:** Read this week's Monday journal (`knowledge/journals/YYYY/MM/[monday-date].md`) and pull the `## Weekly Theme` line. Display it at the top of the standup: "This week's theme: [theme]." Carry it into today's journal.
+- **Tuesday–Friday:** Compute this week's Monday date (formula: today's date minus `(ISO-weekday − 1)` days, where Mon=1, Tue=2, … Fri=5). Read the journal at `knowledge/journals/YYYY/MM/DD.md` for that date and pull the `## Weekly Theme` line. Display it at the top of the standup: "This week's theme: [theme]." Carry it into today's journal.
 
 If no Monday journal exists (e.g., holiday), check the most recent weekday journal for a theme. If none found, skip silently.
 

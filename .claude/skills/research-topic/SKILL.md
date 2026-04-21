@@ -88,7 +88,7 @@ Do NOT use role-playing instructions ("Act as an expert...").
 
 ### Step 5: Combine into Research Brief
 
-Read the shared template at `.claude/skills/research-topic/references/research-brief-template.md`.
+Read the research-brief template in this skill's `references/` folder: `.claude/skills/research-topic/references/research-brief-template.md`. (The same template is reused by `/validate-project`, which is why it is kept in `references/` rather than inlined here.)
 
 Combine Perplexity results into a structured brief following the template. Fill in frontmatter fields including `query_used`. Omit `project_ref` (this is general research, not project-specific).
 

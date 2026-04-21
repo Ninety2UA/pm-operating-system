@@ -17,14 +17,20 @@ fi
 cd "$CLAUDE_PROJECT_DIR" || exit 0
 
 # Repo guard: only bootstrap if this looks like a personal-os workspace.
-# We require TWO markers to reduce false positives — AGENTS.md alone is too
-# generic (other repos use it for agent instructions). .mcp.json AND the
-# core/mcp/server.py entry point together are personal-os-specific.
+# Triple marker (AGENTS.md + .mcp.json + core/mcp/server.py) reduces false
+# positives on other repos that use AGENTS.md. The manager-ai MCP declaration
+# inside .mcp.json is the strongest signal; file existence alone is not enough.
 if [ ! -f AGENTS.md ] || [ ! -f .mcp.json ] || [ ! -f core/mcp/server.py ]; then
+  exit 0
+fi
+# Confirm the .mcp.json actually registers the manager-ai server.
+if ! grep -q '"manager-ai"' .mcp.json 2>/dev/null; then
   exit 0
 fi
 
 # ── Workspace directories ──────────────────────────────────────────────
+# Errors are logged (not swallowed) so half-initialised workspaces are visible.
+LOG="$CLAUDE_PROJECT_DIR/.claude/hooks/init-workspace.log"
 
 mkdir -p \
   tasks tasks/archive \
@@ -45,7 +51,7 @@ mkdir -p \
   library/skills \
   library/agents \
   library/commands \
-  2>/dev/null
+  2>>"$LOG" || echo "[$(date -u +%FT%TZ)] mkdir failed (see $LOG)" >> "$LOG"
 
 # ── BACKLOG.md (capture inbox) ─────────────────────────────────────────
 

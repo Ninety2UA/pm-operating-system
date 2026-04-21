@@ -51,6 +51,10 @@ Before starting, confirm:
 4. **Slide count target** (optional) — let content dictate by default
 5. **Style direction** (optional) — dark/light, brand colors, mood. Default: dark, clean type, single accent.
 
+## Prerequisites
+
+Run `command -v npm >/dev/null || { echo "npm not installed — run: brew install node"; exit 1; }` at the start. `/make-slides` depends on Node/Playwright for the render loop; a missing `npm` surfaces a cryptic error deep inside `render.js` otherwise. If `npm` is available but `node_modules/playwright` is missing, run `npm install` at the repo root (the `postinstall` script handles `playwright install chromium`).
+
 ## Dimensions
 
 All slides are **1920×1080px** (16:9 standard). Non-negotiable.

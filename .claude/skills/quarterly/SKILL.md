@@ -100,7 +100,7 @@ Invoke `/plan-okrs` for the upcoming quarter, informed by:
 
 Review Claude Code memories:
 
-- Read `MEMORY.md` from this project's memory directory (typically `~/.claude/projects/<encoded-cwd>/memory/MEMORY.md`) and every file it links to
+- Read `MEMORY.md` from this project's memory directory and every file it links to. Resolve the path from `CLAUDE_PROJECT_DIR`: Claude Code encodes the project path by replacing `/` with `-`, so the memory dir is `~/.claude/projects/${CLAUDE_PROJECT_DIR//\//-}/memory/MEMORY.md`. If `CLAUDE_PROJECT_DIR` is unavailable, compute from `pwd` (replace `/` with `-`). If the file does not exist, skip this step with a note — do not error.
 - Flag memories that reference outdated information (old project statuses, completed goals)
 - Propose updates or deletions for stale memories
 - Save any new quarterly context as project memories
