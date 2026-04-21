@@ -152,6 +152,7 @@ Decide, in order:
 4. **Tech stack** — name specific libraries/versions. For each major choice, name 2 rejected alternatives and why.
 5. **Build order** — slice the P0 FRs into M1 walking skeleton → M2 MVP → M3 polish.
 6. **Observability & failure** — what you log, how you know it works, how it fails.
+7. **AI surface detection** — grep `idea.md` + `prd.md` (case-insensitive) for any of: `LLM`, `Claude`, `GPT`, `OpenAI`, `Anthropic`, `prompt`, `AI-assisted`, `model call`, `embedding`, `chat completion`, `system prompt`. If any match → `ai_surface: true` → §15.A must be filled with 5 Good / 5 Bad / 6 Reject rows and a cost+latency budget. If no match → render §15.A as `N/A — no model-call surface in MVP` with one-line justification. Never omit the subsection.
 
 No `TBD`, `TK`, or `…` anywhere. If you can't decide, write `[INFERRED — low confidence, rerun with --ask]` with the best guess so a human can still build against it.
 
@@ -159,7 +160,7 @@ No `TBD`, `TK`, or `…` anywhere. If you can't decide, write `[INFERRED — low
 
 Read the template at `.claude/skills/spec/references/spec-template.md` and fill in each of the 23 sections.
 
-Before writing, read `.claude/skills/spec/references/anti-patterns.md` and actively avoid each of the 10 patterns.
+Before writing, read `.claude/skills/spec/references/anti-patterns.md` and actively avoid each of the 14 patterns.
 
 Sections render `N/A — <justification>` when inapplicable (e.g., `§10 External Integrations: N/A — no external services, pure local CLI`). Never omit sections.
 
@@ -175,15 +176,33 @@ Do **not** update `project_status` — that remains `/launch`'s responsibility.
 
 ### Step 9.5: Quality Flags (soft, non-blocking)
 
-After saving, run the 10-item anti-patterns check from `.claude/skills/spec/references/anti-patterns.md` against the spec you just wrote. Print any violations as soft flags:
+After saving, run the 14-item anti-patterns check from `.claude/skills/spec/references/anti-patterns.md` against the spec you just wrote. Print a structured review in this exact shape:
 
 ```
-⚠ Quality flags (3):
-  - #3 Tech choice without justification: §7 names "Next.js" without citing a rejected alternative
-  - #4 Missing rejected alternatives: only 1 ADR entry in §18 — minimum expectation is 3
-  - #9 Low-confidence inferences shipped unrefined: 4 INFERRED tags present;
-       consider `/spec <name> --ask`
+Spec Review: <project-name>
+
+Completeness: X/23 sections populated (N/A-with-justification counts as populated)
+Issues (K):
+  1. [#N <name>] <one-line description>. Fix: <specific suggestion>.
+  2. [#N <name>] <one-line description>. Fix: <specific suggestion>.
+Strengths:
+  ✅ <at least one — what the spec does well>
+Readiness: Ready for review | Minor gaps | Major gaps
+Second-opinion trigger: No | Yes (<reason>)
 ```
+
+**Readiness rubric (uniform across /prd, /spec, /gtm-plan, /pre-mortem):**
+- `Ready for review` — 0 issues
+- `Minor gaps` — 1–4 issues
+- `Major gaps` — ≥5 issues
+
+**Second-opinion trigger = Yes** if `Major gaps`, OR if the spec describes an AI/LLM
+surface (any LLM detected per §7 detection rules) but §15.A AI Behavior Contract is
+absent or ships with fewer than 5 Good / 5 Bad / 5 Reject examples covering the six
+Reject categories.
+
+If 0 issues, the Issues block renders `Issues: none`. Always emit at least one
+Strength — if nothing stands out, name the single best-filled section.
 
 **Do not block the save.** These are informational — the user decides whether to act on them.
 
@@ -195,6 +214,7 @@ Print a concise summary:
 - Primary stack one-liner (from frontmatter `primary_stack`)
 - P0 components (from §7 architecture component table)
 - INFERRED count + top 3 inferred slots
+- **Readiness verdict from Step 9.5** (Ready for review / Minor gaps / Major gaps)
 - Any quality flags from Step 9.5
 - Suggested next step:
   - `user-stories.md` missing → `"Run /user-stories <name> --tasks to decompose this spec."`
@@ -227,6 +247,7 @@ Before saving, verify:
 - [ ] §18 ADR has ≥3 rejected alternatives with "revisit when" triggers
 - [ ] §19 Milestones use relative timeframes, not calendar dates
 - [ ] §20 First-week tasks have ≥5 entries, ordered by dependency
+- [ ] §15.A AI Behavior Contract present — filled with 5 Good / 5 Bad / 6 Reject rows + cost+latency budget (if AI surface detected) OR rendered `N/A — no model-call surface in MVP` with one-line justification (if no AI surface)
 - [ ] Saved to `projects/<project-name>/spec.md`
 - [ ] `idea.md` `resource_refs` updated
 - [ ] `project_status` NOT changed

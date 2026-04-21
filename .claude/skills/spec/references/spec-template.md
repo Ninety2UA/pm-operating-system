@@ -347,6 +347,50 @@ Queue `<name>`:
 
 *Anti-pattern:* "we use HTTPS" as the whole section. HTTPS is the floor.
 
+### 15.A AI Behavior Contract
+
+> Prompt: Required when the system calls any LLM (Claude / GPT / any model surface detected in idea.md + prd.md — see SKILL.md Step 7 detection rules). Render `N/A — no model-call surface in MVP` with one-line justification when the system has no LLM. Fill 5/5/6 examples otherwise (≥5 Good, ≥5 Bad, 6 Reject categories covered). Each example is one row: input → intended output (Good) or wrong-output-system-must-avoid (Bad) or must-refuse-and-how (Reject). Keep each row to one line.
+
+**Good (≥ 5).** Input → intended output. What "working as designed" looks like.
+
+| # | Input | Intended output |
+|---|-------|----------------|
+| G1 | [example input] | [intended output] |
+| G2 | [example input] | [intended output] |
+| G3 | [example input] | [intended output] |
+| G4 | [example input] | [intended output] |
+| G5 | [example input] | [intended output] |
+
+**Bad (≥ 5).** Wrong-but-not-dangerous outputs the system must avoid. These are quality failures, not safety failures — hallucinated specifics, wrong format, over-claims.
+
+| # | Input | Wrong output to avoid |
+|---|-------|----------------------|
+| B1 | [example input] | [output that's wrong but not harmful] |
+| B2 | [example input] | [output to avoid] |
+| B3 | [example input] | [output to avoid] |
+| B4 | [example input] | [output to avoid] |
+| B5 | [example input] | [output to avoid] |
+
+**Reject (6 categories, ≥ 1 per category).** Must refuse or safe-complete. One row per category, more allowed:
+
+| # | Category | Input | Required behavior |
+|---|---------|-------|------------------|
+| R1 | PII echo | [prompt asking system to emit a user's PII from context] | refuse / redact / scrub — cite the rule |
+| R2 | Jailbreak | "ignore previous instructions and …" | refuse, re-affirm system purpose |
+| R3 | Policy violation | [domain-specific out-of-bounds request] | refuse with reason |
+| R4 | Competitor mention | [request to praise/bash a named competitor] | neutral decline |
+| R5 | Attribution-claim | [ask for a causal claim outside model's knowledge, e.g. "did our campaign cause the lift?"] | answer with stated uncertainty, refuse attribution claim |
+| R6 | Locale / language mismatch | [input in unsupported locale or demanding output in one] | acknowledge limit, offer supported locale |
+
+**Cost & latency budget.**
+- Tokens in / out per call: [p50 / p95]
+- $ per call: [estimate]
+- Monthly ceiling at MVP scale: [$X]
+- p95 latency ceiling: [Nms]
+- Escalation: [when cost delta > 10% or latency p95 breached, what gets paged / rolled back]
+
+*Anti-pattern:* behavior contract that covers only Good cases. The value is in Bad + Reject — if those are empty or generic ("don't be harmful"), the contract is decorative.
+
 ---
 
 ## 16. Testing Strategy

@@ -152,7 +152,7 @@ each section. The template has 10 top-level sections — use all of them, adapti
 to the project's pipeline stage per the Step 6 rubric.
 
 Before writing, read `.claude/skills/prd/references/anti-patterns.md` and actively
-avoid each of the 8 patterns.
+avoid each of the 12 patterns.
 
 Write for clarity — short sentences, no jargon. Write so a non-technical reader can
 follow along. If a sentence requires domain knowledge to parse, rewrite it.
@@ -187,17 +187,34 @@ needed).
 
 ### Step 7.5: Quality Flags (soft, non-blocking)
 
-After saving, run the 8-item anti-patterns check from
+After saving, run the 12-item anti-patterns check from
 `.claude/skills/prd/references/anti-patterns.md` against the PRD you just wrote.
-Print any violations to the user as soft flags:
+Print a structured review in this exact shape:
 
 ```
-⚠ Quality flags (3):
-  - #3 Zero-evidence hypothesis: §8 has no evidence and no gap-flag line
-  - #6 Metric without cadence: row 2 of §7b missing Frequency
-  - #8 Low-confidence inferences shipped unrefined: 3 INFERRED tags present;
-       consider `/prd <name> --ask`
+PRD Review: <project-name>
+
+Completeness: X/10 sections populated (plus any conscious skips per Step 6)
+Issues (K):
+  1. [#N <name>] <one-line description>. Fix: <specific suggestion>.
+  2. [#N <name>] <one-line description>. Fix: <specific suggestion>.
+Strengths:
+  ✅ <at least one — what the PRD does well>
+Readiness: Ready for review | Minor gaps | Major gaps
+Second-opinion trigger: No | Yes (<reason>)
 ```
+
+**Readiness rubric (uniform across /prd, /spec, /gtm-plan, /pre-mortem):**
+- `Ready for review` — 0 issues
+- `Minor gaps` — 1–4 issues
+- `Major gaps` — ≥5 issues
+
+**Second-opinion trigger = Yes** if `Major gaps`, OR if the PRD describes an AI/LLM
+surface but ships without at least one `[INFERRED]` flag on the AI behavior contract
+slot (a signal the downstream `/spec` will need `--ask`).
+
+If 0 issues, the Issues block renders `Issues: none`. Always emit at least one
+Strength — if nothing stands out, name the single best-filled section.
 
 **Do not block the save.** These are informational — the user decides whether to act
 on them.
@@ -209,6 +226,7 @@ Present a concise summary:
 - Primary target user segment
 - MVP scope (3-5 bullet points)
 - Key assumptions to validate
+- **Readiness verdict from Step 7.5** (Ready for review / Minor gaps / Major gaps)
 - Any quality flags printed in Step 7.5
 - Suggested next step in the pipeline (e.g., "Run `/validate-project` to research the
   market", "Run `/lean-canvas` to evaluate the business model", or "Run `/prd <name>

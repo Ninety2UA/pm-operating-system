@@ -86,6 +86,37 @@ Save to `projects/<project-name>/gtm-plan.md`.
 
 Add `projects/<project-name>/gtm-plan.md` to the idea.md `resource_refs` array.
 
+### Step 8.5: Quality Flags (soft, non-blocking)
+
+After saving, run the 8-item anti-patterns check from
+`.claude/skills/gtm-plan/references/anti-patterns.md` against the plan you just
+wrote. Print a structured review in this exact shape:
+
+```
+GTM-Plan Review: <project-name>
+
+Completeness: X/8 sections populated
+Issues (K):
+  1. [#N <name>] <one-line description>. Fix: <specific suggestion>.
+  2. [#N <name>] <one-line description>. Fix: <specific suggestion>.
+Strengths:
+  ✅ <at least one — what the plan does well>
+Readiness: Ready for review | Minor gaps | Major gaps
+Second-opinion trigger: No | Yes (<reason>)
+```
+
+**Readiness rubric (uniform across /prd, /spec, /gtm-plan, /pre-mortem):**
+- `Ready for review` — 0 issues
+- `Minor gaps` — 1–4 issues
+- `Major gaps` — ≥5 issues
+
+**Second-opinion trigger = Yes** if `Major gaps`.
+
+If 0 issues, the Issues block renders `Issues: none`. Always emit at least one
+Strength — if nothing stands out, name the single best-filled section.
+
+**Do not block the save.** These are informational — the user decides whether to act on them.
+
 ### Step 9: Present Summary
 
 Present:
@@ -93,6 +124,8 @@ Present:
 - Top 2 launch channels
 - Pricing recommendation
 - First milestone and timeline
+- **Readiness verdict from Step 8.5** (Ready for review / Minor gaps / Major gaps)
+- Any quality flags from Step 8.5
 - Suggested next step with follow-up skill
 
 ## Notes

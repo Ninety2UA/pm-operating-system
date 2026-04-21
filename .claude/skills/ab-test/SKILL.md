@@ -9,20 +9,65 @@ description: >
   data from campaigns or product experiments — even if they don't say "A/B test"
   explicitly.
 allowed-tools: Read Write Edit Glob
-argument-hint: "<description or file path>"
+argument-hint: "<description or file path> [--plan]"
 ---
 
 # A/B Test Analysis
 
-Evaluate A/B test results with statistical rigor — significance testing, confidence intervals, sample size checks, and actionable recommendations.
+Evaluate A/B test results with statistical rigor — significance testing, confidence intervals, sample size checks, and actionable recommendations. Also plans experiments up-front via `--plan` mode.
 
 ## Quick Start
+
+**Analyze results (default):**
 
 User: `/ab-test Control: 1000 visitors, 45 conversions. Variant: 1000 visitors, 62 conversions.`
 Result: Calculates conversion rates, statistical significance, confidence intervals, lift, and recommendation.
 
 User: `/ab-test knowledge/experiment-results.md`
 Result: Reads test data from file, performs full analysis.
+
+**Plan an experiment (opt-in):**
+
+User: `/ab-test --plan`
+Result: Collects hypothesis, baseline, MDE, α, power, traffic; computes required N per arm and expected duration; drafts a plan doc with Statistical Plan + Rollout Ramp + Kill Criteria + Observability from the template at `.claude/skills/ab-test/references/plan-template.md`. Prints the draft and offers to save to `knowledge/ab-plan-<slug>.md`.
+
+## Plan Mode (`--plan`)
+
+When `--plan` is passed, the skill runs a pre-experiment flow instead of the analysis flow.
+
+### Inputs needed
+Ask for (batched via `AskUserQuestion` if Claude Code surface supports it, else inline prompts):
+
+1. **Experiment name** — short slug, e.g. `homepage-cta-copy`
+2. **Hypothesis** — one sentence: "We believe [change] will [direction] [metric]…"
+3. **Primary metric + baseline** — name, current value, N, window
+4. **MDE** — minimum detectable effect (absolute or relative); accept `1pp` / `15%` forms
+5. **α / power** — defaults `0.05 / 0.80`; ask only if the user wants to override
+6. **Expected daily traffic** — visitors/sessions per day; used to compute duration
+7. **Randomization unit** — visitor / session / account
+
+### Compute
+
+Reuse the Step 3 sample-size formula exactly:
+
+```
+n = (Z_α/2 + Z_β)² × (p_c(1-p_c) + p_v(1-p_v)) / (p_v - p_c)²
+```
+
+Where `p_c` = baseline, `p_v` = `p_c + MDE` (or `p_c × (1 + relative_MDE)` for relative forms). Z values: `Z_α/2 = 1.96` for α = 0.05 two-tailed; `Z_β = 0.84` for power = 0.80.
+
+Duration = `ceil(2n / daily_traffic)` days.
+
+### Write the plan
+
+Read `.claude/skills/ab-test/references/plan-template.md`, fill the 7 sections, and save to `knowledge/ab-plan-<slug>.md` (or return inline if the user declines the save prompt). Flag any unsupplied slot `[INFERRED]` so the doc remains usable.
+
+### Print a concise summary
+
+- N per arm + total + duration
+- Top-line gate for S1 → S2 and kill criterion
+- Path to saved plan doc
+- Next step: "When the test completes, run `/ab-test <path-to-results>` to decide ship / keep-testing / stop."
 
 ## Instructions
 

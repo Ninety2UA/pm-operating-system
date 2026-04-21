@@ -96,6 +96,19 @@ Write to `projects/<project-name>/CLAUDE.md`:
 
 _(Omit lines for artifacts that don't exist.)_
 
+## Scope
+
+Auto-safe within this project folder:
+- Edit artifacts (`prd.md`, `spec.md`, `gtm-plan.md`, `pre-mortem.md`, `user-stories.md`, `lean-canvas.md`, `competitive-analysis.md`)
+- Append entries to `idea.md` Progress Log
+- Create/edit files under this folder
+
+Confirm-first (ask before doing):
+- Changing `project_status` in `idea.md` frontmatter (use `/launch` or explicit ask)
+- Editing files outside this folder — root `GOALS.md`, `BACKLOG.md`, `knowledge/`, other projects
+- Running `/process-backlog`, `/quarterly`, `/weekly`, or any skill that mutates the wider workspace
+- Deleting artifacts or archiving the project
+
 ## Recommended Next Skills
 
 Based on current pipeline stage (`[stage]`):

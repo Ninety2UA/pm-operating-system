@@ -67,7 +67,7 @@ Imagine it is 6 months from now and the project has **completely failed**. Gener
 7. **Team/resource risk** — Solo founder burnout. Not enough time alongside day job.
 8. **Timing risk** — Market shifted. Platform changed APIs. Regulation changed.
 
-For each category, generate 1-3 specific failure scenarios grounded in the project's actual context (not generic risks).
+For each **relevant** category, generate 1-3 specific failure scenarios grounded in the project's actual context (not generic risks). If a category clearly doesn't apply to this project (e.g., "Team/resource risk" for a throwaway internal tool), skip it rather than invent a risk to fill the slot.
 
 ### Step 6: Write the Pre-mortem
 
@@ -81,6 +81,39 @@ Save to `projects/<project-name>/pre-mortem.md`.
 
 Add `projects/<project-name>/pre-mortem.md` to the idea.md `resource_refs` array.
 
+### Step 8.5: Quality Flags (soft, non-blocking)
+
+After saving, run the 8-item anti-patterns check from
+`.claude/skills/pre-mortem/references/anti-patterns.md` against the pre-mortem you
+just wrote. Print a structured review in this exact shape:
+
+```
+Pre-mortem Review: <project-name>
+
+Completeness: X/<N> risks with owner + trigger + score
+Issues (K):
+  1. [#N <name>] <one-line description>. Fix: <specific suggestion>.
+  2. [#N <name>] <one-line description>. Fix: <specific suggestion>.
+Strengths:
+  ✅ <at least one — what the pre-mortem does well>
+Readiness: Ready for review | Minor gaps | Major gaps
+Second-opinion trigger: No | Yes (<reason>)
+```
+
+**Readiness rubric (uniform across /prd, /spec, /gtm-plan, /pre-mortem):**
+- `Ready for review` — 0 issues
+- `Minor gaps` — 1–4 issues
+- `Major gaps` — ≥5 issues
+
+**Second-opinion trigger = Yes** if `Major gaps`, OR if the pre-mortem ends with a
+`Go` recommendation despite any critical-severity risk having no kill criterion
+(anti-pattern #5).
+
+If 0 issues, the Issues block renders `Issues: none`. Always emit at least one
+Strength — if nothing stands out, name the single most credible risk identified.
+
+**Do not block the save.** These are informational — the user decides whether to act on them.
+
 ### Step 9: Present Summary
 
 Present:
@@ -88,6 +121,8 @@ Present:
 - Top 3 critical/high risks with one-line descriptions
 - Go / No-Go recommendation
 - Top 3 actions before building
+- **Readiness verdict from Step 8.5** (Ready for review / Minor gaps / Major gaps)
+- Any quality flags from Step 8.5
 - Suggested next step
 
 ## Notes

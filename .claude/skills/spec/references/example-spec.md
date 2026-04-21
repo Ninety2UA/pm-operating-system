@@ -257,6 +257,10 @@ Right-sized: single-page static app, no server.
 
 **Compliance:** none — no data collection.
 
+### 15.A AI Behavior Contract
+
+N/A — no model-call surface in MVP. Detection runs on pure Z-score / IQR math in `src/detect/zscore.ts`; no LLM, no embeddings, no third-party inference service. ADR-3 (§18) rejected LLM-scored anomaly explanations in favor of a static lookup table. If ADR-3 revisits (static lookup accuracy < 60%), §15.A must be filled with the 5/5/6 behavior contract before shipping model-call code.
+
 ## 16. Testing Strategy
 
 | Lane | Scope | Tooling | Frequency |
