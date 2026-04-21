@@ -158,6 +158,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 | git | any | Yes | `brew install git` |
 | Claude Code | latest | Yes | [claude.ai/download](https://claude.ai/download) |
 | Node.js / npm | 18+ | For `/make-slides` (Playwright slide rendering) | `brew install node` |
+| [gh](https://cli.github.com) | latest | For `/analyze` on GitHub URLs | `brew install gh` |
 | [gws](https://github.com/googleworkspace/cli) | latest | For Google Workspace | `brew install googleworkspace-cli` |
 
 ---
@@ -534,6 +535,36 @@ gws calendar events list --params '{"calendarId": "primary", "timeMin": "2026-04
 
 ---
 
+## Framework Self-Audit
+
+The framework validates itself. After any change to skills, agents, hooks, MCP tools, or the workspace contract, run:
+
+```bash
+uv run core/scripts/validate.py
+```
+
+Inline `# /// script` metadata auto-installs `pyyaml`, so no venv setup is needed.
+
+**37 deterministic checks** span the entire framework:
+
+| Category | What it catches |
+|---|---|
+| **Frontmatter** | Missing/malformed `name`, `description`, `tools`, `model`, `status`, `priority`, `category` on skills, agents, commands, projects, tasks, and memory files |
+| **Cross-references** | Broken markdown links, orphan `references/` files, skill references to missing skills, tool references to tools that don't exist |
+| **Registry parity** | Bidirectional: every skill/command/agent on disk must appear in `CLAUDE.md`, and every entry in `CLAUDE.md` must exist on disk |
+| **MCP integrity** | `.mcp.json` servers reachable, declared tools match `server.py` registrations, each tool has a dispatch branch wired up |
+| **Workspace shape** | `AGENTS.md` workspace tree matches reality; `init-workspace.sh` scaffolds the documented paths |
+| **Pipeline conformance** | Projects at `evaluating`/`ready`/`active` have the expected artifacts (validation brief, pre-mortem, PRD, user stories) — reported as warnings, not failures |
+| **External deps** | Skills that need `npm`, `gh`, `gws`, etc. flag missing CLIs as warnings |
+| **Hygiene** | Tracked `.DS_Store` / `node_modules`, `TODO`/`FIXME` markers in shipped docs, stale lock files outside `.gitignore`, hardcoded user paths in the validator itself |
+| **Runtime** | `setup.sh` + hooks pass `bash -n`; MCP server imports cleanly |
+
+**Exit codes:** `0` clean, `1` findings, `2` missing `pyyaml` (should not happen thanks to inline deps). Warnings (non-blocking) are reported separately and never affect the exit code.
+
+Run it before any PR. The validator is also the canonical answer to "is my framework healthy?" — drift accumulates, and the earlier you catch it the cheaper it is to fix.
+
+---
+
 ## Contributing
 
 Contributions are welcome. Please:
@@ -543,6 +574,7 @@ Contributions are welcome. Please:
 - Follow the existing patterns for skills, commands, and agents
 - Include documentation for new features
 - Test that `setup.sh` still works after your changes
+- **Run `uv run core/scripts/validate.py` and ensure `✓ ALL CHECKS PASS`** before opening a PR
 
 ---
 

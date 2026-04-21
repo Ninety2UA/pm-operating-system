@@ -543,6 +543,7 @@
       <li><a href="#skills">Skills</a></li>
       <li><a href="#commands">Commands</a></li>
       <li><a href="#agents">Agents</a></li>
+      <li><a href="#validate">Validate</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <div class="nav-right">
@@ -1083,6 +1084,29 @@
 </section>
 
 
+<!-- SELF-AUDIT -->
+<section id="validate">
+  <div class="container text-center">
+    <div class="section-label reveal">Self-Audit</div>
+    <div class="section-title reveal">The Framework Validates Itself</div>
+    <p class="section-desc center reveal">Run one command after any change to skills, agents, hooks, or MCP tools &mdash; 37 deterministic checks catch drift before it ships.</p>
+    <div class="code-block reveal" style="max-width:640px;margin:0 auto 32px;"><span class="kw">uv run</span> core/scripts/validate.py</div>
+    <p class="section-desc center reveal" style="margin-top:-12px;font-size:14px;">Inline <code>#&nbsp;///&nbsp;script</code> metadata auto-installs <code>pyyaml</code>. No venv setup.</p>
+    <div class="grid-4" style="margin-top:32px;">
+      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f4cb;</div><div class="card-title">Frontmatter</div><div class="card-text">Every skill, agent, command, project, task, and memory file checked for required fields and well-formed YAML.</div></div>
+      <div class="card feature-card reveal reveal-delay-1"><div class="card-icon green">&#x1f517;</div><div class="card-title">Cross-references</div><div class="card-text">Broken markdown links, orphan reference files, skill-to-skill invocations that point nowhere.</div></div>
+      <div class="card feature-card reveal reveal-delay-2"><div class="card-icon purple">&#x1f500;</div><div class="card-title">Registry parity</div><div class="card-text">Bidirectional: every skill on disk appears in <code>CLAUDE.md</code>, and every entry in <code>CLAUDE.md</code> exists on disk.</div></div>
+      <div class="card feature-card reveal reveal-delay-3"><div class="card-icon amber">&#x1f527;</div><div class="card-title">MCP integrity</div><div class="card-text">Servers reachable, declared tools match <code>server.py</code> registrations, each tool has a wired dispatch branch.</div></div>
+      <div class="card feature-card reveal"><div class="card-icon rose">&#x1f3d7;&#xfe0f;</div><div class="card-title">Workspace shape</div><div class="card-text"><code>AGENTS.md</code> tree matches reality; <code>init-workspace.sh</code> scaffolds the documented paths.</div></div>
+      <div class="card feature-card reveal reveal-delay-1"><div class="card-icon blue">&#x1f6e3;&#xfe0f;</div><div class="card-title">Pipeline conformance</div><div class="card-text">Projects at <code>evaluating</code>/<code>ready</code>/<code>active</code> flagged when expected artifacts (validation, pre-mortem, PRD, stories) are missing.</div></div>
+      <div class="card feature-card reveal reveal-delay-2"><div class="card-icon green">&#x1f4e6;</div><div class="card-title">External deps</div><div class="card-text">Skills that call <code>npm</code>, <code>gh</code>, or <code>gws</code> warn if the CLI is not on <code>PATH</code>.</div></div>
+      <div class="card feature-card reveal reveal-delay-3"><div class="card-icon purple">&#x1f9f9;</div><div class="card-title">Hygiene</div><div class="card-text">Tracked <code>.DS_Store</code>, stray <code>TODO</code>/<code>FIXME</code> markers, stale lock files, hardcoded user paths in the validator itself.</div></div>
+    </div>
+    <p class="section-desc center reveal" style="margin-top:32px;font-size:14px;">Exit <code>0</code> clean, <code>1</code> on findings. Warnings (non-blocking) are reported separately. Run it before every PR.</p>
+  </div>
+</section>
+
+
 <!-- FAQ -->
 <section id="faq">
   <div class="container">
@@ -1097,6 +1121,7 @@
       <div class="faq-item"><button class="faq-q">Can I customize skills and agents?<span class="faq-icon">+</span></button><div class="faq-a">Yes. Skills live in <code>.claude/skills/&lt;name&gt;/SKILL.md</code> and agents in <code>.claude/agents/&lt;name&gt;.md</code>. Each uses YAML frontmatter for configuration. Everything that you invoke as a slash command is also a skill — there's one consistent pattern. You can modify existing ones or create new ones by following the same shape.</div></div>
       <div class="faq-item"><button class="faq-q">What is knowledge compounding?<span class="faq-icon">+</span></button><div class="faq-a">The system learns through three loops: daily (journals), weekly (pattern detection + shipping summaries), and quarterly (OKR scoring + system audit). Each layer feeds the next — so your assistant gets smarter about your work patterns, estimates, and priorities over time.</div></div>
       <div class="faq-item"><button class="faq-q">How is my data stored?<span class="faq-icon">+</span></button><div class="faq-a">Everything is plain markdown with YAML frontmatter, stored locally on your machine. No cloud sync, no databases, no external storage. Personal directories (tasks/, knowledge/, etc.) are gitignored by default. You control exactly what gets committed.</div></div>
+      <div class="faq-item"><button class="faq-q">How do I check the framework is healthy?<span class="faq-icon">+</span></button><div class="faq-a">Run <code>uv run core/scripts/validate.py</code>. The validator runs 37 deterministic checks covering frontmatter, cross-references, registry parity, MCP tool wiring, workspace shape, pipeline conformance, external CLI deps, and hygiene. Exit <code>0</code> means clean. Warnings (non-blocking) are reported separately. Run it before every PR, or any time something feels off.</div></div>
     </div>
   </div>
 </section>
@@ -1135,7 +1160,7 @@
 
   var mobileMenu = document.getElementById('mobileMenu');
   var hamburgerBtn = document.getElementById('hamburgerBtn');
-  var menuLinks = ['overview','philosophy','architecture','features','install','skills','commands','agents','releases','faq'];
+  var menuLinks = ['overview','philosophy','architecture','features','install','skills','commands','agents','validate','faq'];
 
   menuLinks.forEach(function(id) {
     var a = document.createElement('a');

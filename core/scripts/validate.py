@@ -369,19 +369,28 @@ for rel in tracked:
             fail("md-link", f"{rel}: broken link '{link}'")
 
 # ─── 18. TODO / NEEDS UPDATE / FIXME markers in tracked docs ──────
-# Only match top-level standalone markers, not placeholder-bracketed tokens
+# Only match standalone markers, not documentation that mentions them.
+# Strip fenced code blocks and inline code before matching — marker names
+# inside backticks are referring to the markers, not actually claiming work.
 for rel in tracked:
     fpath = ROOT / rel
     if not fpath.exists(): continue
     if rel in ("GOALS.md",): continue
     content = fpath.read_text()
+    in_fence = False
     for i, line in enumerate(content.splitlines(), 1):
-        # Match FIXME/TODO/NEEDS UPDATE — NOT inside square brackets (placeholders)
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        # Strip inline code so `TODO:` inside backticks doesn't trip the check
+        clean_line = re.sub(r"`[^`\n]+`", "", line)
         for marker in ("FIXME", "TODO:", "[NEEDS UPDATE]"):
-            if marker in line:
-                # Skip if it's a template instruction example
-                if rel.endswith("refresh-goals/SKILL.md") and "NEEDS UPDATE" in line:
-                    continue  # intentional reference to the marker itself
+            if marker in clean_line:
+                # Skip template instruction examples that intentionally reference the marker
+                if rel.endswith("refresh-goals/SKILL.md") and "NEEDS UPDATE" in clean_line:
+                    continue
                 fail("todo-marker", f"{rel}:{i}: {line.strip()[:80]}")
                 break
 
