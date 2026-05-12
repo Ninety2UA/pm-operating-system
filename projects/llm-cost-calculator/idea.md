@@ -5,6 +5,8 @@ priority: P2
 project_status: idea
 created_date: 2026-03-12
 estimated_time: 480
+resource_refs:
+  - knowledge/research/projects/llm-cost-calculator.md
 ---
 
 # LLM Cost Calculator & Model Recommender

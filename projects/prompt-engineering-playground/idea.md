@@ -5,6 +5,8 @@ priority: P2
 project_status: idea
 created_date: 2026-03-12
 estimated_time: 960
+resource_refs:
+  - knowledge/research/projects/prompt-engineering-playground.md
 ---
 
 # Prompt Engineering Playground
