@@ -209,7 +209,7 @@ When drafting communications, encourage bold asks:
 
 ## Context Management
 
-Context is your most valuable resource. Proactively delegate exploration, research, and verbose operations to subagents (Agent tool) instead of bloating the main conversation.
+Context is your most valuable resource. If your host supports subagents or background tasks, proactively delegate exploration, research, and verbose operations to them instead of bloating the main conversation; otherwise do that work inline and keep only the summary.
 
 **Default to spawning a subagent for:**
 - Reading 3+ files to answer one question
@@ -225,11 +225,13 @@ Context is your most valuable resource. Proactively delegate exploration, resear
 
 **Rule of thumb:** If a task will read >3 files or produce output the user doesn't need verbatim, delegate to a subagent and return a summary.
 
-For broad codebase exploration use `subagent_type: "Explore"`. For multi-source research use the `deep-research` agent. For parallel project evaluation use `batch-evaluator`.
+When your host supports them: use a broad-exploration subagent for codebase sweeps, the `deep-research` agent/skill for multi-source research, and `batch-evaluator` for parallel project evaluation. (In Claude Code these are the `Explore` subagent and the `deep-research`/`batch-evaluator` agents; on Codex/Cursor/Antigravity they run inline as the `/deep-research` and `/batch-evaluator` skills.)
 
 ## Available Tools
 
 ### MCP servers (see `.mcp.json`)
+
+> Tool invocation names vary by host — Claude Code, Codex, and Cursor expose these as `mcp__manager-ai__list_tasks`; other hosts resolve them from their own MCP registry. Refer to a tool by its logical `server: tool` name (e.g. `manager-ai: list_tasks`) and let your host resolve the wire name. MCP wiring per tool lives in `docs/portability.md`.
 
 **manager-ai** (local Python server, source in `core/mcp/`):
 - `list_tasks` — query tasks with filters (priority, status, category)
@@ -247,16 +249,29 @@ For broad codebase exploration use `subagent_type: "Explore"`. For multi-source 
 
 **granola** — meeting transcripts and metadata (used by `/meeting-sync`, `/meeting-prep`).
 
-### Native Claude Code tools
-- Slack (`mcp__plugin_slack_slack__*`, delivered via the Slack plugin, not `.mcp.json`) — post messages, read channels, search history. Channels: #os-progress (standups/reviews), #os-backlog (inbound items).
+### Host-provided tools
+- Slack (the Slack MCP server / plugin — in Claude Code, `mcp__plugin_slack_slack__*`) — post messages, read channels, search history. Channels: #os-progress (standups/reviews), #os-backlog (inbound items).
 - When a command offers to post to Slack, always ask before posting. Never post silently.
+
+## Host Adapters
+
+This system is authored for Claude Code under `.claude/` and generated into the cross-tool **Agent Skills** standard (`.agents/skills/`) that Codex CLI, Antigravity, Cursor, and other conformant tools read natively. After editing any skill, regenerate with `uv run core/scripts/build_adapters.py`. Per-tool setup is documented in `docs/portability.md`.
+
+| Capability | Claude Code | Codex CLI | Antigravity | Cursor |
+|---|---|---|---|---|
+| MCP (`manager-ai`) | `.mcp.json` | `~/.codex/config.toml` | `~/.gemini/config/mcp_config.json` | `.cursor/mcp.json` |
+| AGENTS.md context | via `CLAUDE.md` | native | native | native |
+| Skills | `.claude/skills/` (source) | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` |
+| Subagents / background | yes | partial | yes | yes |
+
+Skills, agents, and commands all generate to `.agents/skills/`; on hosts without separate-context subagents, the `deep-research` / `batch-evaluator` / `system-health` agents run inline. Slash cross-references (`/prd`, etc.) and per-skill `references/` files work across conformant hosts.
 
 ## Session-End Reflection
 
 When finishing a significant work session (backlog processing, project evaluation, sprint planning, or any session longer than ~10 messages), before ending:
 
 1. Offer: "Anything from this session I should remember for next time?"
-2. If yes — save as an appropriate Claude Code memory (user preference, feedback, project context, or reference)
+2. If yes — save to your host's persistent memory if it has one (user preference, feedback, project context, or reference); the journal reflection in step 3 happens regardless
 3. If a daily journal exists for today (`knowledge/journals/YYYY/MM/DD.md`), append a one-line reflection under `## Session Reflections`
 4. Offer to run `/session-review` if the session involved substantial work
 

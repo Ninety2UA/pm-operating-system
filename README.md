@@ -25,7 +25,7 @@
 
 ## Overview
 
-PM Operating System is a Claude Code configuration that gives your AI assistant a structured productivity layer. Instead of starting every session from scratch, your assistant knows your goals, tracks your tasks, evaluates your project ideas through a rigorous pipeline, and learns from each session to make the next one better.
+PM Operating System is a Claude Code configuration that gives your AI assistant a structured productivity layer. Instead of starting every session from scratch, your assistant knows your goals, tracks your tasks, evaluates your project ideas through a rigorous pipeline, and learns from each session to make the next one better. It's authored for Claude Code but runs in OpenAI Codex CLI, Cursor, and Google Antigravity via the open Agent Skills standard.
 
 **The workflow is simple:**
 
@@ -108,6 +108,7 @@ The system learns through three nested feedback loops. Each layer feeds the next
 | **Pipeline** | Project evaluation with Go/No-Go gates at each stage |
 | **Knowledge** | Compounding loops from daily journals to quarterly OKR scoring |
 | **Integrations** | Optional: Granola (meetings), Slack (messaging), Perplexity (research) |
+| **Portability** | Runs in Codex CLI, Cursor, Antigravity & other Agent-Skills tools — generated `.agents/skills/`, native subagents, one-command MCP install |
 
 ---
 
@@ -402,6 +403,22 @@ The manager-ai MCP server provides 10 tools for task and project management. It 
 | `process_backlog_with_dedup` | Deduplicate backlog items against existing work |
 
 </details>
+
+### Use with Other AI Tools (Codex CLI, Cursor, Antigravity)
+
+This system isn't Claude-only. It's built on three open standards, so it runs in **OpenAI Codex CLI**, **Cursor**, **Google Antigravity**, and other conformant tools with no rewrite:
+
+- **Skills** — all 30 skills (plus the 3 agents and the `analyze` command) generate to a committed `.agents/skills/` tree these tools read natively.
+- **Instructions** — `AGENTS.md` is the shared, tool-neutral operating manual; `CLAUDE.md` is just the thin Claude-specific overlay.
+- **Tools** — the `manager-ai` MCP server works in every host.
+
+The 3 agents also emit as **native subagents** for Cursor (`.cursor/agents/`) and Codex (`.codex/agents/`). Wire the MCP server into any tool with one command (dry-run by default, backs up first):
+
+```bash
+uv run core/scripts/install_for.py --tool cursor --apply   # or codex / antigravity / all
+```
+
+Adapters are regenerated with `uv run core/scripts/build_adapters.py`, and the validator's check 38 keeps them in sync. Full per-tool setup: **[docs/portability.md](docs/portability.md)**.
 
 ### Optional Integrations
 

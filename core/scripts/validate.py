@@ -20,6 +20,14 @@ try:
 except ImportError:
     print("Need pyyaml"); sys.exit(2)
 
+# build_adapters lives beside this script; import it for the adapter-parity check
+# (check 38). Same-dir import; degrades to a warning if it can't be loaded.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    import build_adapters
+except Exception:
+    build_adapters = None
+
 # ── Paths ─────────────────────────────────────────────────────────────
 # validate.py lives at <repo>/core/scripts/validate.py, so parents[2] = repo.
 # PERSONAL_OS_ROOT env var overrides (must be an absolute path) for CI /
@@ -602,7 +610,8 @@ if mkdir_block_m:
     # Skip repo-source paths — AGENTS.md lists them for documentation only.
     source_prefixes = ("core", "AGENTS.md", "CLAUDE.md", "README.md",
                        "GOALS.example.md", "LICENSE", "setup.sh",
-                       ".claude", ".gitignore", ".mcp.json",
+                       ".claude", ".agents", ".codex", ".cursor",
+                       ".gitignore", ".mcp.json",
                        "docs", "examples", "site", "package.json", "package-lock.json")
     for d in agents_ws_paths:
         if d in mkdir_dirs: continue
@@ -652,6 +661,18 @@ validator_src_stripped = re.sub(r"^\s*#.*$", "", validator_src, flags=re.M)
 for m in re.finditer(r'["\'](/Users/[a-zA-Z0-9_./-]+)["\']', validator_src_stripped):
     path = m.group(1)
     fail("hardcoded-path", f"validator has hardcoded user path: {path}")
+
+# ─── 38. Cross-tool adapter parity (.agents/skills, .codex/agents, .cursor/agents) ──
+# Generated adapters must stay in sync with the .claude/ source. The check logic
+# lives in build_adapters.check_adapters() so it's defined once (DRY with --check).
+if (ROOT / ".agents" / "skills").exists():
+    if build_adapters is None:
+        warn("adapter-parity", "build_adapters could not be imported — cannot verify adapter sync")
+    else:
+        for problem in build_adapters.check_adapters():
+            fail("adapter-parity", f"{problem} (run: uv run core/scripts/build_adapters.py)")
+else:
+    warn("adapter-parity", "adapters not generated — run: uv run core/scripts/build_adapters.py")
 
 # ─── Output ──────────────────────────────────────────────────────
 if warnings_list:
