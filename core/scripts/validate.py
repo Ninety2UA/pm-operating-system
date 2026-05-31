@@ -305,17 +305,21 @@ else:
     warn("memory", f"memory dir not found at {MEMORY} (set PERSONAL_OS_MEMORY_DIR if this host has one elsewhere)")
 
 # ─── 13. .mcp.json sanity ─────────────────────────────────────────
-try:
-    mcp = json.loads((ROOT / ".mcp.json").read_text())
-    for name, cfg in mcp.get("mcpServers", {}).items():
-        cmd = cfg.get("command")
-        if cmd and cmd not in ("npx",) and "/" not in cmd:
-            # Check binary on PATH
-            r = subprocess.run(["which", cmd], capture_output=True, text=True)
-            if r.returncode != 0:
-                fail("mcp", f"{name}: command '{cmd}' not on PATH")
-except Exception as e:
-    fail("mcp", f".mcp.json error: {e}")
+mcp_path = ROOT / ".mcp.json"
+if mcp_path.exists():
+    try:
+        mcp = json.loads(mcp_path.read_text())
+        for name, cfg in mcp.get("mcpServers", {}).items():
+            cmd = cfg.get("command")
+            if cmd and cmd not in ("npx",) and "/" not in cmd:
+                # Check binary on PATH
+                r = subprocess.run(["which", cmd], capture_output=True, text=True)
+                if r.returncode != 0:
+                    fail("mcp", f"{name}: command '{cmd}' not on PATH")
+    except Exception as e:
+        fail("mcp", f".mcp.json error: {e}")
+else:
+    warn("mcp", ".mcp.json not found at repo root — MCP servers not configured")
 
 # ─── 14. core/mcp/server.py tool count ────────────────────────────
 server_py = (ROOT / "core/mcp/server.py").read_text()
@@ -403,13 +407,17 @@ for rel in tracked:
 # Nothing to check here for now.
 
 # ─── 21. .claude/settings.local.json sanity ───────────────────────
-try:
-    local = json.loads((ROOT / ".claude/settings.local.json").read_text())
-    for perm in local.get("permissions", {}).get("allow", []):
-        # Just verify parseable; detailed validation hard
-        pass
-except Exception as e:
-    fail("local-settings", f"settings.local.json: {e}")
+# Optional, gitignored, per-user file — absent on a clean install.
+# Validate only when present; a clean absence is not a failure.
+local_settings = ROOT / ".claude/settings.local.json"
+if local_settings.exists():
+    try:
+        local = json.loads(local_settings.read_text())
+        for perm in local.get("permissions", {}).get("allow", []):
+            # Just verify parseable; detailed validation hard
+            pass
+    except Exception as e:
+        fail("local-settings", f"settings.local.json: {e}")
 
 # ─── 22. Python deps (core/mcp/pyproject.toml) ────────────────────
 req = (ROOT / "core/mcp/pyproject.toml")
