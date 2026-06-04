@@ -4,7 +4,7 @@ description: |-
   Creates a weekly sprint plan at 70% capacity from current tasks and user stories — selects stories, identifies dependencies and risks, produces a day-by-day schedule saved to knowledge/sprint-YYYY-MM-DD.md (Monday date of the sprint week). Use this skill whenever the user says "plan my sprint", "what should I build this week", "weekly plan", "sprint planning", mentions feeling behind, has tasks piling up without a plan, or at the start of the week — even if they just say "what should I work on."
 argument-hint: "[hours-available] [--project <name>]"
 generated_from: .claude/skills/sprint-plan/SKILL.md
-source_sha256: aa0824ca3cacb0ee8d0c05855a53b721d88ef22a51a0860f05070e5d29c1193b
+source_sha256: a8a7cec808d547d9f269d1a949b3f589cfbc2385c0e49a7fc3729eceaa814f79
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -46,6 +46,9 @@ Read the following in parallel:
 **User Stories (if no --project):**
 - Use Glob for `projects/*/user-stories.md`
 - Read any that exist and pull uncompleted P0/P1 stories
+
+**Build tasks (spec WBS — preferred unit of work for active projects):**
+- For each active project (or the `--project`), if `projects/<name>/spec.md` exists, read its §20 Work Breakdown Structure. The stable `T-IDs` (dependency-ordered, `[P]`-marked, test-paired) are the source-of-truth build tasks — select from these, respecting the dependency graph (never schedule a task before its upstream or its paired test). Spec owns this decomposition; sprint-plan consumes it.
 
 **Goals:**
 - Read `GOALS.md` for current priorities and quarterly objectives
@@ -92,6 +95,7 @@ Present:
 
 ## Notes
 
+- **Spec owns the build task graph.** When a project has a `spec.md`, its §20 WBS `T-IDs` are the unit of selection (dependency-ordered, test-paired). Sprint-plan schedules them; it does not re-derive tasks. Loose `tasks/*.md` files still get scheduled, but the spec's WBS is preferred for active projects.
 - **No external calls:** Works entirely from local files.
 - **Overcommitment guard:** If the user tries to plan at 100% capacity, push back. "Planning at 100% guarantees you'll miss targets. Let's plan at 70% and use the buffer for reality."
 - **Re-planning:** It's fine to re-run mid-week if priorities shifted. The old plan stays in knowledge/ as a record.

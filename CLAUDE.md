@@ -26,7 +26,7 @@ Every skill listed here is invokable as `/<skill-name>` (skill-as-command conven
 - **competitive-analysis** — Competitor landscape mapping
 - **gtm-plan** — Go-to-market strategy
 - **pre-mortem** — Risk analysis before building
-- **spec** — Synthesize PRD + project artifacts into a comprehensive 23-section technical design spec
+- **spec** — Synthesize PRD + project artifacts into a comprehensive 29-section, build-ready technical spec (pinned tech stack/manifest, file tree, C4 architecture, test-first Test List, dependency-ordered task→sub-task WBS, AI build-toolkit + design-tooling recommendations) — references the PRD, never restates it
 - **user-stories** — Decompose PRD into buildable stories
 - **sprint-plan** — Weekly capacity-based sprint planning
 - **plan-okrs** — Create measurable OKRs

@@ -193,7 +193,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 | Skill | Description |
 |-------|-------------|
 | `/prd` | Generate a Product Requirements Document for a project |
-| `/spec` | Synthesize PRD + artifacts into a 23-section technical design spec (architecture, data model, API, ops, ADR, milestones) |
+| `/spec` | Synthesize PRD + artifacts into a 29-section build-ready technical spec (pinned tech stack/manifest, file tree, C4 architecture, data model, API, test-first Test List, task→sub-task WBS, AI build-toolkit + design-tooling) — references the PRD, never restates it |
 | `/user-stories` | Decompose a PRD into structured user stories with acceptance criteria |
 | `/sprint-plan` | Create a weekly sprint plan from current tasks and user stories |
 | `/plan-okrs` | Create or refresh measurable OKRs aligned to your goals |
@@ -349,7 +349,7 @@ Runs the full pipeline with a Go/No-Go gate after each evaluation stage (1–5),
 | 3 | `/gtm-plan` | Go-to-market strategy | Go / No-Go |
 | 4 | `/competitive-analysis` | Competitor landscape | Go / No-Go |
 | 5 | `/pre-mortem` | Risk analysis | Go / No-Go |
-| 6 | `/spec` | 23-section technical design spec | Build contract (non-blocking) |
+| 6 | `/spec` | 29-section build-ready spec (WBS + test-first + build/design toolkit) | Build contract (non-blocking) |
 | 7 | `/user-stories` | Decomposed buildable stories | Promote to `active` |
 
 Skip ahead: `/launch my-project --from spec`

@@ -52,6 +52,9 @@ Read the following in parallel:
 - Use Glob for `projects/*/user-stories.md`
 - Read any that exist and pull uncompleted P0/P1 stories
 
+**Build tasks (spec WBS — preferred unit of work for active projects):**
+- For each active project (or the `--project`), if `projects/<name>/spec.md` exists, read its §20 Work Breakdown Structure. The stable `T-IDs` (dependency-ordered, `[P]`-marked, test-paired) are the source-of-truth build tasks — select from these, respecting the dependency graph (never schedule a task before its upstream or its paired test). Spec owns this decomposition; sprint-plan consumes it.
+
 **Goals:**
 - Read `GOALS.md` for current priorities and quarterly objectives
 
@@ -97,6 +100,7 @@ Present:
 
 ## Notes
 
+- **Spec owns the build task graph.** When a project has a `spec.md`, its §20 WBS `T-IDs` are the unit of selection (dependency-ordered, test-paired). Sprint-plan schedules them; it does not re-derive tasks. Loose `tasks/*.md` files still get scheduled, but the spec's WBS is preferred for active projects.
 - **No external calls:** Works entirely from local files.
 - **Overcommitment guard:** If the user tries to plan at 100% capacity, push back. "Planning at 100% guarantees you'll miss targets. Let's plan at 70% and use the buffer for reality."
 - **Re-planning:** It's fine to re-run mid-week if priorities shifted. The old plan stays in knowledge/ as a record.
