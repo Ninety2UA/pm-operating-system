@@ -1,6 +1,43 @@
 # PRD Template
 
-Always use this exact template structure. Fill in each section based on the project context. See SKILL.md Step 6 for the stage-specific depth rubric (80–150 lines for idea, 150–250 for evaluating, 200–300 for active).
+Two shapes, chosen by `stage` (see SKILL.md Step 6). At the **`idea`** stage emit the lightweight **speclet** below (~30–60 lines, four slots). At **`evaluating`** / **`active`**, use the full 10-section template (150–250 / 200–300 lines).
+
+## Idea-stage speclet — use at `stage: idea`
+
+```markdown
+---
+title: "PRD: [Project Name]"
+project: <project-name>
+date: YYYY-MM-DD
+status: draft
+author: [User name from GOALS.md or git config]
+hypothesis: "[one-sentence testable hypothesis]"
+stage: idea
+---
+
+# PRD — [Project Name]
+
+## 1. Summary
+
+**Hypothesis:** We believe [user] will [behavior] because [reason]; we'll know if [metric crosses threshold].
+
+## 2. Problem / Background
+
+- **Problem:** What problem is this, and who has it?
+- **Primary goal/OKR:** GOALS.md › [Objective] › [KR#]
+
+## Riskiest assumption
+
+The single assumption whose failure would kill this idea — drawn from idea.md signals.
+
+## What we'd need to believe
+
+2–4 conditions that must hold for this to be worth pursuing. These become the validation checklist when the project is promoted to `evaluating`:
+- [Belief 1]
+- [Belief 2]
+```
+
+## Full template — use at `stage: evaluating` / `active`
 
 ```markdown
 ---
@@ -13,7 +50,7 @@ hypothesis: "[one-sentence testable hypothesis]"
 stage: idea  # idea | evaluating | ready | active | paused | archived
 ---
 
-# [Project Name] — Product Requirements Document
+# PRD — [Project Name]
 
 ## 1. Summary
 
@@ -47,6 +84,8 @@ Who are we building this for? Define by problem/job, not demographics.
 | [Segment 2] | [What they need] | [How they cope today] | [High/Med/Low] |
 
 **Primary segment:** [Which segment to focus on first and why]
+
+> The *Current Workaround* column is proof of pain — promote the strongest workaround into §8 Evidence as a concrete bullet.
 
 ## 5. Solution
 
@@ -154,9 +193,18 @@ How will we know this worked? Link back to the Key Results in Section 3.
 |--------|----------|--------|-----------|-------------------|
 | [Metric 1] | [Current state] | [Goal] | [Monthly] | [How to measure] |
 
+### 7c. Guardrail metrics (must-not-degrade)
+
+Counter-metrics that must not get worse while you chase the targets above. State a threshold, not a target.
+
+| Metric | Baseline | Threshold (do not cross) | Frequency | Measurement Method |
+|--------|----------|--------------------------|-----------|-------------------|
+| [e.g. p95 latency] | [Current] | [e.g. ≤ 2s] | [Daily] | [How to measure] |
+| [e.g. error rate] | [Current] | [e.g. < 1%] | [Daily] | [How to measure] |
+
 ## 8. Evidence
 
-Quotes, usage stats, competitor signals, or customer-discovery notes that back the hypothesis. Concrete beats hand-wavy.
+Quotes, usage stats, competitor signals, or customer-discovery notes that back the hypothesis. Concrete beats hand-wavy. Pull at least one item from the §4 *Current Workaround* column here — an existing workaround is evidence the pain is real.
 
 - [Quote or signal 1]
 - [Quote or signal 2]

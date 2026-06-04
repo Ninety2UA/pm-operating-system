@@ -13,7 +13,7 @@ hypothesis: "Solo performance marketers will keep an anomaly detector connected 
 stage: evaluating
 ---
 
-# Ad Spend Anomaly Detector — Product Requirements Document
+# PRD — Ad Spend Anomaly Detector
 
 ## 1. Summary
 
@@ -175,6 +175,14 @@ Priority: **P0** = blocks MVP, **P1** = ship in v1 after MVP, **P2** = deferred 
 | Monthly wasted spend saved | $0 | 10% reduction | Monthly | Before/after spend comparison per account |
 | False positive rate | N/A | <15% | Monthly | User thumbs up/down on alerts |
 | 30-day retention | N/A | ≥50% | Monthly | Users still connected after 30 days |
+
+### 7c. Guardrail metrics (must-not-degrade)
+
+| Metric | Baseline | Threshold (do not cross) | Frequency | Measurement Method |
+|--------|----------|--------------------------|-----------|-------------------|
+| Alert delivery latency (p95) | N/A | ≤ 60s from detection | Daily | Webhook send timestamp − detection timestamp |
+| Duplicate alerts per anomaly | N/A | ≤ 1 | Daily | Alert dedup log |
+| Google Ads API quota errors | 0 | 0/day | Daily | API error log |
 
 ## 8. Evidence
 

@@ -22,6 +22,10 @@ Create a comprehensive PRD that serves as the authoritative spec for a project �
 thinking and guiding what gets built. The PRD balances thoroughness with practicality
 for a solo builder or small team.
 
+**Every section earns its place — a PRD nobody reads is worthless. It's your voice in the
+room when you're not there. Be crisp, not complete: cut anything that doesn't help someone
+decide or build.**
+
 The skill is **automation-first**: running `/prd <name>` drafts a complete PRD by
 inferring all required fields from `idea.md` + `GOALS.md`, with low-confidence fields
 flagged inline. Pass `--ask` when you want guided clarification via `AskUserQuestion`.
@@ -145,14 +149,21 @@ Before drafting, work through these questions:
 - Which requirements are **P0** (kill-the-release), **P1** (important), **P2**
   (nice-to-have)?
 
+Then read `.claude/skills/prd/references/good-vs-bad.md` — it shows the bad→good form of
+a Hypothesis, Problem/Evidence, Success Metric, and Scope line. Match the "good" column:
+specific, numeric, falsifiable.
+
 ### Step 5: Write the PRD
 
 Read the PRD template at `.claude/skills/prd/references/prd-template.md` and fill in
-each section. The template has 10 top-level sections — use all of them, adapting depth
-to the project's pipeline stage per the Step 6 rubric.
+each section. The template has 10 top-level sections — use all of them at the
+`evaluating` and `active` stages. **At the `idea` stage, emit only the lightweight
+speclet subset defined in Step 6, not all 10 sections.** Adapt depth to the project's
+pipeline stage per the Step 6 rubric.
 
-Before writing, read `.claude/skills/prd/references/anti-patterns.md` and actively
-avoid each of the 12 patterns.
+Before writing, read both `.claude/skills/prd/references/anti-patterns.md` (avoid each
+of the 12 patterns) and `.claude/skills/prd/references/good-vs-bad.md` (match the
+"good" column for each section).
 
 Write for clarity — short sentences, no jargon. Write so a non-technical reader can
 follow along. If a sentence requires domain knowledge to parse, rewrite it.
@@ -162,16 +173,27 @@ follow along. If a sentence requires domain knowledge to parse, rewrite it.
 Read the `project_status` from idea.md frontmatter (idea / evaluating / ready / active)
 and use this rubric:
 
-| Stage | Lines | Features | FRs | Stories |
-|---|---|---|---|---|
-| idea | 80–150 | 3–5 | 3–5 | 2–3 |
-| evaluating | 150–250 | 4–6 | 6–10 | 4–6 |
-| active (incl. ready) | 200–300 | 5–8 | 10–15 | 6–10 |
+| Stage | Lines | Output |
+|---|---|---|
+| idea | 30–60 | **Speclet** — frontmatter + the 4 slots below. Not all 10 sections. |
+| evaluating | 150–250 | Full template; 4–6 features, 6–10 FRs, 4–6 stories. |
+| active (incl. ready) | 200–300 | Full template; 5–8 features, 10–15 FRs, 6–10 stories. |
 
-At **idea** stage, Section 5.5 Technical Considerations may be skipped, and Section 8
-Evidence may use just the single gap-flag line if no evidence exists yet.
+At **idea** stage, do **not** draft a full PRD — a committed spec for an uncommitted idea
+is wasted work. Emit a **speclet**: the YAML frontmatter (with `stage: idea`) plus only
+these four slots:
+1. **§1 Hypothesis** — the canonical "We believe…" line.
+2. **§2 Problem / Background** — the problem, who has it, and the `GOALS.md › Objective ›
+   KR#` link.
+3. **Riskiest assumption** — the single assumption whose failure kills the idea.
+4. **What we'd need to believe** — 2–4 bullets that must hold for this to be worth
+   pursuing (these become the validation checklist).
 
-At **evaluating** stage, all sections filled. MVP Entry / Exit / Kill criteria
+Sections 3–10 are intentionally omitted until the project is promoted to `evaluating`,
+which triggers the full template. Use the "Idea-stage speclet" block at the top of
+prd-template.md as the exact shape.
+
+At **evaluating** stage, all 10 sections filled. MVP Entry / Exit / Kill criteria
 required.
 
 At **active** stage (incl. `ready`), Section 5.3 User Stories and 5.4 Functional
@@ -194,7 +216,7 @@ Print a structured review in this exact shape:
 ```
 PRD Review: <project-name>
 
-Completeness: X/10 sections populated (plus any conscious skips per Step 6)
+Completeness: X/10 sections populated (or N/4 speclet slots at the idea stage; plus any conscious skips per Step 6)
 Issues (K):
   1. [#N <name>] <one-line description>. Fix: <specific suggestion>.
   2. [#N <name>] <one-line description>. Fix: <specific suggestion>.
@@ -215,6 +237,15 @@ slot (a signal the downstream `/spec` will need `--ask`).
 
 If 0 issues, the Issues block renders `Issues: none`. Always emit at least one
 Strength — if nothing stands out, name the single best-filled section.
+
+**Adversarial pass (interactive only):** When `Second-opinion trigger: Yes` **and**
+`--ask` was passed, offer one role-based re-read via a single structured question with
+options — **Skeptic** (attack the riskiest assumption and evidence gaps), **Engineer**
+(probe feasibility and hidden/orphan FRs), **Designer** (probe the user flow and whether
+the §4 workarounds are realistic), **Skip**. On a non-Skip choice, re-read the PRD through
+that lens and **append** a short `Adversarial pass (<role>): <2–4 findings>` block to the
+printed review — do **not** rewrite `prd.md`. On the default non-interactive path (no
+`--ask`), never offer this — just print the `Second-opinion trigger` line as before.
 
 **Do not block the save.** These are informational — the user decides whether to act
 on them.
@@ -237,6 +268,9 @@ Present a concise summary:
 - Every section should connect back to the user's problem — if a section doesn't serve
   the user, it doesn't belong in the PRD.
 - Flag assumptions explicitly rather than stating them as facts.
+- **Workarounds are proof of pain** — every entry in the §4 *Current Workaround* column
+  should surface as a concrete §8 Evidence bullet. A workaround a user already built is
+  the cheapest evidence the problem is real.
 - Use concrete numbers and specifics over vague language ("reduce load time by 50%",
   not "improve performance").
 - The MVP section is the most important — be opinionated about what's in and what's
@@ -248,9 +282,10 @@ Present a concise summary:
 - Functional requirements must be testable and unambiguous.
 - **Each functional requirement tagged `[P0]`, `[P1]`, or `[P2]` inline** — format
   `FR-N [P-tier]: <behavior>`.
-- **Success metrics split into `### 7a. Leading indicators` and `### 7b. Lagging
-  indicators`** (periods match the template's exact heading form), each with a
-  Frequency column.
+- **Success metrics split into `### 7a. Leading indicators`, `### 7b. Lagging
+  indicators`, and `### 7c. Guardrail metrics`** (periods match the template's exact
+  heading form), each with a Frequency column. 7c names counter-metrics that must not
+  degrade (latency, error rate, cost) with a threshold instead of a target.
 - **Open Questions each carry an `[Owner: eng / user-research / data / self]` prefix.**
 - Keep the total PRD within the stage band per Step 6.
 
@@ -259,21 +294,26 @@ Present a concise summary:
 Before saving the PRD, verify:
 
 - [ ] Parsed `--ask` flag correctly (interactive only when passed)
-- [ ] All 10 sections filled (or consciously skipped per Step 6 stage rubric)
+- [ ] At `evaluating`/`active`: all 10 sections filled (or consciously skipped per the
+      Step 6 rubric). At `idea`: the 4 speclet slots filled (§1 Hypothesis, §2
+      Problem/goal link, Riskiest assumption, What we'd need to believe) — items marked
+      (evaluating+) below are N/A for a speclet.
 - [ ] Section 1 contains a `**Hypothesis:**` line at the top
 - [ ] Section 2 cites the primary Goal/OKR as a bullet (`GOALS.md › ... › KR#`)
-- [ ] Key Results are measurable with targets and timeframes
-- [ ] User stories are small, specific, with verifiable acceptance criteria, each
-      carrying a `**Tied to FR:**` line
-- [ ] Functional requirements are formatted `FR-N [P0|P1|P2]: <behavior>`
-- [ ] Each assumption has a `tested-in-MVP: yes/no + method` column
-- [ ] MVP scope is opinionated — "Won't build" list is non-empty and tags
+- [ ] (evaluating+) Key Results are measurable with targets and timeframes
+- [ ] (evaluating+) User stories are small, specific, with verifiable acceptance
+      criteria, each carrying a `**Tied to FR:**` line
+- [ ] (evaluating+) Functional requirements are formatted `FR-N [P0|P1|P2]: <behavior>`
+- [ ] (evaluating+) Each assumption has a `tested-in-MVP: yes/no + method` column
+- [ ] (evaluating+) MVP scope is opinionated — "Won't build" list is non-empty and tags
       `(permanent)` vs Phase-2-deferred items
-- [ ] MVP has explicit `Entry criteria`, `Exit criteria`, `Kill criteria`
-- [ ] Success metrics split into Leading (7a) and Lagging (7b) with a Frequency column
-- [ ] Section 8 Evidence has real bullets OR the explicit gap-flag line
-- [ ] Each open question carries `[Owner: …]` prefix
-- [ ] Contacts identified with a "Why them" column (specific reason they're listed)
+- [ ] (evaluating+) MVP has explicit `Entry criteria`, `Exit criteria`, `Kill criteria`
+- [ ] (evaluating+) Success metrics split into Leading (7a) and Lagging (7b) with a
+      Frequency column; Guardrail (7c) added where the change could regress latency /
+      error rate / cost
+- [ ] (evaluating+) Section 8 Evidence has real bullets OR the explicit gap-flag line
+- [ ] (evaluating+) Each open question carries `[Owner: …]` prefix
+- [ ] (evaluating+) Contacts identified with a "Why them" column (specific reason listed)
 - [ ] Saved to `projects/<project-name>/prd.md`
 - [ ] Line count within stage band per Step 6 rubric
 - [ ] Soft quality flags printed in Step 7.5 (if any)

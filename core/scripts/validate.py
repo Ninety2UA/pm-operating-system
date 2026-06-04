@@ -304,9 +304,14 @@ if MEMORY.exists() and (MEMORY / "MEMORY.md").exists():
             fail("memory-fm", f"{mf.name}: no frontmatter"); continue
         try:
             fm = yaml.safe_load(content.split("---", 2)[1])
-            for k in ("name", "description", "type"):
+            meta = fm.get("metadata") if isinstance(fm.get("metadata"), dict) else {}
+            for k in ("name", "description"):
                 if not fm.get(k):
                     fail("memory-fm", f"{mf.name}: missing {k}")
+            # `type` may be top-level (hand-written notes) or nested under
+            # `metadata:` (files the auto-memory subsystem writes) — accept either.
+            if not (fm.get("type") or meta.get("type")):
+                fail("memory-fm", f"{mf.name}: missing type")
         except yaml.YAMLError as e:
             fail("memory-fm", f"{mf.name}: YAML parse: {e}")
 else:
@@ -552,6 +557,10 @@ for tool in DOCUMENTED_MCP_TOOLS:
 # Ready should have idea.md + pre-mortem.md. Missing artifacts for an
 # advanced status are flagged as WARNINGS — users may have skipped /launch
 # intentionally — but the drift is surfaced.
+# NOTE: this checks file existence only, never prd.md contents. idea-stage
+# PRDs are intentionally partial "speclets" (see /prd Step 6) — if section
+# conformance is ever added here, gate the `idea` stage out or it will flag
+# every speclet as drift.
 for project_name, status in project_status_by_name.items():
     def art_exists(rel): return (ROOT / "projects" / project_name / rel).exists()
     def brief_exists(): return (ROOT / "knowledge/research/projects" / f"{project_name}.md").exists()
