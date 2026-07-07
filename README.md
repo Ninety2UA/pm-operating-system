@@ -52,7 +52,7 @@ In his [Stanford talk](https://www.youtube.com/watch?v=c3b-JASoPi0) and subseque
 | LLM OS Concept | How It Works Here |
 |---|---|
 | **Strategic memory** | `GOALS.md` is read every session to prioritize your work |
-| **Specialized capabilities** | 30 skills the LLM can invoke (validation, risk analysis, technical spec, sprint planning, slide generation) plus 1 standalone command (`/analyze`) |
+| **Specialized capabilities** | 30 skills the LLM can invoke (validation, risk analysis, build-ready technical specs, sprint planning, slide generation) plus 1 standalone command (`/analyze`) |
 | **Recurring workflows** | Workflow skills (`/morning`, `/weekly`, `/quarterly`, `/process-backlog`, `/launch`, `/write`) for daily, weekly, and quarterly cycles |
 | **Autonomous sub-processes** | 3 agents that run in the background (research, evaluation, diagnostics) |
 | **Structured tool use** | MCP server with 10 tools for task and project management |
