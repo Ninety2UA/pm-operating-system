@@ -137,7 +137,9 @@ def test_multiline_reference_definition_beacon_neutralized():
               "![beacon]\n\n[beacon]: //evil.example/pixel.png\n",
               "text ![ref] and\n\n[ref]: //evil/img\n"):
         d = defang(s)
-        assert "]:\n//evil" not in d and "]: //evil" not in d.replace("`", ""), (s, d)
+        # The definition (label + colon) must be inside a code span — that
+        # is what breaks it, so the shortcut ![ref] cannot resolve to a src.
+        assert "]:" not in _outside_code(d), (s, d)
     # non-regression: prose with a colon is untouched
     assert defang("Note: this is fine") == "Note: this is fine"
 
