@@ -85,6 +85,12 @@ case "$tool" in
     allow "Read $path"
     ;;
   WebFetch)
+    # A real fetch URL carries a scheme; without '://' the host can't be
+    # parsed, so fail closed rather than treating the leading label as a host.
+    case "$url" in
+      *"://"*) : ;;
+      *) deny "WebFetch with schemeless/unparseable URL: ${url:-<none>}" ;;
+    esac
     # Parse the RFC 3986 authority correctly: strip scheme, drop any query
     # or fragment, take the substring after the LAST '@' as authority (so a
     # userinfo like `github.com:@evil` cannot masquerade as the host), then
