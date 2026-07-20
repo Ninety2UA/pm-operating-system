@@ -87,6 +87,18 @@ def test_code_span_cannot_cross_html_block():
         assert "http://" not in defang(s).lower(), tag
 
 
+def test_code_span_cannot_cross_gfm_table():
+    """A GFM table breaks a paragraph, so a backtick region crossing one is
+    not a code span — cell images/links must be neutralized (round-3 P0)."""
+    for s in ("`x\n| ![](http://evil/beacon.png) |\n| - |\n`",
+              "`x\n| h |\n| - |\n| ![](http://evil/b2.png) |\n`",
+              "`a\n| [z](http://evil/l.png) |\n|---|\n`"):
+        assert "http://" not in defang(s).lower(), s
+    # A table inside a real fenced code block stays literal (fence wins).
+    block = "before\n```\n| a | b |\n| - | - |\n```\nafter"
+    assert defang(block) == block
+
+
 def test_ordered_list_not_starting_at_one_is_not_a_breaker():
     """CommonMark: an ordered marker other than 1 does not interrupt a
     paragraph, so a genuine multi-line span is left inert (not mangled)."""

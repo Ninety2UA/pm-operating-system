@@ -74,6 +74,8 @@ credential_shaped() {
     */.aws|*/.aws/*|*/.config/gcloud|*/.config/gcloud/*|*/.config/gh|*/.config/gh/*|\
     */.gnupg|*/.gnupg/*|*/.netrc|*/.pgpass|*.htpasswd|\
     */.docker/config.json|*/.kube/config|*/.kube|\
+    */.zsh_history|*/.bash_history|*/.python_history|*/.node_repl_history|\
+    /etc/shadow|/etc/gshadow|/etc/master.passwd|\
     *.pem|*.key|*.p12|*.pfx|*.gpg|*.asc|*.env|*.env.*|\
     *client_secret*|\
     *secret*.json|*secret*.txt|*secret*.yaml|*secret*.yml|*secret*.env|\
@@ -92,8 +94,15 @@ resolve_path() {
 }
 
 case "$tool" in
-  Skill|WebSearch)
+  Skill)
     allow "$tool"
+    ;;
+  WebSearch)
+    # A search query string is an ungated egress channel. A scheduled
+    # report-only run fetches known doc/repo URLs via WebFetch and does not
+    # need open search, so deny it here (open search is a full/interactive
+    # operation). Documented in report-only-guard.md.
+    deny "WebSearch (ungated egress) not permitted in a report-only run"
     ;;
   Read|Grep|Glob)
     # Grep (output_mode=content) and Glob (filename disclosure) are read
@@ -119,6 +128,11 @@ case "$tool" in
     # strip the port. Reject anything with characters outside a hostname.
     rest="${url#*://}"
     rest="${rest%%[?#]*}"
+    # WHATWG (Node's URL, which WebFetch uses) treats '\' as an authority
+    # delimiter for special schemes, so normalize backslashes to slashes
+    # BEFORE splitting — else `evil.example\@github.com` would parse to the
+    # allowlisted `github.com` here while the fetcher connects to evil.example.
+    rest="${rest//\\//}"
     authority="${rest%%/*}"
     hostport="${authority##*@}"
     host="${hostport%%:*}"
@@ -135,12 +149,11 @@ case "$tool" in
     deny "WebFetch to off-allowlist host: $host"
     ;;
   Write|Edit|NotebookEdit)
-    # Reject path traversal first: a `..` segment could escape the fence
-    # (e.g. knowledge/currency/../../AGENTS.md matches the glob below but
-    # resolves outside the report scope).
-    case "$path" in
-      *..*)
-        deny "$tool with '..' in path (traversal): $path"
+    # Reject path traversal (a genuine `..` path SEGMENT), but not a mere
+    # double-dot inside a filename (e.g. report..2026.md is legitimate).
+    case "/$path/" in
+      */../*)
+        deny "$tool with '..' path segment (traversal): $path"
         ;;
     esac
     # Fence writes to the project's own knowledge/currency/. Accept a

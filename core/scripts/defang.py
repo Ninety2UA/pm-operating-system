@@ -113,6 +113,11 @@ _SPAN_BREAKERS = (
     # comment, declaration, or processing instruction interrupts a paragraph,
     # so raw HTML after it renders live. Broad on purpose (safe direction).
     re.compile(r"^ {0,3}<(?:[A-Za-z/!?])"),
+    # GFM table: a delimiter row (`|---|:--:|`) or any pipe-bearing row
+    # breaks the paragraph, so a backtick region crossing a table is not a
+    # code span and its cells (which may hold ![]() beacons) render live.
+    re.compile(r"^ {0,3}\|?[ \t]*:?-{1,}:?[ \t]*(?:\|[ \t]*:?-{1,}:?[ \t]*)*\|?[ \t]*$"),
+    re.compile(r"^ {0,3}\|.*\|[ \t]*$"),
 )
 
 

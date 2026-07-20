@@ -65,6 +65,18 @@ printf '{"tool_name":"Bash","tool_input":{}}' \
 
 Full drill matrix: `core/scripts/tests/test_report_only_guard.py`.
 
+## Egress channels under the marker
+
+A scheduled report-only run may fetch only allowlisted hosts via `WebFetch`
+(the authority is parsed WHATWG-compatibly — backslash-normalized, userinfo
+stripped after the last `@` — so a host masquerade cannot slip an
+off-allowlist fetch past the pin). `WebSearch` is **denied** under the
+marker: a search query string is an ungated egress channel the allowlist
+can't constrain, and delta runs fetch known doc/repo URLs rather than
+searching. Open search remains available in an interactive/full run (where
+the guard is inert). `Grep` and `Glob` are gated through the same
+credential-path check as `Read`.
+
 ## Recovery / notes
 
 - The guard never affects interactive sessions; if a scheduled run is
