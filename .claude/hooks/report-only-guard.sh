@@ -75,7 +75,9 @@ credential_shaped() {
     */.gnupg|*/.gnupg/*|*/.netrc|*/.pgpass|*.htpasswd|\
     */.docker/config.json|*/.kube/config|*/.kube|\
     */.zsh_history|*/.bash_history|*/.python_history|*/.node_repl_history|\
+    */.git-credentials|*/.npmrc|*/.pypirc|\
     /etc/shadow|/etc/gshadow|/etc/master.passwd|\
+    *.tfstate|*.tfstate.*|\
     *.pem|*.key|*.p12|*.pfx|*.gpg|*.asc|*.env|*.env.*|\
     *client_secret*|\
     *secret*.json|*secret*.txt|*secret*.yaml|*secret*.yml|*secret*.env|\

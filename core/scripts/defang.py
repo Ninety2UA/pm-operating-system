@@ -105,8 +105,9 @@ _SPAN_BREAKERS = (
     # List markers that interrupt a paragraph: any bullet, but an ordered
     # marker only when it starts at 1 (CommonMark) — narrower than before so
     # a genuine `a\n2. b` span isn't needlessly mangled, while still breaking
-    # every marker that actually ends a paragraph.
-    re.compile(r"^ {0,3}(?:[-+*]|1[.)])(?:\s|$)"),
+    # every marker that ends a paragraph. `0*1` catches zero-padded forms
+    # (01./001)) that also normalize to start=1, but not 010. (=10) or 2.
+    re.compile(r"^ {0,3}(?:[-+*]|0*1[.)])(?:\s|$)"),
     re.compile(r"^ {0,3}(?:`{3,}|~{3,})"),              # fenced code open
     re.compile(r"^ {0,3}(?:=+|-+)[ \t]*$"),             # setext underline
     # HTML block start (CommonMark types 1-7): a line beginning with a tag,

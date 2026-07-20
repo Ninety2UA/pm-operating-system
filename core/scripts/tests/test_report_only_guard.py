@@ -50,6 +50,10 @@ DENIED_UNDER_MARKER = [
     # Shell history / system secret stores.
     tool("Read", file_path="/Users/x/.zsh_history"),
     tool("Read", file_path="/etc/shadow"),
+    tool("Read", file_path="/Users/x/.git-credentials"),
+    tool("Read", file_path="/Users/x/.npmrc"),
+    tool("Read", file_path="/Users/x/.pypirc"),
+    tool("Read", file_path="/proj/terraform.tfstate"),
     # Broadened credential-file coverage.
     tool("Read", file_path="/Users/x/.pgpass"),
     tool("Read", file_path="/Users/x/.ssh/id_ed25519"),

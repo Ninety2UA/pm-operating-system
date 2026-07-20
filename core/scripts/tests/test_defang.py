@@ -103,6 +103,11 @@ def test_ordered_list_not_starting_at_one_is_not_a_breaker():
     """CommonMark: an ordered marker other than 1 does not interrupt a
     paragraph, so a genuine multi-line span is left inert (not mangled)."""
     assert defang("`a\n2. b`") == "`a\n2. b`"
+    # Zero-padded ordered markers normalize to start=1 and DO interrupt.
+    for s in ("`a\n01. ![](http://evil/lz.png)`", "`a\n001) ![](http://e/x.png)`"):
+        assert "http://" not in defang(s).lower(), s
+    # …but 010. (=10) stays a valid span (non-regression).
+    assert defang("`a\n010. b`") == "`a\n010. b`"
     # …but an unordered marker still breaks the span (content neutralized).
     assert "http://" not in defang("`a\n- <img src=http://e/x.png>`").lower()
 
