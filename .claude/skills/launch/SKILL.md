@@ -94,6 +94,14 @@ After a final Go or No-Go decision, ask: "Post this decision to #os-progress?"
 
 Use `mcp__plugin_slack_slack__slack_send_message` to `#os-progress`. If Slack MCP is unavailable, skip silently.
 
+## Batch evaluation
+
+<!-- host:claude-code -->
+When the user asks to run several projects through evaluation at once, do not loop this pipeline serially: dispatch the batch-evaluator flow as a Workflow fan-out (one agent per project running the per-project evaluation, then a merge/ranking stage). Workflows are owner-triggered — never start one from a scheduled run (adoption matrix: unattended-allowed no).
+<!-- host:fallback (portable hosts see only this section) -->
+When the user asks to run several projects through evaluation at once, run them sequentially with the batch-evaluator instructions, one project at a time, then present the comparative ranking.
+<!-- host:end -->
+
 ## Notes
 
 - Each stage takes 5–15 minutes depending on depth.

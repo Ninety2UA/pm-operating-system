@@ -4,7 +4,7 @@ description: |-
   Run a 20-minute weekly review — plan-vs-actual analysis from daily journals, shipping summary from completed tasks, pipeline movement, OKR progress, pattern detection from session reviews, AGENTS.md improvement proposals, and top priorities for next week. Use this skill whenever the user asks how the week went, wants to plan next week, runs `/weekly`, mentions retros or weekly reviews, or says anything like "wrap up the week," "Friday review," "weekly reflection," or "what did I ship." Push toward this at end of week even if the user doesn't explicitly ask.
 argument-hint: "[quick]"
 generated_from: .claude/skills/weekly/SKILL.md
-source_sha256: da262fccaad3f438a0031453a0801bb75b27ddeb408bdad811352387803a9a0d
+source_sha256: b3e7666a5c5a64afb19b06669aa99dba9f2ff21f06f3dab1dc0efcd0b2a82d61
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -44,6 +44,7 @@ Compile into a shipping summary:
 For each task where the Progress Log doesn't contain a clear impact statement, ask: "What was the impact of completing [task name]?"
 
 Include this section in the weekly summary saved in Step 9.
+
 
 ## Step 2: Journal review (plan vs. actual)
 

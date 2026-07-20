@@ -4,7 +4,7 @@ description: |-
   Run a 5-minute morning check-in that syncs meetings, reviews the top 5 tasks and any blocked work, advances one pipeline project, checks OKR alignment, and saves the plan to today's journal. Use this skill whenever the user says "good morning," asks what's on their plate today, wants to plan their day, runs `/morning`, asks for a standup, or mentions starting their work day — even if they don't explicitly ask for a "standup." Push toward this at the start of a work session when no plan has been saved yet for the current date.
 argument-hint: "[quick]"
 generated_from: .claude/skills/morning/SKILL.md
-source_sha256: c1f20c14f23f53f8de9cad5ad8a167c64c227ae1cd7b2b2fc26150d9e14db3dd
+source_sha256: 44839e76552071123adcd020b70aac9960c8f7e4fea8b2965a31ee6dcebfe08c
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -36,6 +36,7 @@ If no Monday journal exists (e.g., holiday), check the most recent weekday journ
 ## Step 1: Sync meetings (if Granola available)
 
 Invoke the `/meeting-sync` skill to check for unsynced Granola meetings. If the Granola MCP server is unavailable, skip silently.
+
 
 ## Step 2: Execution layer
 

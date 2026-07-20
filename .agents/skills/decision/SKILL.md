@@ -4,7 +4,7 @@ description: |-
   Documents a decision with structured context, options considered, pros/cons, reversibility assessment, and rationale — saved to knowledge/decisions/ for future reference. Use this skill whenever the user says "I need to decide", "log this decision", "decision record", "ADR", "let's pick between X and Y", mentions a tough call, weighs options, frames a strategic/architectural choice they'll want to revisit, or is about to commit to a path that's non-trivial to reverse — even if they don't explicitly ask to "log" it.
 argument-hint: "<topic>"
 generated_from: .claude/skills/decision/SKILL.md
-source_sha256: 2f8de16bac4ff8ca9ee38e32f71acba291a63e54f35b7d03e8b5dadca93f2622
+source_sha256: 56cc5c1eddc8fa60a2979ae784b137bb025ea34d7ab3f9253fc0695259da7845
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -95,3 +95,7 @@ Tell the user where the decision was saved and any follow-up actions identified.
 - For deferred decisions, set a `revisit_date` and status `deferred`.
 - `/weekly` and `/quarterly` scan `knowledge/decisions/` for recent decisions and surface repeat patterns.
 - If you notice the user making the same type of decision repeatedly, suggest codifying it as a rule in AGENTS.md.
+
+## Position discipline
+
+Freeze your own recommendation — written, with reasoning — before consulting any external opinion (research, another model, a reviewer), so consensus cannot shape the first draft. And never issue a verdict you did not earn against this decision's own context: every option's pros/cons must cite the user's actual constraints, not generic tradeoffs. (CE-13)

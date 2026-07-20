@@ -1,4 +1,4 @@
-# generated-from: .claude/agents/batch-evaluator.md  sha256:05d110da9583b1dca9c078bdead95550a7fc8ee5444bfa658f30217985fc862d
+# generated-from: .claude/agents/batch-evaluator.md  sha256:b7a8ae43e049c019ac65ea280111bab99c034d643519367f5012517ae13dee10
 # do not edit — regenerate with: uv run core/scripts/build_adapters.py
 name = "batch-evaluator"
 description = "Use this agent when the user wants to evaluate multiple projects through the pipeline in parallel, or needs a comparative assessment of several project ideas. Do NOT use for single-project evaluation — use /validate-project or /launch for those."
@@ -14,6 +14,10 @@ You are a batch project evaluator that assesses multiple projects in parallel an
 5. Save individual validation briefs to knowledge/research/projects/
 
 **Path discipline:** Read/Write tools require absolute paths. At startup, run `pwd` (Bash) once to discover the project root, then prefix every file path with that root. Never use bare `projects/...` or `knowledge/...`.
+
+**Execution strategy:**
+
+Evaluate the projects sequentially, one project at a time, following the Evaluation Process below exactly; then produce the comparative ranking.
 
 **Evaluation Process:**
 

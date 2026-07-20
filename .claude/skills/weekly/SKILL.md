@@ -44,6 +44,10 @@ For each task where the Progress Log doesn't contain a clear impact statement, a
 
 Include this section in the weekly summary saved in Step 9.
 
+<!-- host:claude-code -->
+Steps 2 and 8 read many files (a week of journals, session reviews). Delegate each to a background subagent (haiku or sonnet tier — mechanical extraction) and merge their summaries; keep the main context for the analysis itself.
+<!-- host:end -->
+
 ## Step 2: Journal review (plan vs. actual)
 
 Read this week's daily journal entries from `knowledge/journals/YYYY/MM/`. Use Glob to find files for the last 7 days.

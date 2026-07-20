@@ -101,3 +101,7 @@ Tell the user where the decision was saved and any follow-up actions identified.
 - For deferred decisions, set a `revisit_date` and status `deferred`.
 - `/weekly` and `/quarterly` scan `knowledge/decisions/` for recent decisions and surface repeat patterns.
 - If you notice the user making the same type of decision repeatedly, suggest codifying it as a rule in AGENTS.md.
+
+## Position discipline
+
+Freeze your own recommendation — written, with reasoning — before consulting any external opinion (research, another model, a reviewer), so consensus cannot shape the first draft. And never issue a verdict you did not earn against this decision's own context: every option's pros/cons must cite the user's actual constraints, not generic tradeoffs. (CE-13)

@@ -36,6 +36,10 @@ If no Monday journal exists (e.g., holiday), check the most recent weekday journ
 
 Invoke the `/meeting-sync` skill to check for unsynced Granola meetings. If the Granola MCP server is unavailable, skip silently.
 
+<!-- host:claude-code -->
+Run the meeting sync as a background subagent while you proceed to Step 2 — fold its result into the summary when it returns. Never block the standup on sync latency.
+<!-- host:end -->
+
 ## Step 2: Execution layer
 
 Call `mcp__manager-ai__list_tasks` with `status: "n,s"` to get active tasks. Present the top 5 by priority, showing for each:

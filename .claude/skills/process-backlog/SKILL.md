@@ -40,6 +40,10 @@ For items that pass dedup:
   - Invoke the `/prd` skill to generate `projects/<project-name>/prd.md`.
     - `/prd` defaults to non-interactive auto-inference. For backlog items with <1 paragraph of context, most PRD sections will be flagged `[INFERRED]` — tell the user to re-run `/prd <project-name> --ask` later to refine, or pass `--ask` directly here if the item needs clarification up-front.
 
+<!-- host:claude-code -->
+When Step 3 creates several new projects needing PRDs, generate them in parallel background subagents (each invoking the /prd flow for one project) instead of serially — then continue with Step 4 while they run.
+<!-- host:end -->
+
 ## Step 4: Check priority limits
 
 Call `mcp__manager-ai__check_priority_limits` before assigning P0/P1 to new items. If limits are exceeded (P0 > 3 or P1 > 7), warn the user and ask to downgrade or defer.
@@ -61,3 +65,9 @@ Show:
 ## Step 7: Clear backlog
 
 After the user confirms, clear processed items from `BACKLOG.md`. Leave any items that were deferred or need clarification with a one-line note about why.
+
+## Rationalization guard
+
+- *"This item is obvious — I'll skip the duplicate check."* The dedup call is one tool invocation; a duplicate project costs weeks. Always run it.
+- *"The user is busy — I'll guess the priority instead of asking."* The STOP-and-ask rule for missing context/priority exists because a wrong P0 pollutes every daily plan. Batch the questions and ask once.
+- *"I'll create the project now and generate the PRD later."* A project without its PRD stalls at the first pipeline gate; generate it as part of this flow.
