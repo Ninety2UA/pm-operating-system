@@ -63,9 +63,12 @@ _MD_REFDEF = r"^[ \t]{0,3}\[[^\]]+\]:[ \t]*\S[^\n]*$"
 # Anything tag-shaped, including comments, autolinks, and multi-line tags.
 _HTML_TAG = r"<[A-Za-z/!?][^>]{0,2000}>"
 # Scheme-bearing URLs are the backstop: every live fetch needs a scheme.
+# GFM also autolinks scheme-less `www.` hostnames into live links, so those
+# are matched too.
 _BARE_URL = (
     r"\b(?:https?|ftp)://[^\s<>`]+"
     r"|\b(?:data|javascript|vbscript):[^\s<>`]{1,500}"
+    r"|\bwww\.[a-z0-9-]+(?:\.[a-z0-9-]+)+[^\s<>`]*"
 )
 _DANGEROUS = re.compile(
     "(" + "|".join([_MD_IMAGE, _MD_LINK, _MD_REFDEF, _HTML_TAG, _BARE_URL]) + ")",
@@ -81,14 +84,43 @@ _SCHEME_MAP = {
     "javascript": "js-defanged",
     "vbscript": "vbs-defanged",
 }
+# Scheme-less GFM autolink hosts (www.) are defused by breaking the leading
+# label so no renderer linkifies them.
+_WWW = re.compile(r"\bwww(\.)", re.IGNORECASE)
 
 _FENCE_OPEN = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 _TICKS = re.compile(r"`+")
 _BLANK_LINE = re.compile(r"\n[ \t]*\n")
 
+# Block-level interrupters: a CommonMark paragraph (and therefore any inline
+# code span inside it) ends when one of these begins a line. A backtick run
+# that "closes" only after crossing such a line is NOT a real span — the
+# renderer shows the content live — so we must treat the region as text and
+# neutralize it. Being conservative here over-neutralizes at worst (safe
+# direction); it never lets live markup through.
+_SPAN_BREAKERS = (
+    re.compile(r"^ {0,3}#{1,6}(?:\s|$)"),               # ATX heading
+    re.compile(r"^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$"),  # thematic break
+    re.compile(r"^ {0,3}>"),                             # blockquote
+    re.compile(r"^ {0,3}(?:[-+*]|\d{1,9}[.)])(?:\s|$)"),   # list item marker
+    re.compile(r"^ {0,3}(?:`{3,}|~{3,})"),              # fenced code open
+    re.compile(r"^ {0,3}(?:=+|-+)[ \t]*$"),             # setext underline
+)
+
+
+def _crosses_block_interrupter(region: str) -> bool:
+    """True if any line after the first in `region` begins a new block —
+    which means an enclosing code span cannot survive across it."""
+    lines = region.split("\n")
+    for line in lines[1:]:
+        if any(p.match(line) for p in _SPAN_BREAKERS):
+            return True
+    return False
+
 
 def _defuse_schemes(text: str) -> str:
-    return _SCHEME.sub(lambda m: _SCHEME_MAP[m.group(1).lower()] + m.group(2), text)
+    text = _SCHEME.sub(lambda m: _SCHEME_MAP[m.group(1).lower()] + m.group(2), text)
+    return _WWW.sub(r"www[.]", text)
 
 
 def _neutralize_match(m: re.Match) -> str:
@@ -111,8 +143,10 @@ def _split_inline(text: str):
     """Split text into (is_code, chunk) pairs by CommonMark-style code spans.
 
     A span opens with a backtick run and closes at the next run of the same
-    length; it may cross newlines but never a blank line. Once a run cannot
-    be closed, the remainder is literal text (fail-safe: it gets neutralized).
+    length; it may cross newlines but never a blank line NOR a block-level
+    interrupter (heading, blockquote, list marker, thematic break, fenced
+    code, setext underline). Once a run cannot be closed, the remainder is
+    literal text (fail-safe: it gets neutralized).
     """
     parts, pos = [], 0
     while pos < len(text):
@@ -131,9 +165,11 @@ def _split_inline(text: str):
                 close = close_m
                 break
             search_from = close_m.end()
-        if close and not _BLANK_LINE.search(text, open_m.start(), close.end()):
+        region = text[open_m.start():close.end()] if close else ""
+        if close and not _BLANK_LINE.search(text, open_m.start(), close.end()) \
+                and not _crosses_block_interrupter(region):
             parts.append((False, text[pos:open_m.start()]))
-            parts.append((True, text[open_m.start():close.end()]))
+            parts.append((True, region))
             pos = close.end()
         else:
             parts.append((False, text[pos:]))

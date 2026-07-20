@@ -60,6 +60,37 @@ def test_unclosed_code_regions_are_neutralized():
     assert "hxxp" in defang("`a\n\n<img src=http://evil/blank.png> b`")
 
 
+def test_code_span_cannot_cross_block_interrupter():
+    """A backtick pair that 'closes' only after a CommonMark block
+    interrupter is not a real span — the content renders live, so it must
+    be neutralized (regression for the review's P0)."""
+    payloads = [
+        "`x\n# <img src=http://evil/beacon.png>`",   # ATX heading
+        "`a\n> <img src=http://evil/bq.png>`",        # blockquote
+        "`a\n- <img src=http://evil/li.png>`",        # list marker
+        "`a\n***\n<img src=http://evil/tb.png>`",     # thematic break
+        "`a\nfoo\n===\n<img src=http://evil/set.png>`",  # setext heading
+        "`a\n1. <img src=http://evil/ol.png>`",       # ordered list
+    ]
+    for s in payloads:
+        d = defang(s)
+        assert "http://" not in d.lower(), s
+    # A genuine single-line span is still left inert.
+    assert defang("`<img src=http://x.png>`") == "`<img src=http://x.png>`"
+
+
+def test_www_autolinks_defused():
+    for s in ["visit www.evil.example/x now", "![](www.evil.example/pixel)",
+              "WWW.EVIL.EXAMPLE"]:
+        d = defang(s)
+        assert "www.evil" not in d.lower() and "www.example" not in d.lower(), d
+
+
+def test_uppercase_scheme_defused():
+    for s in ["HTTP://EVIL/X", "HtTpS://evil/x"]:
+        assert "http" not in defang(s).lower().replace("hxxp", ""), s
+
+
 def test_idempotent():
     samples = [
         "see ![](http://attacker/pixel?x=1) here",
