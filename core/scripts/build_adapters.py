@@ -242,16 +242,43 @@ class HostMarkerError(SystemExit):
 # The generator keeps ONLY the fallback section (or drops the whole block when
 # no fallback is declared). Fences wrap net-new Claude-native additions only;
 # previously-portable behavior is never demoted into a fence.
-_MARKER = re.compile(r"^\s*<!--\s*host:(claude-code|fallback|end)\b.*?-->\s*$")
+# Capture the FULL directive token so a misspelling ('falback') or an
+# accidental suffix ('claude-code-extra') is caught as an unknown directive
+# rather than silently mis-parsing (the `\b.*?` form let both through).
+_MARKER = re.compile(r"^\s*<!--\s*host:([a-z][a-z-]*)\b[^>]*-->\s*$")
+_VALID_DIRECTIVES = {"claude-code", "fallback", "end"}
+_CODE_FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
 
 
 def strip_host_sections(body: str) -> str:
     out: list[str] = []
     state = None  # None | "claude" | "fallback"
     open_line = 0
+    fence = None  # active code-fence delimiter, if inside a fenced block
     for i, line in enumerate(body.split("\n"), 1):
+        # Code-fence awareness: markers inside a ``` block (e.g. a skill
+        # documenting the marker syntax itself) are literal text, not
+        # directives. Track fences only when not already stripping a
+        # claude-only section.
+        fm = _CODE_FENCE.match(line)
+        if fence is not None:
+            if fm and fm.group(1)[0] == fence[0] and len(fm.group(1)) >= len(fence):
+                fence = None
+            # Fenced content is literal; it survives unless we are inside a
+            # claude-only section being stripped.
+            if state != "claude":
+                out.append(line)
+            continue
+        if fm:
+            fence = fm.group(1)  # opening fence — do not scan its body for markers
+            if state != "claude":
+                out.append(line)
+            continue
+
         m = _MARKER.match(line)
         kind = m.group(1) if m else None
+        if kind is not None and kind not in _VALID_DIRECTIVES:
+            raise HostMarkerError(f"unknown host directive 'host:{kind}' at line {i}")
         if kind == "claude-code":
             if state is not None:
                 raise HostMarkerError(
@@ -413,13 +440,21 @@ def scan_residual(outputs: dict[str, bytes]) -> list[str]:
     for rel, data in sorted(outputs.items()):
         if not is_text(data):
             continue
-        for i, line in enumerate(data.decode("utf-8").splitlines(), 1):
+        lines = data.decode("utf-8").splitlines()
+        # Frontmatter spans from the opening `---` to the next `---`; the
+        # Cursor model exemption applies ONLY there, not in the body.
+        in_frontmatter = bool(lines) and lines[0].strip() == "---"
+        for i, line in enumerate(lines, 1):
+            if i > 1 and in_frontmatter and line.strip() == "---":
+                in_frontmatter = False
             # `generated_from:` is intentional provenance pointing at the source.
             if line.lstrip().startswith("generated_from:"):
                 continue
-            # A Cursor agent's `model:` line is the mapping's deliberate,
-            # U1-verified output — the one place a model ID belongs.
-            if rel.startswith(".cursor/agents/") and line.startswith("model: "):
+            # A Cursor agent's frontmatter `model:` line is the mapping's
+            # deliberate, U1-verified output — the one place a model ID
+            # belongs — but only in frontmatter, never in the body.
+            if (rel.startswith(".cursor/agents/") and in_frontmatter
+                    and line.startswith("model: ")):
                 continue
             for hit in pattern.findall(line):
                 problems.append(f"{rel}:{i}: leftover `{hit}` → {line.strip()[:100]}")
@@ -442,7 +477,9 @@ def check_adapters() -> list[str]:
     No printing, no exit — safe to import and call from validate.py."""
     try:
         outputs = build_outputs()
-    except Exception as e:  # source error → report instead of crashing the caller
+    except (Exception, HostMarkerError) as e:
+        # source error (incl. a malformed host marker, which is a SystemExit
+        # subclass) → report instead of crashing the caller's validator run.
         return [f"generator error: {e}"]
     expected = set(outputs)
     on_disk = disk_files()

@@ -169,11 +169,47 @@ def test_host_marker_errors_are_named():
         ("<!-- host:fallback -->\nx\n<!-- host:end -->", "outside a claude-code block"),
         ("<!-- host:claude-code -->\n<!-- host:claude-code -->\n<!-- host:end -->",
          "nested"),
+        # Misspelled / suffixed directives must error, not silently mis-parse.
+        ("<!-- host:falback -->\nx\n<!-- host:end -->", "unknown host directive"),
+        ("<!-- host:claude-code-extra -->\nx\n<!-- host:end -->", "unknown host directive"),
     ]:
         with pytest.raises(SystemExit) as exc:
             ba.transform_body(bad)
         assert "host-marker error" in str(exc.value)
         assert msg_part in str(exc.value)
+
+
+def test_host_markers_inside_code_fence_are_literal():
+    """A skill documenting the marker syntax inside a fenced block must not
+    have that example parsed as a live marker."""
+    src = ("intro\n"
+           "```\n"
+           "<!-- host:claude-code -->\n"
+           "example native content\n"
+           "<!-- host:end -->\n"
+           "```\n"
+           "outro")
+    # No error raised (the markers are inside a fence), content preserved.
+    assert ba.transform_body(src) == src
+
+
+def test_host_marker_error_does_not_crash_check_adapters(monkeypatch):
+    """A malformed marker is a HostMarkerError (a SystemExit subclass); it
+    must be reported by check_adapters, not escape and abort the validator."""
+    def boom():
+        raise ba.HostMarkerError("unclosed host block opened at line 1")
+    monkeypatch.setattr(ba, "build_outputs", boom)
+    problems = ba.check_adapters()
+    assert problems and "generator error" in problems[0]
+
+
+def test_cursor_model_exemption_frontmatter_only():
+    """A model ID in a .cursor frontmatter line is exempt; the same string
+    in the BODY is a real leak that must be flagged."""
+    fm_only = b"---\nname: t\nmodel: claude-opus-4-8\n---\n\nbody text\n"
+    assert ba.scan_residual({".cursor/agents/t.md": fm_only}) == []
+    body_leak = b"---\nname: t\nmodel: inherit\n---\n\nmodel: claude-opus-4-8 in body\n"
+    assert ba.scan_residual({".cursor/agents/t.md": body_leak}) != []
 
 
 def test_ordering_invariant_fallback_is_reneutralized():
@@ -258,6 +294,9 @@ def test_leak_net_ignores_aliases_and_non_model_tokens():
 
 
 def test_leak_net_exempts_cursor_model_line_only():
-    line = b"model: claude-opus-4-8\n"
-    assert ba.scan_residual({".cursor/agents/x.md": line}) == []
-    assert ba.scan_residual({".agents/skills/x/SKILL.md": line}) != []
+    # The exemption applies to the model line in Cursor frontmatter…
+    cursor_fm = b"---\nname: x\nmodel: claude-opus-4-8\n---\nbody\n"
+    assert ba.scan_residual({".cursor/agents/x.md": cursor_fm}) == []
+    # …but the same model ID in a skill body is a real leak.
+    skill = b"---\nname: x\n---\nmodel: claude-opus-4-8 here\n"
+    assert ba.scan_residual({".agents/skills/x/SKILL.md": skill}) != []
