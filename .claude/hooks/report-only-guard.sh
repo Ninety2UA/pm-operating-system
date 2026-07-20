@@ -91,6 +91,14 @@ case "$tool" in
     deny "WebFetch to off-allowlist host: $host"
     ;;
   Write|Edit|NotebookEdit)
+    # Reject path traversal first: a `..` segment could escape the fence
+    # (e.g. knowledge/currency/../../AGENTS.md matches the glob below but
+    # resolves outside the report scope).
+    case "$path" in
+      *..*)
+        deny "$tool with '..' in path (traversal): $path"
+        ;;
+    esac
     case "$path" in
       */knowledge/currency/*|knowledge/currency/*)
         allow "$tool $path"

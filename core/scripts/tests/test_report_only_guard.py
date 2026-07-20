@@ -34,6 +34,9 @@ def tool(name, **tool_input):
 DENIED_UNDER_MARKER = [
     tool("Write", file_path=str(REPO_ROOT / "AGENTS.md"), content="x"),
     tool("Edit", file_path=str(REPO_ROOT / ".claude/settings.json")),
+    # Path traversal must not escape the currency/ write fence.
+    tool("Write", file_path="knowledge/currency/../../AGENTS.md", content="x"),
+    tool("Write", file_path="knowledge/currency/../../../etc/cron.d/x", content="x"),
     tool("Bash", command="rm -rf /"),
     tool("mcp__manager-ai__prune_completed_tasks"),
     tool("mcp__manager-ai__update_file_frontmatter", file_path="x"),
