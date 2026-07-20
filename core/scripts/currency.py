@@ -171,6 +171,54 @@ def completed_reports(reports_dir: Path | str):
     return done
 
 
+# ── Watcher status aggregate (KTD-3: structured fields only) ─────────────────
+def watcher_status(base_dir: Path | str) -> dict:
+    """Read-only currency aggregate for get_watcher_status and the file
+    fallback in /morning. Values are counts, dates, and filenames only —
+    no fetched report text passes through. Only completed reports count."""
+    base_dir = Path(base_dir)
+    today = _now().date()
+    out: dict = {"watchers": {}, "generated": today.isoformat()}
+    for watcher in ("cli", "repo"):
+        reports_dir = base_dir / "knowledge" / "currency" / "reports" / watcher
+        done = completed_reports(reports_dir)
+        entry = {"last_run": None, "days_since": None, "undecided_candidates": 0}
+        if done:
+            newest = done[-1]
+            run_date = datetime.strptime(newest.name[:10], "%Y-%m-%d").date()
+            undecided = sum(
+                1 for line in newest.read_text(encoding="utf-8").splitlines()
+                if line.lstrip().startswith("- [ ] adopt"))
+            entry = {"last_run": run_date.isoformat(),
+                     "days_since": (today - run_date).days,
+                     "undecided_candidates": undecided}
+        out["watchers"][watcher] = entry
+
+    registry_size = None
+    live_path = base_dir / "knowledge" / "currency" / "repo-registry.json"
+    seed_path = base_dir / "core" / "watchers" / "registry.seed.json"
+    if live_path.exists():
+        try:
+            live = json.loads(live_path.read_text(encoding="utf-8"))
+            if not validate_registry(live):
+                registry_size = sum(
+                    1 for e in live.get("repos", {}).values()
+                    if not (isinstance(e, dict) and e.get("watch") is False))
+            else:
+                out["registry_error"] = "live registry failed schema validation"
+        except Exception as e:
+            out["registry_error"] = f"unreadable live registry: {type(e).__name__}"
+    else:
+        try:
+            seed = json.loads(seed_path.read_text(encoding="utf-8"))
+            registry_size = len(seed.get("repos", {}))
+            out["registry_note"] = "no live registry yet — size from shipped seed"
+        except Exception:
+            registry_size = None
+    out["registry_size"] = registry_size
+    return out
+
+
 # ── Registry (KTD-2: tracked immutable seed / gitignored live state) ─────────
 _SLUG = re.compile(r"^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$")
 _SHA = re.compile(r"^[0-9a-f]{40}$")

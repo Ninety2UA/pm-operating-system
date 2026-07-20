@@ -212,6 +212,7 @@ DOCUMENTED_MCP_TOOLS = {
     "mcp__manager-ai__list_projects", "mcp__manager-ai__get_pipeline_status",
     "mcp__manager-ai__get_project_artifacts", "mcp__manager-ai__get_project_summary",
     "mcp__manager-ai__get_system_status", "mcp__manager-ai__process_backlog_with_dedup",
+    "mcp__manager-ai__get_watcher_status",
 }
 for md_file in list((ROOT / ".claude/skills").rglob("*.md")) + list((ROOT / ".claude/agents").glob("*.md")) + list((ROOT / ".claude/commands").glob("*.md")):
     content = md_file.read_text()

@@ -4,7 +4,7 @@ description: |-
   Run a 5-minute morning check-in that syncs meetings, reviews the top 5 tasks and any blocked work, advances one pipeline project, checks OKR alignment, and saves the plan to today's journal. Use this skill whenever the user says "good morning," asks what's on their plate today, wants to plan their day, runs `/morning`, asks for a standup, or mentions starting their work day — even if they don't explicitly ask for a "standup." Push toward this at the start of a work session when no plan has been saved yet for the current date.
 argument-hint: "[quick]"
 generated_from: .claude/skills/morning/SKILL.md
-source_sha256: 44839e76552071123adcd020b70aac9960c8f7e4fea8b2965a31ee6dcebfe08c
+source_sha256: 6c6e4ad54675408d0d16a2dd3da16d7fa219059e44ce7f90d1a7308a8346283c
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -37,6 +37,17 @@ If no Monday journal exists (e.g., holiday), check the most recent weekday journ
 
 Invoke the `/meeting-sync` skill to check for unsynced Granola meetings. If the Granola MCP server is unavailable, skip silently.
 
+
+## Step 1b: Currency check (read-only, silent-degrade)
+
+One line on framework currency, mirroring Step 1's degrade pattern:
+
+1. Call the `get_watcher_status` tool (manager-ai MCP server). If it returns, show:
+   `Currency: cli <days_since>d ago (<undecided> undecided) · repo <days_since>d ago (<undecided> undecided)` — or `Currency: no watcher runs yet — run /cli-watch or /repo-watch` when both are null.
+2. If the MCP server is unavailable or lacks the tool (older server), fall back to listing `knowledge/currency/reports/*/` for the newest COMPLETED report (final `YYYY-MM-DD.md` name AND a `<!-- report-complete:` trailer — skip trailerless files; a crashed run must never be surfaced as current).
+3. If neither works, skip the line silently — never block the standup.
+
+This step is read-only and states what it could not see (e.g. "repo watcher: no completed reports") rather than guessing. It never runs a watcher itself.
 
 ## Step 2: Execution layer
 

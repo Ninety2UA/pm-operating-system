@@ -288,6 +288,18 @@ def generate_clarification_questions(item: str) -> List[str]:
 app = Server("manager-ai-mcp")
 
 
+def get_watcher_status_data() -> Dict[str, Any]:
+    """Read-only currency aggregate (KTD-3). Thin wrapper over the shared
+    `currency.watcher_status` helper so the logic is unit-tested without an
+    MCP runtime. Status values come from structured fields only — counts,
+    dates, filenames — never from fetched report text; only COMPLETED
+    reports (final name + trailer) are read, so a crashed run's partial
+    report is invisible. Baseline/registry writes never route through MCP."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
+    import currency  # shared helpers (core/scripts/currency.py)
+    return currency.watcher_status(BASE_DIR)
+
+
 @app.list_tools()
 async def handle_list_tools() -> list[types.Tool]:
     """List all available tools"""
@@ -366,6 +378,11 @@ async def handle_list_tools() -> list[types.Tool]:
         types.Tool(
             name="get_system_status",
             description="Get comprehensive system status — tasks, projects, backlog, time insights",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        types.Tool(
+            name="get_watcher_status",
+            description="Currency watcher status (read-only aggregate) — per-watcher last completed report date, days since, undecided-candidate count, and registry size. Reads only completed reports (final name + trailer); never surfaces a crashed run's partial report.",
             inputSchema={"type": "object", "properties": {}}
         ),
         types.Tool(
@@ -551,6 +568,10 @@ async def handle_call_tool(
             "by_priority": dict(by_priority),
             "artifact_coverage": dict(artifact_counts)
         }
+
+    # ── get_watcher_status ──────────────────────────────────────
+    elif name == "get_watcher_status":
+        result = get_watcher_status_data()
 
     # ── get_system_status ───────────────────────────────────────
     elif name == "get_system_status":

@@ -255,6 +255,7 @@ When your host supports them: use a broad-exploration subagent for codebase swee
 - `get_project_artifacts` — check which artifacts exist, determine next skill
 - `get_project_summary` — aggregate project stats and artifact coverage
 - `get_system_status` — full dashboard (tasks + projects + backlog + time insights)
+- `get_watcher_status` — currency watcher aggregate (last report, days since, undecided candidates, registry size; reads completed reports only)
 - `process_backlog_with_dedup` — duplicate detection against tasks/ AND projects/
 
 **perplexity** — web-grounded search, research, and reasoning (used by research/validate skills).

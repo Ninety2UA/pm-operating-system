@@ -94,6 +94,10 @@ Read `GOALS.md`. If OKRs exist, update the "Current" column:
 
 If no OKRs exist: "Run `/plan-okrs` to make your quarterly goals measurable."
 
+## Step 4b: Currency drift roll-up
+
+Aggregate the week's framework currency (read-only, silent-degrade like the morning step): call `mcp__manager-ai__get_watcher_status` (fallback: newest completed reports under `knowledge/currency/reports/*/`). Report: days since each watcher last ran, undecided candidates accumulating, and — if a watcher hasn't produced a completed report in over 14 days while automation is meant to be active — flag it as drift to investigate. Skip silently if no currency data exists.
+
 ## Step 5: Blockers and stalled work
 
 Call `mcp__manager-ai__list_tasks` with `status: "b"` for blocked tasks.

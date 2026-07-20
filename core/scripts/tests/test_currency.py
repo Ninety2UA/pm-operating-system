@@ -167,3 +167,58 @@ def test_registry_tombstone_resume():
     # No tombstone and no live cursor → fall back to the frozen seed SHA.
     live2 = {"schema_version": 1, "repos": {}}
     assert currency.resume_cursor(seed, live2, "a/one") == "1" * 40
+
+
+# ── U12: watcher status aggregate (KTD-3) ────────────────────────────────────
+
+def test_watcher_status_never_ran(tmp_path):
+    st = currency.watcher_status(tmp_path)
+    assert st["watchers"]["cli"]["last_run"] is None
+    assert st["watchers"]["repo"]["undecided_candidates"] == 0
+    assert st["registry_size"] is None  # no seed in an empty base dir
+
+
+def test_watcher_status_counts_only_completed_reports(tmp_path):
+    d = tmp_path / "knowledge" / "currency" / "reports" / "cli"
+    d.mkdir(parents=True)
+    (d / "2026-07-18.md").write_text(
+        "## Decision lines\n- [ ] adopt CLI-1 — x\n- [ ] adopt CLI-2 — y\n"
+        "- [x] adopt CLI-0 — done\n" + currency.REPORT_TRAILER_PREFIX + " t -->\n",
+        encoding="utf-8")
+    (d / "2026-07-20.md").write_text("- [ ] adopt CLI-9 — crashed, no trailer",
+                                     encoding="utf-8")
+    st = currency.watcher_status(tmp_path)
+    assert st["watchers"]["cli"]["last_run"] == "2026-07-18", (
+        "trailerless newest report must be skipped in favor of the completed one")
+    assert st["watchers"]["cli"]["undecided_candidates"] == 2
+
+
+def test_watcher_status_registry_sizes(tmp_path):
+    seed_dir = tmp_path / "core" / "watchers"
+    seed_dir.mkdir(parents=True)
+    (seed_dir / "registry.seed.json").write_text(
+        json.dumps({"schema_version": 1, "repos": {"a/b": {}, "c/d": {}}}),
+        encoding="utf-8")
+    st = currency.watcher_status(tmp_path)
+    assert st["registry_size"] == 2 and "seed" in st["registry_note"]
+    live_dir = tmp_path / "knowledge" / "currency"
+    live_dir.mkdir(parents=True)
+    (live_dir / "repo-registry.json").write_text(json.dumps({
+        "schema_version": 1, "repos": {
+            "a/b": {"cursor_sha": "a" * 40, "watch": True},
+            "c/d": {"watch": False, "retired_at_sha": "b" * 40},
+            "e/f": {"cursor_sha": "c" * 40, "watch": True},
+        }}), encoding="utf-8")
+    st = currency.watcher_status(tmp_path)
+    assert st["registry_size"] == 2, "retired repos excluded; live wins over seed"
+    (live_dir / "repo-registry.json").write_text("{broken", encoding="utf-8")
+    st = currency.watcher_status(tmp_path)
+    assert "registry_error" in st
+
+
+def test_watcher_status_real_repo_parity():
+    """MCP path and file fallback read the same on-disk state: the shipped
+    repo (seed present, live state variable) must yield a coherent result."""
+    st = currency.watcher_status(REPO_ROOT)
+    assert st["registry_size"] is not None and st["registry_size"] >= 6
+    assert set(st["watchers"]) == {"cli", "repo"}

@@ -4,7 +4,7 @@ description: |-
   Run a 20-minute weekly review — plan-vs-actual analysis from daily journals, shipping summary from completed tasks, pipeline movement, OKR progress, pattern detection from session reviews, AGENTS.md improvement proposals, and top priorities for next week. Use this skill whenever the user asks how the week went, wants to plan next week, runs `/weekly`, mentions retros or weekly reviews, or says anything like "wrap up the week," "Friday review," "weekly reflection," or "what did I ship." Push toward this at end of week even if the user doesn't explicitly ask.
 argument-hint: "[quick]"
 generated_from: .claude/skills/weekly/SKILL.md
-source_sha256: b3e7666a5c5a64afb19b06669aa99dba9f2ff21f06f3dab1dc0efcd0b2a82d61
+source_sha256: a766d1df03eebd467909a435af342e2a78dde0f7c02245603f6f4abb74bb297e
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -91,6 +91,10 @@ Read `GOALS.md`. If OKRs exist, update the "Current" column:
 - Flag KRs falling behind
 
 If no OKRs exist: "Run `/plan-okrs` to make your quarterly goals measurable."
+
+## Step 4b: Currency drift roll-up
+
+Aggregate the week's framework currency (read-only, silent-degrade like the morning step): call the `get_watcher_status` tool (manager-ai MCP server) (fallback: newest completed reports under `knowledge/currency/reports/*/`). Report: days since each watcher last ran, undecided candidates accumulating, and — if a watcher hasn't produced a completed report in over 14 days while automation is meant to be active — flag it as drift to investigate. Skip silently if no currency data exists.
 
 ## Step 5: Blockers and stalled work
 

@@ -40,6 +40,17 @@ Invoke the `/meeting-sync` skill to check for unsynced Granola meetings. If the 
 Run the meeting sync as a background subagent while you proceed to Step 2 — fold its result into the summary when it returns. Never block the standup on sync latency.
 <!-- host:end -->
 
+## Step 1b: Currency check (read-only, silent-degrade)
+
+One line on framework currency, mirroring Step 1's degrade pattern:
+
+1. Call `mcp__manager-ai__get_watcher_status`. If it returns, show:
+   `Currency: cli <days_since>d ago (<undecided> undecided) · repo <days_since>d ago (<undecided> undecided)` — or `Currency: no watcher runs yet — run /cli-watch or /repo-watch` when both are null.
+2. If the MCP server is unavailable or lacks the tool (older server), fall back to listing `knowledge/currency/reports/*/` for the newest COMPLETED report (final `YYYY-MM-DD.md` name AND a `<!-- report-complete:` trailer — skip trailerless files; a crashed run must never be surfaced as current).
+3. If neither works, skip the line silently — never block the standup.
+
+This step is read-only and states what it could not see (e.g. "repo watcher: no completed reports") rather than guessing. It never runs a watcher itself.
+
 ## Step 2: Execution layer
 
 Call `mcp__manager-ai__list_tasks` with `status: "n,s"` to get active tasks. Present the top 5 by priority, showing for each:
