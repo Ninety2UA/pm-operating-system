@@ -140,3 +140,124 @@ def test_deep_research_renders_to_committed_output():
 def test_full_tree_in_sync():
     """The committed generated trees match the generator exactly (drift = fail)."""
     assert ba.check_adapters() == []
+
+
+# ── U5: host-conditional sections (KTD-8) ────────────────────────────────────
+
+def test_host_section_keeps_only_fallback():
+    src = ("before\n"
+           "<!-- host:claude-code -->\n"
+           "Use the Workflow tool.\n"
+           "<!-- host:fallback (portable hosts see only this section) -->\n"
+           "Run the evaluations sequentially.\n"
+           "<!-- host:end -->\n"
+           "after")
+    assert ba.transform_body(src) == \
+        "before\nRun the evaluations sequentially.\nafter"
+
+
+def test_host_section_without_fallback_drops_block():
+    src = "a\n<!-- host:claude-code -->\nclaude only\n<!-- host:end -->\nb"
+    assert ba.transform_body(src) == "a\nb"
+
+
+def test_host_marker_errors_are_named():
+    import pytest
+    for bad, msg_part in [
+        ("<!-- host:claude-code -->\nx", "unclosed"),
+        ("<!-- host:end -->", "without an open block"),
+        ("<!-- host:fallback -->\nx\n<!-- host:end -->", "outside a claude-code block"),
+        ("<!-- host:claude-code -->\n<!-- host:claude-code -->\n<!-- host:end -->",
+         "nested"),
+    ]:
+        with pytest.raises(SystemExit) as exc:
+            ba.transform_body(bad)
+        assert "host-marker error" in str(exc.value)
+        assert msg_part in str(exc.value)
+
+
+def test_ordering_invariant_fallback_is_reneutralized():
+    """THE load-bearing fixture (KTD-8): a fenced block whose fallback contains
+    a token from every transformable RESIDUAL_TOKENS family must come out fully
+    neutralized, proving host-section stripping runs before every other step."""
+    src = ("<!-- host:claude-code -->\n"
+           "Native path.\n"
+           "<!-- host:fallback -->\n"
+           "Call mcp__manager-ai__list_tasks with $ARGUMENTS from "
+           "$CLAUDE_PROJECT_DIR via AskUserQuestion, see "
+           ".claude/skills/morning/references/x.md.\n"
+           "<!-- host:end -->\n")
+    out = ba.transform_body(src)
+    assert ba.scan_residual({"f.md": out.encode("utf-8")}) == [], out
+    assert "the `list_tasks` tool (manager-ai MCP server)" in out
+    assert "the arguments provided when you were invoked" in out
+    assert "structured questions" in out
+    assert "references/x.md" in out
+
+
+def test_raw_model_id_in_fallback_is_flagged_not_rewritten():
+    """Model IDs are detection-only: a raw ID surviving in fallback prose is a
+    real leak the net must flag (there is no safe automatic rewrite for it)."""
+    src = ("<!-- host:claude-code -->\nnative\n<!-- host:fallback -->\n"
+           "pin claude-fable-5 here\n<!-- host:end -->\n")
+    out = ba.transform_body(src)
+    hits = ba.scan_residual({"f.md": out.encode("utf-8")})
+    assert hits and "claude-fable-5" in hits[0]
+
+
+# ── U5: model/effort tier propagation (KTD-1) ────────────────────────────────
+
+def test_codex_renderer_maps_model_and_effort():
+    fm = {"description": "d", "model": "haiku", "effort": "low"}
+    out = ba.render_codex_agent("t", fm, "body", "src", "sha", ba.DEFAULT_TRAITS)
+    assert 'model = "gpt-5.4-mini"' in out
+    assert 'model_reasoning_effort = "low"' in out
+
+
+def test_codex_renderer_inherit_omits_model_key():
+    fm = {"description": "d", "model": "inherit"}
+    out = ba.render_codex_agent("t", fm, "body", "src", "sha", ba.DEFAULT_TRAITS)
+    assert "model =" not in out
+    assert "model_reasoning_effort" not in out
+    # no-model-at-all behaves like inherit
+    out2 = ba.render_codex_agent("t", {"description": "d"}, "body", "src", "sha",
+                                 ba.DEFAULT_TRAITS)
+    assert "model =" not in out2
+
+
+def test_codex_effort_max_maps_to_xhigh():
+    fm = {"description": "d", "model": "fable", "effort": "max"}
+    out = ba.render_codex_agent("t", fm, "body", "src", "sha", ba.DEFAULT_TRAITS)
+    assert 'model = "gpt-5.6-sol"' in out
+    assert 'model_reasoning_effort = "xhigh"' in out
+
+
+def test_cursor_renderer_verified_set_only():
+    opus = ba.render_cursor_agent("t", {"description": "d", "model": "opus"},
+                                  "b", "src", "sha", ba.DEFAULT_TRAITS)
+    assert "model: claude-opus-4-8" in opus
+    for unverified in ("sonnet", "haiku", "fable", "inherit", "claude-sonnet-5"):
+        out = ba.render_cursor_agent("t", {"description": "d", "model": unverified},
+                                     "b", "src", "sha", ba.DEFAULT_TRAITS)
+        assert "model: inherit" in out, unverified
+
+
+# ── U5: model-ID leak net ────────────────────────────────────────────────────
+
+def test_leak_net_catches_raw_model_ids():
+    for raw in ("claude-fable-5", "claude-3-5-sonnet-latest",
+                "claude-haiku-4-5-20251001", "claude-opus-4-8"):
+        hits = ba.scan_residual({"x.md": f"pin {raw} here".encode("utf-8")})
+        assert hits, raw
+
+
+def test_leak_net_ignores_aliases_and_non_model_tokens():
+    for benign in ("model: sonnet", "the claude-code changelog",
+                   "claude-plugins-official marketplace"):
+        assert ba.scan_residual({"x.md": benign.encode("utf-8")}) == [], benign
+
+
+def test_leak_net_exempts_cursor_model_line_only():
+    line = b"model: claude-opus-4-8\n"
+    assert ba.scan_residual({".cursor/agents/x.md": line}) == []
+    assert ba.scan_residual({".agents/skills/x/SKILL.md": line}) != []

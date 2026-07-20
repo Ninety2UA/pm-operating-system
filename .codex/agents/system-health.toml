@@ -2,6 +2,7 @@
 # do not edit — regenerate with: uv run core/scripts/build_adapters.py
 name = "system-health"
 description = "Use this agent to run a diagnostic scan of the personal OS — tasks, projects, goals, and backlog. Use before weekly reviews, when something feels off, or proactively when the user asks about system health. Do NOT use for listing tasks or projects — use the MCP tools directly for those."
+model = "gpt-5.6-terra"
 sandbox_mode = "read-only"
 developer_instructions = '''
 **READ-ONLY:** This is a diagnostic scan — never modify any file or task/project state.

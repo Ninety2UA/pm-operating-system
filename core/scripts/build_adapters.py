@@ -59,19 +59,49 @@ AGENT_TRAITS = {
 DEFAULT_TRAITS = {"readonly": False, "background": False, "sandbox": None}
 
 # Frontmatter keys carried into the generated SKILL.md. Everything else
-# (allowed-tools, model, color, tools) is host-specific and dropped.
+# (allowed-tools, disallowed-tools, model, effort, color, tools) is
+# host-specific and dropped.
 KEEP_FIELDS = ("name", "description", "argument-hint")
 
 # Server name → human-friendly label used when rewriting MCP tool references.
 SERVER_FRIENDLY = {"plugin_slack_slack": "Slack"}
 
+# ── Model/effort tier mapping (KTD-1: map-or-omit, host-abstract aliases) ────
+# Source frontmatter uses Claude Code aliases (haiku/sonnet/opus/fable/inherit).
+# Codex: aliases map to capability-equivalent tiers; `inherit` = OMIT the key
+# (Codex has no `inherit` token — omission inherits from the parent session).
+CODEX_MODEL_MAP = {
+    "haiku": "gpt-5.4-mini",
+    "sonnet": "gpt-5.6-terra",
+    "opus": "gpt-5.6-sol",
+    "fable": "gpt-5.6-sol",
+}
+# Codex reasoning-effort vocabulary lacks `max`; everything else matches ours.
+CODEX_EFFORT_MAP = {
+    "low": "low", "medium": "medium", "high": "high",
+    "xhigh": "xhigh", "max": "xhigh",
+}
+# Cursor: emit only values from the U1-verified set (docs verbatim-verify
+# `inherit` and the `claude-opus-4-8` ID; other Claude-5 slugs are inferred,
+# and an invalid ID would break the agent for Cursor users — the
+# highest-risk consumer). Unverified aliases therefore stay `inherit`.
+CURSOR_MODEL_MAP = {
+    "opus": "claude-opus-4-8",
+}
+
 # Tokens that must never survive into a generated file (residual = transform gap).
+# The model-ID pattern catches raw Claude model IDs (claude-fable-5,
+# claude-3-5-sonnet-latest, claude-haiku-4-5-20251001) while leaving aliases
+# (`sonnet`) and non-model tokens (`claude-code`, `claude-plugins-official`)
+# alone — a raw ID in generated output means a pin leaked past the mapping.
+MODEL_ID_PATTERN = r"claude-(?:[a-z]+-)*\d[a-z0-9.\-]*"
 RESIDUAL_TOKENS = (
     r"mcp__",
     r"\$ARGUMENTS",
     r"\$CLAUDE_PROJECT_DIR",
     r"AskUserQuestion",
     r"\.claude/skills/",
+    MODEL_ID_PATTERN,
 )
 
 PROVENANCE_NOTE = "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
@@ -127,12 +157,18 @@ def lead_description(description: str) -> str:
 
 
 def render_cursor_agent(name, fm, body, generated_from, sha, traits) -> str:
-    """Cursor native subagent: .cursor/agents/<name>.md (frontmatter + body)."""
+    """Cursor native subagent: .cursor/agents/<name>.md (frontmatter + body).
+
+    Model mapping is map-or-omit against the U1-verified value set: aliases
+    without a verified Cursor ID emit `inherit` (Cursor's documented default),
+    never an unverified slug.
+    """
+    model_alias = str(fm.get("model", "inherit"))
     lines = [
         "---",
         f"name: {name}",
         f"description: {_dq(lead_description(fm.get('description', '')))}",
-        "model: inherit",
+        f"model: {CURSOR_MODEL_MAP.get(model_alias, 'inherit')}",
         f"readonly: {str(traits['readonly']).lower()}",
         f"is_background: {str(traits['background']).lower()}",
         f"generated_from: {generated_from}",
@@ -145,13 +181,24 @@ def render_cursor_agent(name, fm, body, generated_from, sha, traits) -> str:
 
 
 def render_codex_agent(name, fm, body, generated_from, sha, traits) -> str:
-    """Codex native subagent: .codex/agents/<name>.toml (hand-emitted TOML)."""
+    """Codex native subagent: .codex/agents/<name>.toml (hand-emitted TOML).
+
+    Codex has no `inherit` token — inheritance is by omitting the key, so
+    `model: inherit` (and any unmapped value) emits no model line. Source
+    `effort:` maps onto Codex's `model_reasoning_effort` vocabulary.
+    """
     lines = [
         f"# generated-from: {generated_from}  sha256:{sha}",
         f"# {PROVENANCE_NOTE}",
         f"name = {_dq(name)}",
         f"description = {_dq(lead_description(fm.get('description', '')))}",
     ]
+    codex_model = CODEX_MODEL_MAP.get(str(fm.get("model", "inherit")))
+    if codex_model:
+        lines.append(f"model = {_dq(codex_model)}")
+    codex_effort = CODEX_EFFORT_MAP.get(str(fm.get("effort", "")))
+    if codex_effort:
+        lines.append(f"model_reasoning_effort = {_dq(codex_effort)}")
     if traits["sandbox"]:
         lines.append(f"sandbox_mode = {_dq(traits['sandbox'])}")
     instructions = body.rstrip("\n")
@@ -176,36 +223,112 @@ def _sub_mcp_tool(m: re.Match) -> str:
     return f"the `{m.group(2)}` tool ({_friendly(m.group(1))} MCP server)"
 
 
-def transform_body(body: str) -> str:
-    """Neutralize Claude-specific tokens. Order matters (see inline notes)."""
-    # 1. Drop the "Tool naming note" blockquote (becomes nonsense once mcp__ is
-    #    rewritten to prose) — must run BEFORE the MCP transforms.
-    body = re.sub(r"(?m)^> \*\*Tool naming note:\*\*.*\n\n?", "", body)
+class HostMarkerError(SystemExit):
+    """Malformed host-conditional markers fail the build with a named error."""
 
-    # 2. CLAUDE_PROJECT_DIR — to a portable shell equivalent in code, prose
-    #    elsewhere. Specific param-expansion first, then $VAR, then bare word.
+    def __init__(self, msg: str):
+        super().__init__(f"host-marker error: {msg}")
+
+
+# Host-conditional sections (KTD-8). Source syntax, visible and self-describing
+# in the Claude-native file:
+#
+#     <!-- host:claude-code -->
+#     Claude-native content (Workflow fan-out, tool names, ...)
+#     <!-- host:fallback (portable hosts see only this section) -->
+#     Behavior-preserving portable fallback
+#     <!-- host:end -->
+#
+# The generator keeps ONLY the fallback section (or drops the whole block when
+# no fallback is declared). Fences wrap net-new Claude-native additions only;
+# previously-portable behavior is never demoted into a fence.
+_MARKER = re.compile(r"^\s*<!--\s*host:(claude-code|fallback|end)\b.*?-->\s*$")
+
+
+def strip_host_sections(body: str) -> str:
+    out: list[str] = []
+    state = None  # None | "claude" | "fallback"
+    open_line = 0
+    for i, line in enumerate(body.split("\n"), 1):
+        m = _MARKER.match(line)
+        kind = m.group(1) if m else None
+        if kind == "claude-code":
+            if state is not None:
+                raise HostMarkerError(
+                    f"nested host:claude-code at line {i} (block opened at line {open_line})")
+            state, open_line = "claude", i
+        elif kind == "fallback":
+            if state != "claude":
+                raise HostMarkerError(f"host:fallback outside a claude-code block at line {i}")
+            state = "fallback"
+        elif kind == "end":
+            if state is None:
+                raise HostMarkerError(f"host:end without an open block at line {i}")
+            state = None
+        elif state == "fallback":
+            out.append(line)  # fallback content survives into portable output
+        elif state == "claude":
+            pass  # Claude-native content is stripped from portable output
+        else:
+            out.append(line)
+    if state is not None:
+        raise HostMarkerError(f"unclosed host block opened at line {open_line}")
+    return "\n".join(out)
+
+
+def _strip_tool_naming_note(body: str) -> str:
+    # Becomes nonsense once mcp__ is rewritten to prose — runs before MCP steps.
+    return re.sub(r"(?m)^> \*\*Tool naming note:\*\*.*\n\n?", "", body)
+
+
+def _sub_project_dir(body: str) -> str:
+    # Portable shell equivalent in code, prose elsewhere. Specific
+    # param-expansion first, then $VAR, then bare word.
     body = body.replace("${CLAUDE_PROJECT_DIR//\\//-}", "$(pwd | tr / -)")
     body = body.replace("`$CLAUDE_PROJECT_DIR`", "`$(pwd)`")
     body = body.replace("$CLAUDE_PROJECT_DIR", "$(pwd)")
     body = body.replace("`CLAUDE_PROJECT_DIR`", "`the project root`")
-    body = body.replace("CLAUDE_PROJECT_DIR", "the project root")
+    return body.replace("CLAUDE_PROJECT_DIR", "the project root")
 
-    # 3. MCP wire-names → logical prose (wildcards before specific tools).
+
+def _sub_mcp_names(body: str) -> str:
+    # Wire-names → logical prose (wildcards before specific tools).
     body = re.sub(r"`?mcp__([a-z0-9_-]+)__\*`?", _sub_mcp_wildcard, body)
-    body = re.sub(r"`?mcp__([a-z0-9_-]+)__([a-z0-9_]+)`?", _sub_mcp_tool, body)
+    return re.sub(r"`?mcp__([a-z0-9_-]+)__([a-z0-9_]+)`?", _sub_mcp_tool, body)
 
-    # 4. $ARGUMENTS (Claude-specific substitution).
-    body = re.sub(r"`?\$ARGUMENTS`?", "the arguments provided when you were invoked", body)
 
-    # 5. AskUserQuestion (Claude-specific structured-question tool). "structured
-    #    questions" reads acceptably as both a noun ("the structured questions
-    #    schema") and an instrument ("via structured questions").
+def _sub_arguments(body: str) -> str:
+    return re.sub(r"`?\$ARGUMENTS`?", "the arguments provided when you were invoked", body)
+
+
+def _sub_askuserquestion(body: str) -> str:
+    # "structured questions" reads acceptably as both a noun and an instrument.
     body = body.replace("`AskUserQuestion`", "structured questions")
-    body = body.replace("AskUserQuestion", "structured questions")
+    return body.replace("AskUserQuestion", "structured questions")
 
-    # 6. Reference paths → skill-relative (references/ is copied alongside).
-    body = re.sub(r"\.claude/skills/[a-z0-9-]+/references/", "references/", body)
 
+def _sub_reference_paths(body: str) -> str:
+    return re.sub(r"\.claude/skills/[a-z0-9-]+/references/", "references/", body)
+
+
+# The transform chain as data: ordered, named steps. Host-section stripping
+# runs FIRST so every later neutralization re-processes injected fallback
+# prose (the KTD-8 ordering invariant — tested by the fenced-fallback fixture).
+TRANSFORM_STEPS: tuple[tuple[str, object], ...] = (
+    ("strip-host-sections", strip_host_sections),
+    ("strip-tool-naming-note", _strip_tool_naming_note),
+    ("project-dir", _sub_project_dir),
+    ("mcp-names", _sub_mcp_names),
+    ("arguments", _sub_arguments),
+    ("ask-user-question", _sub_askuserquestion),
+    ("reference-paths", _sub_reference_paths),
+)
+
+
+def transform_body(body: str) -> str:
+    """Neutralize Claude-specific tokens by running the ordered step chain."""
+    for _name, step in TRANSFORM_STEPS:
+        body = step(body)
     return body
 
 
@@ -293,6 +416,10 @@ def scan_residual(outputs: dict[str, bytes]) -> list[str]:
         for i, line in enumerate(data.decode("utf-8").splitlines(), 1):
             # `generated_from:` is intentional provenance pointing at the source.
             if line.lstrip().startswith("generated_from:"):
+                continue
+            # A Cursor agent's `model:` line is the mapping's deliberate,
+            # U1-verified output — the one place a model ID belongs.
+            if rel.startswith(".cursor/agents/") and line.startswith("model: "):
                 continue
             for hit in pattern.findall(line):
                 problems.append(f"{rel}:{i}: leftover `{hit}` → {line.strip()[:100]}")
