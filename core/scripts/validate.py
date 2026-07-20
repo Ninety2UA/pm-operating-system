@@ -281,10 +281,20 @@ except Exception as e:
 hooks_dir = ROOT / ".claude/hooks"
 if hooks_dir.exists():
     referenced = (ROOT / ".claude/settings.json").read_text()
+    # Hooks wired locally (settings.local.json is per-machine, gitignored)
+    # count as referenced — setup wires the report-only guard there.
+    _local_settings = ROOT / ".claude/settings.local.json"
+    if _local_settings.exists():
+        referenced += _local_settings.read_text()
     for h in hooks_dir.iterdir():
-        # Skip non-script files (logs, generated artifacts)
+        # Skip non-script files (logs, generated artifacts, and .md
+        # companion docs — every hook ships script + doc + test).
         if not h.is_file(): continue
-        if h.suffix in (".log",) or h.name.startswith("."): continue
+        if h.suffix in (".log", ".md") or h.name.startswith("."): continue
+        # The report-only guard ships committed-but-unwired by design
+        # (KTD-5): CI and skip-adopters must stay green. Check 39's
+        # guard-wiring check validates the local wiring when present.
+        if h.name == "report-only-guard.sh": continue
         if h.name not in referenced:
             fail("hook-orphan", f".claude/hooks/{h.name} not referenced in settings.json")
 
