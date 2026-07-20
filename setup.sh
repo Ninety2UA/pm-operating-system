@@ -22,10 +22,16 @@
 # │        knowledge/session-reviews, knowledge/decisions               │
 # │        knowledge/people, knowledge/reference                        │
 # │        knowledge/voice-samples                                      │
+# │        knowledge/currency/reports/cli, knowledge/currency/reports/  │
+# │        repo   (watcher state home — gitignored live state)          │
 # │        library/{prompts,systems,skills,agents,commands}             │
 # │    - AGENTS.md ships with the repo (no copy needed)                 │
 # │    - If .gitignore doesn't exist, copy from core/templates/gitignore│
 # │    - If BACKLOG.md doesn't exist, create it with a short intro      │
+# │    - MIGRATION (guarded, idempotent): if knowledge/.granola-sync    │
+# │      .json is tracked by git, untrack it with                       │
+# │      `git rm --cached` (file stays on disk; never commit a          │
+# │      tree-level removal on the user's behalf)                       │
 # │    NOTE: the SessionStart hook (.claude/hooks/init-workspace.sh)    │
 # │    creates the same set on every session — setup.sh is the manual   │
 # │    fallback for users running the script directly.                  │
@@ -152,6 +158,8 @@ WORKSPACE_DIRS=(
     "knowledge/people"
     "knowledge/reference"
     "knowledge/voice-samples"
+    "knowledge/currency/reports/cli"
+    "knowledge/currency/reports/repo"
     "library/prompts"
     "library/systems"
     "library/skills"
@@ -182,6 +190,17 @@ if [ ! -f ".gitignore" ] && [ -f "core/templates/gitignore" ]; then
     print_success "Copied: .gitignore"
 else
     print_info "File exists: .gitignore (preserving your version)"
+fi
+
+# Migration (guarded, idempotent): the granola sync cursor is per-machine
+# runtime state and must never be tracked. Untrack it only where it was
+# tracked; the working file is preserved and no commit is made on the
+# user's behalf — a pull must never delete an adopter's live cursor.
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    if git ls-files --error-unmatch knowledge/.granola-sync.json >/dev/null 2>&1; then
+        git rm --cached --quiet knowledge/.granola-sync.json
+        print_success "Untracked knowledge/.granola-sync.json (file kept on disk)"
+    fi
 fi
 
 # Create BACKLOG.md

@@ -28,6 +28,13 @@ knowledge/voice-guide.md
 !knowledge/README.md
 !knowledge/.gitkeep
 
+# Watcher live state: baselines, live registry, reports, lock (KTD-2).
+# The directory ships via .gitkeep; everything inside is per-machine state.
+knowledge/currency/**
+!knowledge/currency/.gitkeep
+# Meeting-sync cursor (runtime-created, per-machine)
+knowledge/.granola-sync.json
+
 # Projects are personal; only the template README is tracked.
 projects/*
 !projects/README.md
@@ -49,6 +56,11 @@ docs/plans/
 # ── Node (make-slides / playwright deps) ──────────────
 node_modules/
 package-lock.json
+
+# ── Credentials (never track, any location) ──────────
+client_secret*.json
+*-token.json
+.env.*
 
 # ── Python ────────────────────────────────────────────
 __pycache__/
@@ -86,3 +98,7 @@ test_*.py
 .pytest_cache/
 .coverage
 *.pid
+# The framework's own test harness is tracked (escapes the global
+# test_*.py rule above — without this negation it would be invisible
+# to git and CI).
+!core/scripts/tests/test_*.py
