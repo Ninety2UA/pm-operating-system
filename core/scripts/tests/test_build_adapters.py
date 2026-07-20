@@ -193,14 +193,17 @@ def test_host_markers_inside_code_fence_are_literal():
     assert ba.transform_body(src) == src
 
 
-def test_host_marker_error_does_not_crash_check_adapters(monkeypatch):
-    """A malformed marker is a HostMarkerError (a SystemExit subclass); it
-    must be reported by check_adapters, not escape and abort the validator."""
-    def boom():
-        raise ba.HostMarkerError("unclosed host block opened at line 1")
-    monkeypatch.setattr(ba, "build_outputs", boom)
-    problems = ba.check_adapters()
-    assert problems and "generator error" in problems[0]
+def test_check_adapters_reports_both_systemexit_and_marker_errors(monkeypatch):
+    """A malformed marker (HostMarkerError) AND a plain SystemExit (e.g. a
+    source missing `name`) must both be reported by check_adapters, not
+    escape and abort the validator run."""
+    for exc in (ba.HostMarkerError("unclosed host block opened at line 1"),
+                SystemExit("ERROR: source has no `name` in frontmatter")):
+        def boom(_e=exc):
+            raise _e
+        monkeypatch.setattr(ba, "build_outputs", boom)
+        problems = ba.check_adapters()
+        assert problems and "generator error" in problems[0], exc
 
 
 def test_cursor_model_exemption_frontmatter_only():

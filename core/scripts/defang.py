@@ -102,9 +102,17 @@ _SPAN_BREAKERS = (
     re.compile(r"^ {0,3}#{1,6}(?:\s|$)"),               # ATX heading
     re.compile(r"^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$"),  # thematic break
     re.compile(r"^ {0,3}>"),                             # blockquote
-    re.compile(r"^ {0,3}(?:[-+*]|\d{1,9}[.)])(?:\s|$)"),   # list item marker
+    # List markers that interrupt a paragraph: any bullet, but an ordered
+    # marker only when it starts at 1 (CommonMark) — narrower than before so
+    # a genuine `a\n2. b` span isn't needlessly mangled, while still breaking
+    # every marker that actually ends a paragraph.
+    re.compile(r"^ {0,3}(?:[-+*]|1[.)])(?:\s|$)"),
     re.compile(r"^ {0,3}(?:`{3,}|~{3,})"),              # fenced code open
     re.compile(r"^ {0,3}(?:=+|-+)[ \t]*$"),             # setext underline
+    # HTML block start (CommonMark types 1-7): a line beginning with a tag,
+    # comment, declaration, or processing instruction interrupts a paragraph,
+    # so raw HTML after it renders live. Broad on purpose (safe direction).
+    re.compile(r"^ {0,3}<(?:[A-Za-z/!?])"),
 )
 
 

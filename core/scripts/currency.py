@@ -105,7 +105,12 @@ def acquire_lock(path: Path | str, mode: str):
             ).replace(tzinfo=timezone.utc)
             age = _now() - started
             pid = held.get("pid")
-            if pid is not None and not _pid_alive(pid):
+            if pid is None:
+                # A lock with no owner pid is unownable — reclaim it rather
+                # than blocking for up to the age bound on a run that can
+                # never be proven alive.
+                stale_reason = "no owner pid recorded"
+            elif not _pid_alive(pid):
                 stale_reason = f"pid {pid} is dead"
             elif age > timedelta(hours=LOCK_MAX_AGE_HOURS):
                 stale_reason = f"age {age} exceeds {LOCK_MAX_AGE_HOURS}h bound"

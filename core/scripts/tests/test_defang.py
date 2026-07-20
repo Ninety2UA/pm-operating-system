@@ -79,6 +79,22 @@ def test_code_span_cannot_cross_block_interrupter():
     assert defang("`<img src=http://x.png>`") == "`<img src=http://x.png>`"
 
 
+def test_code_span_cannot_cross_html_block():
+    """HTML-block starts (types 1-7) also interrupt a paragraph, so a span
+    crossing one is not a real span (round-2 regression for the P0 class)."""
+    for tag in ("<div>", "<table>", "<p>", "<ul>", "<script>", "<!--", "<section>"):
+        s = f"`x\n{tag}\n<img src=http://evil/beacon.png>`"
+        assert "http://" not in defang(s).lower(), tag
+
+
+def test_ordered_list_not_starting_at_one_is_not_a_breaker():
+    """CommonMark: an ordered marker other than 1 does not interrupt a
+    paragraph, so a genuine multi-line span is left inert (not mangled)."""
+    assert defang("`a\n2. b`") == "`a\n2. b`"
+    # …but an unordered marker still breaks the span (content neutralized).
+    assert "http://" not in defang("`a\n- <img src=http://e/x.png>`").lower()
+
+
 def test_www_autolinks_defused():
     for s in ["visit www.evil.example/x now", "![](www.evil.example/pixel)",
               "WWW.EVIL.EXAMPLE"]:

@@ -293,3 +293,12 @@ def test_watcher_status_registry_size_merges_seed_and_live(tmp_path):
         encoding="utf-8")
     st = currency.watcher_status(tmp_path)
     assert st["registry_size"] == 3, st  # a/one, a/two (seed) + z/extra (live)
+
+
+def test_lock_with_null_pid_is_reclaimed(tmp_path):
+    """A young lock with no owner pid is unownable → reclaimed, not blocking."""
+    import json as _j
+    lock = tmp_path / "currency.lock"
+    lock.write_text(_j.dumps({"pid": None,
+        "started": currency._now().strftime("%Y-%m-%dT%H:%M:%SZ")}))
+    assert currency.acquire_lock(lock, "report-only")[0] == "reclaimed"

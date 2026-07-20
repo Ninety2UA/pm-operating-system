@@ -51,8 +51,10 @@ payload="$(cat 2>/dev/null || true)"
 tool="$(printf '%s' "$payload" | sed -n 's/.*"tool_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
 [ -n "$tool" ] || deny "unparseable hook payload (fail-closed under CE_REPORT_ONLY)"
 
-# First file-ish path or URL in tool_input (fail-closed if absent where needed).
+# First file-ish path or URL in tool_input (fail-closed if absent where
+# needed). Write/Edit use `file_path`; Grep/Glob use `path` — capture both.
 path="$(printf '%s' "$payload" | sed -n 's/.*"file_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
+gpath="$(printf '%s' "$payload" | sed -n 's/.*"path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
 url="$(printf '%s' "$payload" | sed -n 's/.*"url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
 
 # Domains a report-only run may fetch (KTD-5 egress pin). Extend per-run
@@ -63,26 +65,46 @@ if [ -n "${CE_FETCH_ALLOW:-}" ]; then
 fi
 
 credential_shaped() {
+  # Credential-bearing directories and filenames. Word-shaped tokens
+  # (secret/token/password/credential/apikey) require a credential-ish
+  # extension so a benign path like a `secret-scan` doc is not denied,
+  # while the specific dotfiles/keys below match by location or name.
   case "$1" in
-    *client_secret*|*secret*|*token*|*credential*|*password*|*apikey*|*api_key*|\
-    *.pem|*.key|*.p12|*.pfx|*.env|*.env.*|\
-    */.ssh/*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|\
-    */.aws/*|*/.config/gcloud/*|*/.config/gh/*|*/.netrc|*/.pgpass|*.htpasswd|\
-    */.docker/config.json|*/.kube/config|*.gpg|*.asc)
+    */.ssh|*/.ssh/*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|\
+    */.aws|*/.aws/*|*/.config/gcloud|*/.config/gcloud/*|*/.config/gh|*/.config/gh/*|\
+    */.gnupg|*/.gnupg/*|*/.netrc|*/.pgpass|*.htpasswd|\
+    */.docker/config.json|*/.kube/config|*/.kube|\
+    *.pem|*.key|*.p12|*.pfx|*.gpg|*.asc|*.env|*.env.*|\
+    *client_secret*|\
+    *secret*.json|*secret*.txt|*secret*.yaml|*secret*.yml|*secret*.env|\
+    *token*.json|*token*.txt|*-token|*_token|\
+    *password*.json|*password*.txt|*credential*.json|*apikey*|*api_key*)
       return 0 ;;
   esac
   return 1
 }
 
+# Portable realpath: GNU `realpath -m`, else BSD `realpath`, else python3.
+resolve_path() {
+  realpath -m "$1" 2>/dev/null || realpath "$1" 2>/dev/null \
+    || python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "$1" 2>/dev/null \
+    || printf ''
+}
+
 case "$tool" in
-  Skill|Glob|Grep|WebSearch)
+  Skill|WebSearch)
     allow "$tool"
     ;;
-  Read)
-    if credential_shaped "$path"; then
-      deny "Read of credential-shaped path blocked: $path"
+  Read|Grep|Glob)
+    # Grep (output_mode=content) and Glob (filename disclosure) are read
+    # primitives too — gate them through the same credential check as Read,
+    # else a scheduled run could dump ~/.ssh, ~/.aws, *.env into a report.
+    # Read uses file_path; Grep/Glob use path — check whichever is present.
+    checkpath="${path:-$gpath}"
+    if credential_shaped "$checkpath" || credential_shaped "$gpath"; then
+      deny "$tool of credential-shaped path blocked: ${checkpath:-$gpath}"
     fi
-    allow "Read $path"
+    allow "$tool ${checkpath:-<no path>}"
     ;;
   WebFetch)
     # A real fetch URL carries a scheme; without '://' the host can't be
@@ -139,9 +161,9 @@ case "$tool" in
     # resolves inside the currency dir, allow. Only trusted when BOTH paths
     # resolve to non-empty absolute paths (a failed realpath must never
     # fail open); otherwise the string fence above is the sole gate.
-    if command -v realpath >/dev/null 2>&1 && [ -n "$proj" ]; then
-      parent="$(realpath -m "$(dirname "$path")" 2>/dev/null || printf '')"
-      cur="$(realpath -m "$proj/knowledge/currency" 2>/dev/null || printf '')"
+    if [ -n "$proj" ]; then
+      parent="$(resolve_path "$(dirname "$path")")"
+      cur="$(resolve_path "$proj/knowledge/currency")"
       if [ -n "$parent" ] && [ -n "$cur" ]; then
         case "$parent/" in
           "$cur"/*) allow "$tool $path (realpath-confirmed)" ;;

@@ -47,6 +47,9 @@ DENIED_UNDER_MARKER = [
     tool("Read", file_path="/Users/x/.pgpass"),
     tool("Read", file_path="/Users/x/.ssh/id_ed25519"),
     tool("Read", file_path="/Users/x/vault-password.txt"),
+    # Grep/Glob are read primitives too — must not bypass the credential gate.
+    {"tool_name":"Grep","tool_input":{"pattern":".","path":"/Users/x/.ssh/id_rsa","output_mode":"content"},"hook_event_name":"PreToolUse"},
+    {"tool_name":"Glob","tool_input":{"pattern":"*","path":"/Users/x/.ssh"},"hook_event_name":"PreToolUse"},
     tool("Bash", command="rm -rf /"),
     tool("mcp__manager-ai__prune_completed_tasks"),
     tool("mcp__manager-ai__update_file_frontmatter", file_path="x"),
@@ -68,6 +71,7 @@ ALLOWED_UNDER_MARKER = [
     tool("Skill", skill="cli-watch"),
     tool("Glob", pattern="knowledge/currency/**"),
     tool("WebSearch", query="claude code changelog"),
+    {"tool_name":"Grep","tool_input":{"pattern":"x","path":"knowledge/currency"},"hook_event_name":"PreToolUse"},
 ]
 
 

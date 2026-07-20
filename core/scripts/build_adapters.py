@@ -477,9 +477,11 @@ def check_adapters() -> list[str]:
     No printing, no exit — safe to import and call from validate.py."""
     try:
         outputs = build_outputs()
-    except (Exception, HostMarkerError) as e:
-        # source error (incl. a malformed host marker, which is a SystemExit
-        # subclass) → report instead of crashing the caller's validator run.
+    except (Exception, SystemExit) as e:
+        # Any source error → report instead of crashing the caller's
+        # validator run. SystemExit (a BaseException, not an Exception)
+        # covers both a missing-`name` abort and a malformed host marker
+        # (HostMarkerError subclasses SystemExit).
         return [f"generator error: {e}"]
     expected = set(outputs)
     on_disk = disk_files()
