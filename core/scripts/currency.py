@@ -115,17 +115,37 @@ def acquire_lock(path: Path | str, mode: str):
             return "active", "another run holds a live lock; not proceeding"
         notice = (f"reclaimed stale lock ({stale_reason}); if this recurs, "
                   f"delete {path} to recover")
+        path.unlink(missing_ok=True)  # clear the stale lock before re-creating
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({
+    payload = json.dumps({
         "pid": os.getpid(),
         "started": _now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "mode": mode,
-    }, indent=2) + "\n", encoding="utf-8")
+    }, indent=2) + "\n"
+    # Atomic create: O_CREAT|O_EXCL fails if a competitor created the lock
+    # between our staleness check and here — that competitor wins the race.
+    try:
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+    except FileExistsError:
+        return "active", "another run acquired the lock concurrently; not proceeding"
+    try:
+        os.write(fd, payload.encode("utf-8"))
+    finally:
+        os.close(fd)
     return ("reclaimed", notice) if notice else ("acquired", "")
 
 
 def release_lock(path: Path | str) -> None:
-    Path(path).unlink(missing_ok=True)
+    """Release only a lock this process still owns — if it was reclaimed by
+    another run (dead-pid / over-age), that run now owns it and we must not
+    delete theirs."""
+    path = Path(path)
+    try:
+        held = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return
+    if held.get("pid") == os.getpid():
+        path.unlink(missing_ok=True)
 
 
 # ── Reports ──────────────────────────────────────────────────────────────────
@@ -134,8 +154,12 @@ def prune_reports(reports_dir: Path | str, keep_days: int):
     a currency reports directory only (path-asserted — deletion is
     code-level safety; refuse anything outside the currency tree)."""
     reports_dir = Path(reports_dir).resolve()
-    parts = "/".join(reports_dir.parts)
-    if "knowledge/currency/reports" not in parts.replace("\\", "/"):
+    # Anchor on path SEGMENTS, not a substring, so a sibling like
+    # knowledge/currency/reports-backup can never satisfy the assertion.
+    parts = reports_dir.parts
+    ok = any(parts[i:i + 3] == ("knowledge", "currency", "reports")
+             for i in range(len(parts) - 2))
+    if not ok:
         raise ValueError(
             f"refusing to prune outside knowledge/currency/reports: {reports_dir}")
     cutoff = _now() - timedelta(days=keep_days)
@@ -144,8 +168,11 @@ def prune_reports(reports_dir: Path | str, keep_days: int):
         m = _REPORT_NAME.match(p.name)
         if not m:
             continue
-        file_date = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)),
-                             tzinfo=timezone.utc)
+        try:
+            file_date = datetime(int(m.group(1)), int(m.group(2)),
+                                 int(m.group(3)), tzinfo=timezone.utc)
+        except ValueError:
+            continue  # a calendar-invalid name (e.g. 2026-13-45.md) is not a report
         if file_date < cutoff:
             p.unlink()
             removed.append(p)
@@ -161,12 +188,17 @@ def completed_reports(reports_dir: Path | str):
         return []
     done = []
     for p in sorted(reports_dir.iterdir()):
-        if not _REPORT_NAME.match(p.name):
+        m = _REPORT_NAME.match(p.name)
+        if not m or not p.is_file():
+            continue
+        try:  # calendar-invalid date-name is not a report
+            datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        except ValueError:
             continue
         try:
             if REPORT_TRAILER_PREFIX in p.read_text(encoding="utf-8"):
                 done.append(p)
-        except UnicodeDecodeError:
+        except (UnicodeDecodeError, OSError):
             continue
     return done
 
@@ -186,9 +218,12 @@ def watcher_status(base_dir: Path | str) -> dict:
         if done:
             newest = done[-1]
             run_date = datetime.strptime(newest.name[:10], "%Y-%m-%d").date()
-            undecided = sum(
-                1 for line in newest.read_text(encoding="utf-8").splitlines()
-                if line.lstrip().startswith("- [ ] adopt"))
+            try:
+                lines = newest.read_text(encoding="utf-8").splitlines()
+            except OSError:
+                lines = []  # vanished between the completed-scan and here
+            undecided = sum(1 for line in lines
+                            if line.lstrip().startswith("- [ ] adopt"))
             entry = {"last_run": run_date.isoformat(),
                      "days_since": (today - run_date).days,
                      "undecided_candidates": undecided}
@@ -197,24 +232,26 @@ def watcher_status(base_dir: Path | str) -> dict:
     registry_size = None
     live_path = base_dir / "knowledge" / "currency" / "repo-registry.json"
     seed_path = base_dir / "core" / "watchers" / "registry.seed.json"
+    seed = {}
+    try:
+        seed = json.loads(seed_path.read_text(encoding="utf-8"))
+    except Exception:
+        seed = {}
     if live_path.exists():
         try:
             live = json.loads(live_path.read_text(encoding="utf-8"))
             if not validate_registry(live):
-                registry_size = sum(
-                    1 for e in live.get("repos", {}).values()
-                    if not (isinstance(e, dict) and e.get("watch") is False))
+                # Count the effective watchlist (seed ∪ live minus retires),
+                # not the live registry alone — a partial live registry
+                # (e.g. only adopter-added repos) must not under-report.
+                registry_size = len(effective_watchlist(seed, live))
             else:
                 out["registry_error"] = "live registry failed schema validation"
         except Exception as e:
             out["registry_error"] = f"unreadable live registry: {type(e).__name__}"
-    else:
-        try:
-            seed = json.loads(seed_path.read_text(encoding="utf-8"))
-            registry_size = len(seed.get("repos", {}))
-            out["registry_note"] = "no live registry yet — size from shipped seed"
-        except Exception:
-            registry_size = None
+    elif seed:
+        registry_size = len(seed.get("repos", {}))
+        out["registry_note"] = "no live registry yet — size from shipped seed"
     out["registry_size"] = registry_size
     return out
 

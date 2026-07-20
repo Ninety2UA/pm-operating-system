@@ -222,3 +222,74 @@ def test_watcher_status_real_repo_parity():
     st = currency.watcher_status(REPO_ROOT)
     assert st["registry_size"] is not None and st["registry_size"] >= 6
     assert set(st["watchers"]) == {"cli", "repo"}
+
+
+# ── Review fixes: lock atomicity, release ownership, prune/report hardening ──
+
+def test_release_lock_only_when_owned(tmp_path):
+    lock = tmp_path / "currency.lock"
+    currency.acquire_lock(lock, "report-only")
+    # A lock now owned by a different pid must NOT be deleted by our release.
+    import json as _j, os as _o
+    d = _j.loads(lock.read_text()); d["pid"] = _o.getpid() + 12345
+    lock.write_text(_j.dumps(d))
+    currency.release_lock(lock)
+    assert lock.exists(), "released a lock owned by another pid"
+    # Our own lock IS released.
+    d["pid"] = _o.getpid(); lock.write_text(_j.dumps(d))
+    currency.release_lock(lock)
+    assert not lock.exists()
+
+
+def test_acquire_lock_atomic_exclusive(tmp_path):
+    lock = tmp_path / "currency.lock"
+    assert currency.acquire_lock(lock, "report-only")[0] == "acquired"
+    # A live young lock blocks (O_EXCL path or staleness path both → active).
+    assert currency.acquire_lock(lock, "report-only")[0] == "active"
+
+
+def test_prune_rejects_sibling_backup_dir(tmp_path):
+    import pytest
+    for name in ("reports-backup", "reports.bak"):
+        d = tmp_path / "knowledge" / "currency" / name
+        d.mkdir(parents=True)
+        (d / "2020-01-01.md").write_text("x", encoding="utf-8")
+        with pytest.raises(ValueError):
+            currency.prune_reports(d, keep_days=1)
+        assert (d / "2020-01-01.md").exists()
+
+
+def test_prune_skips_calendar_invalid_names(tmp_path):
+    d = tmp_path / "knowledge" / "currency" / "reports" / "cli"
+    d.mkdir(parents=True)
+    (d / "2026-13-45.md").write_text("x", encoding="utf-8")  # invalid date
+    (d / "2020-01-01.md").write_text("old", encoding="utf-8")
+    removed = currency.prune_reports(d, keep_days=1)
+    assert [p.name for p in removed] == ["2020-01-01.md"]
+    assert (d / "2026-13-45.md").exists()  # not deleted, not crashed
+
+
+def test_completed_reports_ignores_directory_and_invalid_date(tmp_path):
+    d = tmp_path / "knowledge" / "currency" / "reports" / "cli"
+    d.mkdir(parents=True)
+    (d / "2026-13-45.md").write_text(currency.REPORT_TRAILER_PREFIX + " t -->",
+                                     encoding="utf-8")
+    (d / "2026-07-20.md").mkdir()  # a directory named like a report
+    assert currency.completed_reports(d) == []  # no crash, nothing surfaced
+
+
+def test_watcher_status_registry_size_merges_seed_and_live(tmp_path):
+    import json as _j
+    (tmp_path / "core" / "watchers").mkdir(parents=True)
+    (tmp_path / "core" / "watchers" / "registry.seed.json").write_text(
+        _j.dumps({"schema_version": 1, "repos": {
+            "a/one": {"seed_sha": "1" * 40}, "a/two": {"seed_sha": "2" * 40}}}),
+        encoding="utf-8")
+    cur = tmp_path / "knowledge" / "currency"; cur.mkdir(parents=True)
+    # live registry has only an adopter-added repo — must still count seed repos
+    (cur / "repo-registry.json").write_text(_j.dumps({
+        "schema_version": 1, "repos": {"z/extra": {"cursor_sha": "9" * 40,
+                                                    "watch": True}}}),
+        encoding="utf-8")
+    st = currency.watcher_status(tmp_path)
+    assert st["registry_size"] == 3, st  # a/one, a/two (seed) + z/extra (live)
