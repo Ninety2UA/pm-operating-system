@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "note": "Immutable shipped seed for /repo-watch (KTD-2). Never edited after ship; live state (cursors, retires, adopter-added repos) lives gitignored in knowledge/currency/repo-registry.json. Consistency order: ledger > this seed > rebuildable live state. seed_sha = the SHA each repo was mined at (docs/ledger/2026-07-20-ecosystem-mining.md); first-run seeding resolves current reachable HEAD and uses seed_sha only as provenance fallback.",
+  "repos": {
+    "addyosmani/agent-skills": {
+      "seed_sha": "2fbfa004a0192529bc997d103fc12f19a3804aab",
+      "seed_date": "2026-07-18",
+      "delta_signals": ["commits.atom", "releases.atom"],
+      "ledger_ref": "docs/ledger/2026-07-20-ecosystem-mining.md#addyosmaniagent-skills"
+    },
+    "EveryInc/compound-engineering-plugin": {
+      "seed_sha": "49e7d280f4877715a9f025e86e4b3e92d89a5fc6",
+      "seed_date": "2026-07-20",
+      "delta_signals": ["commits.atom", "releases.atom"],
+      "ledger_ref": "docs/ledger/2026-07-20-ecosystem-mining.md#everyinccompound-engineering-plugin"
+    },
+    "obra/superpowers": {
+      "seed_sha": "d884ae04edebef577e82ff7c4e143debd0bbec99",
+      "seed_date": "2026-07-02",
+      "delta_signals": ["commits.atom", "releases.atom"],
+      "ledger_ref": "docs/ledger/2026-07-20-ecosystem-mining.md#obrasuperpowers"
+    },
+    "open-gsd/gsd-core": {
+      "seed_sha": "352876ff0cffd597dbbe77a1e57a1b79b94c6e28",
+      "seed_date": "2026-07-20",
+      "delta_signals": ["commits.atom", "releases.atom"],
+      "ledger_ref": "docs/ledger/2026-07-20-ecosystem-mining.md#open-gsdgsd-core"
+    },
+    "garrytan/gbrain": {
+      "seed_sha": "a46f28a63e672cff177bafbc2b49509f447cb6d4",
+      "seed_date": "2026-07-20",
+      "delta_signals": ["commits.atom", "VERSION", "CHANGELOG.md"],
+      "note": "no releases published — track commits + VERSION file",
+      "ledger_ref": "docs/ledger/2026-07-20-ecosystem-mining.md#garrytangbrain"
+    },
+    "garrytan/gstack": {
+      "seed_sha": "a3259400a366593e0c909dd9ac3e59752efd2488",
+      "seed_date": "2026-07-15",
+      "delta_signals": ["commits.atom", "VERSION", "CHANGELOG.md"],
+      "note": "no releases published — track commits + VERSION file",
+      "ledger_ref": "docs/ledger/2026-07-20-ecosystem-mining.md#garrytangstack"
+    }
+  }
+}

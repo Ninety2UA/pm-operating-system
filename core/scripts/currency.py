@@ -171,5 +171,74 @@ def completed_reports(reports_dir: Path | str):
     return done
 
 
+# ── Registry (KTD-2: tracked immutable seed / gitignored live state) ─────────
+_SLUG = re.compile(r"^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$")
+_SHA = re.compile(r"^[0-9a-f]{40}$")
+
+
+def validate_registry(data) -> list[str]:
+    """Schema-validate a hand-editable live registry. Returns named errors
+    (empty = valid) — a malformed registry is a named failure at run start,
+    never a crash mid-run."""
+    errs: list[str] = []
+    if not isinstance(data, dict):
+        return ["registry: not a JSON object"]
+    if data.get("schema_version") != SCHEMA_VERSION:
+        errs.append(f"registry: schema_version must be {SCHEMA_VERSION}")
+    repos = data.get("repos")
+    if not isinstance(repos, dict):
+        return errs + ["registry: `repos` must be an object"]
+    for slug, entry in repos.items():
+        if not _SLUG.match(slug):
+            errs.append(f"registry: invalid repo slug '{slug}' (want owner/name)")
+        if not isinstance(entry, dict):
+            errs.append(f"registry: entry for '{slug}' must be an object")
+            continue
+        for field in ("cursor_sha", "retired_at_sha"):
+            v = entry.get(field)
+            if v is not None and not _SHA.match(str(v)):
+                errs.append(f"registry: '{slug}'.{field} is not a 40-char sha")
+        if "watch" in entry and not isinstance(entry["watch"], bool):
+            errs.append(f"registry: '{slug}'.watch must be true/false")
+    return errs
+
+
+def effective_watchlist(seed: dict, live: dict) -> dict:
+    """Merge seed + live into {slug: cursor_sha} of repos to watch.
+    Live wins; retired (watch: false) repos are excluded; adopter-added
+    repos (live-only) are included — their names never enter tracked files."""
+    out: dict[str, str] = {}
+    live_repos = (live or {}).get("repos", {}) or {}
+    seed_repos = (seed or {}).get("repos", {}) or {}
+    for slug, entry in seed_repos.items():
+        lv = live_repos.get(slug, {})
+        if isinstance(lv, dict) and lv.get("watch") is False:
+            continue
+        cursor = (lv.get("cursor_sha") if isinstance(lv, dict) else None) \
+            or entry.get("seed_sha")
+        if cursor:
+            out[slug] = cursor
+    for slug, entry in live_repos.items():
+        if slug in seed_repos or not isinstance(entry, dict):
+            continue
+        if entry.get("watch") is False:
+            continue
+        if entry.get("cursor_sha"):
+            out[slug] = entry["cursor_sha"]
+    return out
+
+
+def resume_cursor(seed: dict, live: dict, slug: str):
+    """Cursor to resume a repo from: tombstone (`retired_at_sha`) wins, then
+    the live cursor, then the frozen seed SHA (provenance fallback)."""
+    entry = ((live or {}).get("repos", {}) or {}).get(slug, {})
+    if isinstance(entry, dict):
+        if entry.get("retired_at_sha"):
+            return entry["retired_at_sha"]
+        if entry.get("cursor_sha"):
+            return entry["cursor_sha"]
+    return (((seed or {}).get("repos", {}) or {}).get(slug, {}) or {}).get("seed_sha")
+
+
 if __name__ == "__main__":
     print(__doc__)

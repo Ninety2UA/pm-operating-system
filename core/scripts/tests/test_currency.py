@@ -122,3 +122,48 @@ def test_completed_reports_require_final_name_and_trailer(tmp_path):
     done = currency.completed_reports(d)
     assert [p.name for p in done] == ["2026-07-19.md"], (
         "a crashed run's partial report must never surface as newest")
+
+
+# ── U11: registry helpers (seed/live split, tombstones, validation) ──────────
+
+def test_registry_validation_names_errors(tmp_path):
+    errs = currency.validate_registry({"schema_version": 1, "repos": {
+        "owner/good": {"cursor_sha": "a" * 40, "watch": True},
+        "bad slug!": {"cursor_sha": "b" * 40, "watch": True},
+        "owner/short": {"cursor_sha": "abc", "watch": True},
+        "owner/notdict": "x",
+    }})
+    joined = "\n".join(errs)
+    assert "bad slug!" in joined
+    assert "owner/short" in joined and "cursor_sha" in joined
+    assert "owner/notdict" in joined
+    assert not any("owner/good" in e for e in errs)
+    assert currency.validate_registry({"repos": {}}) != []  # missing schema_version
+    assert currency.validate_registry("garbage") != []
+
+
+def test_registry_effective_watchlist_merges_seed_and_live():
+    seed = {"repos": {"a/one": {"seed_sha": "1" * 40},
+                      "a/two": {"seed_sha": "2" * 40}}}
+    live = {"schema_version": 1, "repos": {
+        "a/one": {"cursor_sha": "9" * 40, "watch": True},
+        "a/two": {"cursor_sha": "2" * 40, "watch": False,
+                   "retired_at_sha": "2" * 40},
+        "adopter/private": {"cursor_sha": "3" * 40, "watch": True},
+    }}
+    eff = currency.effective_watchlist(seed, live)
+    assert eff["a/one"] == "9" * 40
+    assert "a/two" not in eff, "retired repo must not be watched"
+    assert eff["adopter/private"] == "3" * 40, "adopter-added repos are watched"
+
+
+def test_registry_tombstone_resume():
+    """retire → delete live cursor → re-add resumes from the tombstoned SHA."""
+    seed = {"repos": {"a/one": {"seed_sha": "1" * 40}}}
+    live = {"schema_version": 1, "repos": {
+        "a/one": {"watch": False, "retired_at_sha": "7" * 40}}}
+    resumed = currency.resume_cursor(seed, live, "a/one")
+    assert resumed == "7" * 40, "tombstone SHA wins over seed on re-add"
+    # No tombstone and no live cursor → fall back to the frozen seed SHA.
+    live2 = {"schema_version": 1, "repos": {}}
+    assert currency.resume_cursor(seed, live2, "a/one") == "1" * 40
