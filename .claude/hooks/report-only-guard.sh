@@ -64,7 +64,11 @@ fi
 
 credential_shaped() {
   case "$1" in
-    *client_secret*|*token*|*credential*|*.pem|*.key|*.env|*.env.*|*/.ssh/*|*/.aws/*|*/.config/gcloud/*|*/.netrc)
+    *client_secret*|*secret*|*token*|*credential*|*password*|*apikey*|*api_key*|\
+    *.pem|*.key|*.p12|*.pfx|*.env|*.env.*|\
+    */.ssh/*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|\
+    */.aws/*|*/.config/gcloud/*|*/.config/gh/*|*/.netrc|*/.pgpass|*.htpasswd|\
+    */.docker/config.json|*/.kube/config|*.gpg|*.asc)
       return 0 ;;
   esac
   return 1
@@ -81,8 +85,20 @@ case "$tool" in
     allow "Read $path"
     ;;
   WebFetch)
-    host="$(printf '%s' "$url" | sed -n 's|^[a-z]*://\([^/:]*\).*|\1|p')"
-    [ -n "$host" ] || deny "WebFetch with unparseable URL"
+    # Parse the RFC 3986 authority correctly: strip scheme, drop any query
+    # or fragment, take the substring after the LAST '@' as authority (so a
+    # userinfo like `github.com:@evil` cannot masquerade as the host), then
+    # strip the port. Reject anything with characters outside a hostname.
+    rest="${url#*://}"
+    rest="${rest%%[?#]*}"
+    authority="${rest%%/*}"
+    hostport="${authority##*@}"
+    host="${hostport%%:*}"
+    host="$(printf '%s' "$host" | tr 'A-Z' 'a-z')"
+    case "$host" in
+      ""|*[!a-z0-9.-]*)
+        deny "WebFetch with unparseable or malformed host: ${url}" ;;
+    esac
     for a in $FETCH_ALLOW; do
       if [ "$host" = "$a" ]; then
         allow "WebFetch $host"
@@ -99,14 +115,34 @@ case "$tool" in
         deny "$tool with '..' in path (traversal): $path"
         ;;
     esac
+    # Fence writes to the project's own knowledge/currency/. Accept a
+    # repo-relative path or one anchored at CLAUDE_PROJECT_DIR; reject a
+    # bare-substring match elsewhere (e.g. /tmp/knowledge/currency/...).
+    proj="${CLAUDE_PROJECT_DIR:-}"
     case "$path" in
-      */knowledge/currency/*|knowledge/currency/*)
-        allow "$tool $path"
-        ;;
-      *)
-        deny "$tool outside knowledge/currency/: ${path:-<no path>}"
-        ;;
+      knowledge/currency/*)
+        allow "$tool $path" ;;
     esac
+    if [ -n "$proj" ]; then
+      case "$path" in
+        "$proj"/knowledge/currency/*)
+          allow "$tool $path" ;;
+      esac
+    fi
+    # Real filesystem check (defense in depth vs symlinks): if the parent
+    # resolves inside the currency dir, allow. Only trusted when BOTH paths
+    # resolve to non-empty absolute paths (a failed realpath must never
+    # fail open); otherwise the string fence above is the sole gate.
+    if command -v realpath >/dev/null 2>&1 && [ -n "$proj" ]; then
+      parent="$(realpath -m "$(dirname "$path")" 2>/dev/null || printf '')"
+      cur="$(realpath -m "$proj/knowledge/currency" 2>/dev/null || printf '')"
+      if [ -n "$parent" ] && [ -n "$cur" ]; then
+        case "$parent/" in
+          "$cur"/*) allow "$tool $path (realpath-confirmed)" ;;
+        esac
+      fi
+    fi
+    deny "$tool outside knowledge/currency/: ${path:-<no path>}"
     ;;
   *)
     # Bash, every mcp__* tool (including mutating manager-ai paths like
