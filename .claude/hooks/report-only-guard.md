@@ -52,11 +52,15 @@ CE_REPORT_ONLY=1 claude -p "/cli-watch report-only" \
 
 ## Drill (direct-drive, host-independent)
 
+The marker must be set on the **guard** process, not on `printf` — in a
+pipeline, an `VAR=val cmd1 | cmd2` prefix binds `VAR` only to `cmd1`, so
+put `CE_REPORT_ONLY=1` on the `bash` side of the pipe:
+
 ```bash
-CE_REPORT_ONLY=1 printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf x"}}' \
-  | .claude/hooks/report-only-guard.sh; echo $?   # → 2 (denied)
+printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf x"}}' \
+  | CE_REPORT_ONLY=1 bash .claude/hooks/report-only-guard.sh; echo $?   # → 2 (denied)
 printf '{"tool_name":"Bash","tool_input":{}}' \
-  | .claude/hooks/report-only-guard.sh; echo $?   # → 0 (interactive: inert)
+  | bash .claude/hooks/report-only-guard.sh; echo $?                     # → 0 (interactive: inert)
 ```
 
 Full drill matrix: `core/scripts/tests/test_report_only_guard.py`.
