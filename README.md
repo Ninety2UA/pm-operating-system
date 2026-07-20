@@ -120,7 +120,7 @@ cd pm-operating-system
 ./setup.sh
 ```
 
-`setup.sh` creates your workspace directories (`tasks/`, `projects/`, `knowledge/`, `library/`), walks you through an interactive goals setup, and optionally installs Playwright for `/make-slides`. MCP server dependencies install automatically on first `uv run`.
+`setup.sh` creates your workspace directories (`tasks/`, `projects/`, `knowledge/`, `library/`), walks you through an interactive goals setup, optionally installs Playwright for `/make-slides`, and ends with an explicit automation choice — schedule the currency watchers' report-only runs locally (launchd/Desktop), in the cloud (claude.ai routines, with a disclosure checklist), or skip entirely (the default: nothing runs unattended unless you choose it). MCP server dependencies install automatically on first `uv run`. MCP server dependencies install automatically on first `uv run`.
 
 Next, populate your goals through a guided conversation:
 
