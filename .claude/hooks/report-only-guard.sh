@@ -31,6 +31,13 @@ if [ -z "${CE_REPORT_ONLY:-}" ]; then
 fi
 
 # ── Scheduled run: fail closed from here on ───────────────────────────────
+# A PreToolUse hook that exits with anything other than 2 is treated as
+# NON-blocking by Claude Code, so a crash (missing dependency, syntax slip,
+# 127/1) would fail OPEN and let the tool run. Trap the final exit: convert
+# any unexpected non-0/non-2 code into an explicit deny (2). allow() exits 0
+# and deny() exits 2, so legitimate decisions pass through untouched.
+trap '_ec=$?; if [ "$_ec" != 0 ] && [ "$_ec" != 2 ]; then echo "report-only guard: internal error (fail-closed, exit $_ec)" >&2; exit 2; fi' EXIT
+
 log() {
   echo "[$(date -u +%FT%TZ)] $1" \
     >> "${CLAUDE_PROJECT_DIR:-.}/knowledge/currency/guard.log" 2>/dev/null || true

@@ -154,3 +154,24 @@ def test_json_control_escape_and_backslash_urls_denied():
                           "tool_input": {"url": raw},
                           "hook_event_name": "PreToolUse"}, marked=True)
         assert proc.returncode == 2, (raw, proc.returncode)
+
+
+def test_guard_fails_closed_on_internal_error(tmp_path):
+    """A PreToolUse hook exiting non-2 is non-blocking (fail-open); the
+    guard must convert any internal crash into a deny under the marker.
+    Simulate python3 being absent (coreutils present)."""
+    import os, shutil
+    stub = tmp_path / "bin"
+    stub.mkdir()
+    for b in ("cat","sed","base64","date","echo","printf","tr","dirname",
+              "command","realpath","bash"):
+        src = shutil.which(b)
+        if src:
+            os.symlink(src, stub / b)   # deliberately NO python3
+    proc = subprocess.run(
+        ["bash", str(GUARD)],
+        input='{"tool_name":"Bash","tool_input":{"command":"x"}}',
+        env={"PATH": str(stub), "CE_REPORT_ONLY": "1",
+             "CLAUDE_PROJECT_DIR": str(REPO_ROOT)},
+        capture_output=True, text=True, timeout=30)
+    assert proc.returncode == 2, (proc.returncode, proc.stderr)
