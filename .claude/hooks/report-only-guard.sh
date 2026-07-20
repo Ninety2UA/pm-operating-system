@@ -48,14 +48,41 @@ allow() {
 }
 
 payload="$(cat 2>/dev/null || true)"
-tool="$(printf '%s' "$payload" | sed -n 's/.*"tool_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
-[ -n "$tool" ] || deny "unparseable hook payload (fail-closed under CE_REPORT_ONLY)"
 
-# First file-ish path or URL in tool_input (fail-closed if absent where
-# needed). Write/Edit use `file_path`; Grep/Glob use `path` — capture both.
-path="$(printf '%s' "$payload" | sed -n 's/.*"file_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
-gpath="$(printf '%s' "$payload" | sed -n 's/.*"path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
-url="$(printf '%s' "$payload" | sed -n 's/.*"url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
+# Extract fields with a REAL JSON parser, not regex over raw bytes: a greedy
+# regex picks the LAST "tool_name" (a nested key inside tool_input would
+# spoof it), and raw bytes don't decode JSON escapes. tool_name comes from
+# the top-level object; file_path/path/url from tool_input only. Each field
+# is emitted base64-encoded on its own line so no value (paths with spaces,
+# tabs, newlines) can break the framing. python3 is already a dependency
+# (resolve_path); if it is missing or the payload doesn't parse, fail closed.
+_fields="$(printf '%s' "$payload" | python3 -c '
+import json, sys, base64
+try:
+    d = json.load(sys.stdin)
+    assert isinstance(d, dict)
+except Exception:
+    sys.exit(3)
+ti = d.get("tool_input")
+if not isinstance(ti, dict):
+    ti = {}
+def b(v):
+    return base64.b64encode((v if isinstance(v, str) else "").encode()).decode()
+print(b(d.get("tool_name")))
+print(b(ti.get("file_path")))
+print(b(ti.get("path")))
+print(b(ti.get("url")))
+' 2>/dev/null)" || deny "unparseable hook payload (fail-closed under CE_REPORT_ONLY)"
+
+# Pick each base64 line by number (sed preserves empty lines, which `read`
+# with a whitespace IFS would collapse; portable to bash 3.2 with no arrays).
+_decode() { printf '%s\n' "$_fields" | sed -n "${1}p" | base64 --decode 2>/dev/null; }
+tool="$(_decode 1)"
+path="$(_decode 2)"
+gpath="$(_decode 3)"
+url="$(_decode 4)"
+
+[ -n "$tool" ] || deny "unparseable hook payload (fail-closed under CE_REPORT_ONLY)"
 
 # Domains a report-only run may fetch (KTD-5 egress pin). Extend per-run
 # with CE_FETCH_ALLOW="host1,host2" on the scheduled invocation.

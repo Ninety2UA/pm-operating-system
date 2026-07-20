@@ -70,10 +70,86 @@ _BARE_URL = (
     r"|\b(?:data|javascript|vbscript):[^\s<>`]{1,500}"
     r"|\bwww\.[a-z0-9-]+(?:\.[a-z0-9-]+)+[^\s<>`]*"
 )
-_DANGEROUS = re.compile(
-    "(" + "|".join([_MD_IMAGE, _MD_LINK, _MD_REFDEF, _HTML_TAG, _BARE_URL]) + ")",
+# Links/images are matched by a balanced-bracket SCANNER (_match_link_image),
+# not by regex — CommonMark allows arbitrarily deep bracket nesting in
+# link/image text, which no regex can model. This regex covers only the
+# non-recursive constructs (refdef line, HTML tag, scheme/www URL).
+_DANGEROUS_NONLINK = re.compile(
+    "(" + "|".join([_MD_REFDEF, _HTML_TAG, _BARE_URL]) + ")",
     re.MULTILINE | re.DOTALL | re.IGNORECASE,  # IGNORECASE: catch HTTP://, HtTp://
 )
+# Kept for the module-level idempotency/self-test of the regex constructs.
+_DANGEROUS = re.compile(
+    "(" + "|".join([_MD_IMAGE, _MD_LINK, _MD_REFDEF, _HTML_TAG, _BARE_URL]) + ")",
+    re.MULTILINE | re.DOTALL | re.IGNORECASE,
+)
+
+
+def _match_link_image(text: str, i: int):
+    """If a markdown link/image `[..](..)`, `![..](..)`, or `[..][..]` starts
+    at index `i`, return its end index (exclusive), else None. Scans balanced
+    brackets/parens with backslash-escape handling, so arbitrarily deep
+    nesting (`![a[b[c]d]e](//x)`, linked badges) is matched as one construct."""
+    n = len(text)
+    j = i
+    if j < n and text[j] == "!":
+        j += 1
+    if j >= n or text[j] != "[":
+        return None
+
+    def _balanced(start, opench, closech):
+        depth, k = 0, start
+        while k < n:
+            c = text[k]
+            if c == "\\":
+                k += 2
+                continue
+            if c == opench:
+                depth += 1
+            elif c == closech:
+                depth -= 1
+                if depth == 0:
+                    return k
+            k += 1
+        return None
+
+    label_end = _balanced(j, "[", "]")
+    if label_end is None:
+        return None
+    after = label_end + 1
+    if after < n and text[after] == "(":
+        dest_end = _balanced(after, "(", ")")
+        return dest_end + 1 if dest_end is not None else None
+    if after < n and text[after] == "[":
+        ref_end = _balanced(after, "[", "]")
+        return ref_end + 1 if ref_end is not None else None
+    return None
+
+
+def _next_danger(text: str, pos: int):
+    """Earliest dangerous construct at/after `pos` as (start, end): a
+    balanced link/image, or a regex construct (HTML tag, URL, refdef),
+    whichever starts first."""
+    reg = _DANGEROUS_NONLINK.search(text, pos)
+    link = None
+    i = pos
+    while i < len(text):
+        c = text[i]
+        if c == "\\":
+            i += 2
+            continue
+        if c == "[" or (c == "!" and text[i:i + 2] == "!["):
+            e = _match_link_image(text, i)
+            if e:
+                link = (i, e)
+                break
+        i += 1
+    cands = []
+    if reg:
+        cands.append((reg.start(), reg.end()))
+    if link:
+        cands.append(link)
+    return min(cands, key=lambda s: s[0]) if cands else None
 
 _SCHEME = re.compile(r"\b(https|http|ftp|data|javascript|vbscript)(:)", re.IGNORECASE)
 _SCHEME_MAP = {
@@ -137,35 +213,47 @@ def _defuse_schemes(text: str) -> str:
     return _WWW.sub(r"www[.]", text)
 
 
-def _neutralize_match(m: re.Match) -> str:
-    return "`" + _defuse_schemes(m.group(0)) + "`"
-
-
 def _neutralize_text(chunk: str) -> str:
     """Neutralize live constructs in a region known to be outside code spans.
 
     Any backtick run in such a region failed to form a valid span (unclosed,
     or crossing a blank line); markdown renders those literally, so replace
     them with apostrophes. This also guarantees the code-span wrappers added
-    below are unambiguous, making the whole function idempotent.
+    below are unambiguous, making the whole function idempotent. Links/images
+    are found by the balanced-bracket scanner; other constructs by regex.
     """
     chunk = chunk.replace("`", "'")
-    return _DANGEROUS.sub(_neutralize_match, chunk)
+    out, pos = [], 0
+    while True:
+        d = _next_danger(chunk, pos)
+        if not d:
+            out.append(chunk[pos:])
+            break
+        s, e = d
+        out.append(chunk[pos:s])
+        out.append("`" + _defuse_schemes(chunk[s:e]) + "`")
+        pos = e
+    return "".join(out)
 
 
 def _enclosing_danger(text: str, s: int, e: int, pos: int):
-    """A dangerous link/image/HTML construct that ENCLOSES [s, e). A code
-    span inside `![alt](url)` or `[text](url)` is link/image content, not a
-    protective code region — the whole construct is live (CommonMark parses
-    the code span first, THEN the enclosing link), so it must be neutralized.
-    `_DANGEROUS` already matches such constructs even with backticks inside
-    the brackets (`_BRACKETED` allows them)."""
-    for m in _DANGEROUS.finditer(text, pos):
-        if m.start() > s:
-            break  # matches are ordered; nothing starting before the span
-        if m.start() <= s and m.end() >= e:
-            return m
-    return None
+    """A dangerous link/image/HTML construct that ENCLOSES [s, e), as
+    (start, end), or None. A code span inside `![alt](url)` or `[text](url)`
+    is link/image content, not a protective code region — the whole
+    construct is live (CommonMark parses the code span first, THEN the
+    enclosing link), so it must be neutralized. Uses the balanced-bracket
+    scanner so deep nesting is handled."""
+    p = pos
+    while True:
+        d = _next_danger(text, p)
+        if d is None:
+            return None
+        ds, de = d
+        if ds > s:
+            return None  # nothing starts at/before the span
+        if de >= e:
+            return d
+        p = de
 
 
 def _split_inline(text: str):
@@ -204,8 +292,8 @@ def _split_inline(text: str):
                 # The span is inside a live link/image/HTML construct: emit
                 # everything through that construct as text so it is
                 # neutralized, and resume after it.
-                parts.append((False, text[pos:danger.end()]))
-                pos = danger.end()
+                parts.append((False, text[pos:danger[1]]))
+                pos = danger[1]
                 continue
             parts.append((False, text[pos:open_m.start()]))
             parts.append((True, region))

