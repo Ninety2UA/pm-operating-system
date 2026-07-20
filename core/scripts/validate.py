@@ -694,6 +694,56 @@ if (ROOT / ".agents" / "skills").exists():
 else:
     warn("adapter-parity", "adapters not generated — run: uv run core/scripts/build_adapters.py")
 
+# ─── 39-46. Modernized-bar enforcement (U14) ─────────────────────
+# Extracted to validate_checks.py so each is fixture-testable in isolation
+# (core/scripts/tests/test_validate_checks.py). Fail-class first, then warns.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    import validate_checks as vc
+
+    for msg in vc.check_model_roster(ROOT):
+        fail("model-roster", msg)
+    for msg in vc.check_tiering_presence(ROOT):
+        fail("tiering", msg)
+
+    _manifest = ROOT / "docs/capabilities.md"
+    _matrix = ROOT / "docs/ledger/adoption-matrix.md"
+    if _manifest.exists() and _matrix.exists():
+        for msg in vc.check_degradation_coverage(
+                _manifest.read_text(encoding="utf-8"),
+                _matrix.read_text(encoding="utf-8")):
+            fail("degradation", msg)
+
+    for msg in vc.check_tracked_secret_scan(ROOT):
+        fail("secret-scan", msg)
+    for msg in vc.check_guard_wiring(ROOT):
+        fail("guard-wiring", msg)
+
+    for msg in vc.check_currency_lock_ignored(ROOT):
+        warn("lock-hygiene", msg)
+    for msg in vc.check_ledger_links(ROOT):
+        warn("ledger-link", msg)
+    for msg in vc.check_live_registry(ROOT):
+        warn("live-registry", msg)
+except Exception as e:
+    fail("u14-checks", f"enforcement checks errored: {e}")
+
+# --staleness-report: a local-only warn mode listing project specs with
+# retired model IDs (projects/ is gitignored, CI-invisible by design; R17).
+if "--staleness-report" in sys.argv:
+    try:
+        flags = vc.staleness_report(ROOT)
+        print("\n── Staleness report (project specs, warn-only) ──")
+        if flags:
+            for f in flags:
+                print(f"  · {f}")
+            print(f"  {len(flags)} retired model-ID reference(s) — rewriting is "
+                  f"out of scope for the framework (flag only).")
+        else:
+            print("  No retired model IDs in project specs.")
+    except Exception as e:
+        print(f"  staleness report errored: {e}")
+
 # ─── Output ──────────────────────────────────────────────────────
 if warnings_list:
     by_cat_w = {}
