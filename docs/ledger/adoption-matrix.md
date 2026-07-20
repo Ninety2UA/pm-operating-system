@@ -140,6 +140,13 @@ ops; **judgment** (inherit + high/xhigh) — synthesis, strategy, voice.
 | GSD-11 | /next smart-entry router — cheap, but new-skill budget this wave went to the watchers. |
 | GB-01, GB-02, GB-03, GB-09 | Filing-rules JSON, backlink law, RESOLVER, doctor JSON contract — knowledge-layer upgrades batched post-initiative. |
 | SP-02, SP-05, SP-06, SP-07, SP-09, SP-10, SP-13, SP-17 | Authoring/method upgrades (skill TDD, bootstrap re-injection, forcing function, two-stage review, plan granularity, design gate, tool-map references, persuasion wording) — batch as a "skill-authoring standards" wave with SP-01. |
+| CE-03 | Session-settled decision labels — adopt into `/decision` + `/spec` KTD sections as a dedicated convention pass (touches artifact templates). |
+| GS-04 | Confidence-gated zero-noise review reporting — adopt into the review/audit agents alongside the deferred eval work (AS-01/SP-11), so the confidence bar and the routing evals land together. |
+| AS-04 | Doubt-driven adversarial review (withhold-the-claim) — fold into `/pre-mortem` and the review loops with the SP-07 two-stage review in the skill-authoring-standards wave. |
+| AS-08 | Standing Definition-of-Done reference cited by `/spec`/`/launch`/`/user-stories` — a knowledge/reference/ file + cross-refs; batch with the pipeline-artifact evolution. |
+| AS-11 | Skill-authoring size lints (SKILL.md length, description shape) — warn-class validator additions; land after the eval-corpus settles (pairs with AS-01). |
+| GS-07 | Trigger-phrase frontmatter for natural-language invocation — batch with the SP-01 trigger-only-description pass. |
+| GSD-09 | Install-time per-host capability degradation in the generator — additive generator work after U5 has soaked (pairs with GS-06). |
 | CE-06, CE-09 | Already available via the installed compound-engineering plugin — document usage when relevant; no re-implementation. |
 
 ## E. Not-applicable (ledger skips — reasoning lives on the ledger rows)
