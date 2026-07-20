@@ -1,0 +1,175 @@
+#!/usr/bin/env python3
+"""Baseline/lock/report transaction helpers for the currency watchers
+(KTD-6). Pure stdlib; imported by tests and invoked by the watcher skills'
+full mode (report-only runs are read-plus-report and never call the
+mutating helpers).
+
+Design contract:
+- Baselines are schema-versioned JSON advanced by temp-file-plus-rename on
+  the same filesystem, strictly AFTER the wave's commit lands. The only
+  crash window (after commit, before rename) re-surfaces already-adopted
+  candidates on the next run — self-correcting against the ledger, never a
+  baseline ahead of committed work.
+- The lock lives INSIDE knowledge/currency/ (a report-only run must be able
+  to create and reclaim it under the restricted profile). Stale = dead PID
+  or age beyond a generous bound; reclaim is logged, delete-to-recover is
+  the documented manual escape.
+- Reports count as completed only under their final name AND with the
+  completion trailer — a crashed run's partial file is never surfaced.
+- CE_FAULT_POINT is a test-only seam making the transaction kill-points
+  deterministic (Verification Contract: baseline transaction drill).
+
+Self-test home: core/scripts/tests/test_currency.py.
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import sys
+import time
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+SCHEMA_VERSION = 1
+LOCK_MAX_AGE_HOURS = 2
+REPORT_TRAILER_PREFIX = "<!-- report-complete:"
+_REPORT_NAME = re.compile(r"^(\d{4})-(\d{2})-(\d{2})\.md$")
+
+
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _fault(point: str) -> None:
+    if os.environ.get("CE_FAULT_POINT") == point:
+        print(f"CE_FAULT_POINT={point}: aborting for drill", file=sys.stderr)
+        sys.exit(3)
+
+
+# ── Baseline ─────────────────────────────────────────────────────────────────
+def load_baseline(path: Path | str):
+    """Return (data, status). status: ok | absent | corrupt | older-schema.
+    Older-known schemas keep their data (migrate-or-rescan with notice —
+    never silently discarded); corrupt/absent mean full rescan."""
+    path = Path(path)
+    if not path.exists():
+        return None, "absent"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None, "corrupt"
+    if not isinstance(data, dict) or "schema_version" not in data:
+        return None, "corrupt"
+    if data["schema_version"] != SCHEMA_VERSION:
+        return data, "older-schema"
+    return data, "ok"
+
+
+def write_baseline_atomic(path: Path | str, data: dict) -> None:
+    """Advance a baseline atomically: write a temp file in the SAME
+    directory, then rename. Call only after the wave's commit landed."""
+    path = Path(path)
+    payload = dict(data)
+    payload["schema_version"] = SCHEMA_VERSION
+    payload["updated"] = _now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    tmp = path.with_name(path.name + f".tmp{os.getpid()}")
+    tmp.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    _fault("before-rename")
+    os.replace(tmp, path)
+
+
+# ── Lock ─────────────────────────────────────────────────────────────────────
+def _pid_alive(pid) -> bool:
+    try:
+        os.kill(int(pid), 0)
+        return True
+    except (ProcessLookupError, ValueError, TypeError):
+        return False
+    except PermissionError:
+        return True  # exists, owned by someone else
+
+
+def acquire_lock(path: Path | str, mode: str):
+    """Return (status, notice). status: acquired | active | reclaimed.
+    A live, young lock means another run is active. Dead-PID or over-age
+    locks are reclaimed with a logged notice (KTD-6)."""
+    path = Path(path)
+    notice = ""
+    if path.exists():
+        stale_reason = None
+        try:
+            held = json.loads(path.read_text(encoding="utf-8"))
+            started = datetime.strptime(
+                held.get("started", ""), "%Y-%m-%dT%H:%M:%SZ"
+            ).replace(tzinfo=timezone.utc)
+            age = _now() - started
+            pid = held.get("pid")
+            if pid is not None and not _pid_alive(pid):
+                stale_reason = f"pid {pid} is dead"
+            elif age > timedelta(hours=LOCK_MAX_AGE_HOURS):
+                stale_reason = f"age {age} exceeds {LOCK_MAX_AGE_HOURS}h bound"
+        except Exception:
+            stale_reason = "unreadable lock content"
+        if stale_reason is None:
+            return "active", "another run holds a live lock; not proceeding"
+        notice = (f"reclaimed stale lock ({stale_reason}); if this recurs, "
+                  f"delete {path} to recover")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({
+        "pid": os.getpid(),
+        "started": _now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "mode": mode,
+    }, indent=2) + "\n", encoding="utf-8")
+    return ("reclaimed", notice) if notice else ("acquired", "")
+
+
+def release_lock(path: Path | str) -> None:
+    Path(path).unlink(missing_ok=True)
+
+
+# ── Reports ──────────────────────────────────────────────────────────────────
+def prune_reports(reports_dir: Path | str, keep_days: int):
+    """Delete reports older than keep_days, judged by FILENAME date, inside
+    a currency reports directory only (path-asserted — deletion is
+    code-level safety; refuse anything outside the currency tree)."""
+    reports_dir = Path(reports_dir).resolve()
+    parts = "/".join(reports_dir.parts)
+    if "knowledge/currency/reports" not in parts.replace("\\", "/"):
+        raise ValueError(
+            f"refusing to prune outside knowledge/currency/reports: {reports_dir}")
+    cutoff = _now() - timedelta(days=keep_days)
+    removed = []
+    for p in sorted(reports_dir.iterdir()):
+        m = _REPORT_NAME.match(p.name)
+        if not m:
+            continue
+        file_date = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)),
+                             tzinfo=timezone.utc)
+        if file_date < cutoff:
+            p.unlink()
+            removed.append(p)
+    return removed
+
+
+def completed_reports(reports_dir: Path | str):
+    """Reports that finished: final name (YYYY-MM-DD.md) AND completion
+    trailer present. Sorted oldest→newest; a crashed run's partial report
+    never qualifies."""
+    reports_dir = Path(reports_dir)
+    if not reports_dir.is_dir():
+        return []
+    done = []
+    for p in sorted(reports_dir.iterdir()):
+        if not _REPORT_NAME.match(p.name):
+            continue
+        try:
+            if REPORT_TRAILER_PREFIX in p.read_text(encoding="utf-8"):
+                done.append(p)
+        except UnicodeDecodeError:
+            continue
+    return done
+
+
+if __name__ == "__main__":
+    print(__doc__)

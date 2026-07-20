@@ -38,6 +38,7 @@ Every skill listed here is invokable as `/<skill-name>` (skill-as-command conven
 - **session-review** — Capture session learnings, prompts, and patterns for weekly analysis
 - **refresh-goals** — Review and fill gaps in GOALS.md through conversation
 - **decision** — Structured decision record with options, rationale, and follow-ups
+- **cli-watch** — Platform currency watcher: classify Claude Code/Anthropic changes since the baseline into a dated decision report (report-only schedulable; `full` owner-run)
 - **morning**, **weekly**, **quarterly**, **process-backlog**, **write**, **launch** — listed in `## Commands` above
 
 ## Agents
