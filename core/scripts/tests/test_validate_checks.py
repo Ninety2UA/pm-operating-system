@@ -137,6 +137,36 @@ def test_secret_scan_flags_private_key_header(tmp_path):
     assert vc.check_tracked_secret_scan(tmp_path) != []
 
 
+def test_secret_scan_catches_provider_key_shapes(tmp_path):
+    led = tmp_path / "docs" / "ledger"
+    led.mkdir(parents=True)
+    secrets = [
+        "sk-ant-api03-Xh2mP9qL4vN8rT1wY6bC3dF5gJ7kM0nQ-abcdEFGH_1234",
+        "github_pat_11ABCDEFG0abcdefghijKLMNOP_qrstuvwxyz012345",
+        "AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWYxx",
+        "sk-proj-abcDEF12-ghiJKL34-mnoPQR56-stuVWX78",
+        "password = hunter2secretvalue",
+        "access_token: abcdefgh12345678",
+    ]
+    for s in secrets:
+        (led / "x.md").write_text(s + "\n", encoding="utf-8")
+        assert vc.check_tracked_secret_scan(tmp_path) != [], f"missed: {s}"
+    # never echoes the raw secret into the message
+    (led / "x.md").write_text(secrets[0] + "\n", encoding="utf-8")
+    for f in vc.check_tracked_secret_scan(tmp_path):
+        assert secrets[0] not in f
+
+
+def test_secret_scan_no_false_positive_on_prose_and_shas(tmp_path):
+    led = tmp_path / "docs" / "ledger"
+    led.mkdir(parents=True)
+    (led / "x.md").write_text(
+        "provenance `a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2` and the\n"
+        "client_secret*.json gitignore rule, plus `# secret-scan: allow`.\n"
+        "The secret sauce is respectful rationales.\n", encoding="utf-8")
+    assert vc.check_tracked_secret_scan(tmp_path) == []
+
+
 def test_secret_scan_green_on_real_repo():
     assert vc.check_tracked_secret_scan(REPO_ROOT) == []
 
@@ -175,8 +205,74 @@ def test_guard_wired_correctly_passes(tmp_path):
     assert vc.check_guard_wiring(tmp_path) == []
 
 
+def test_guard_wired_with_quoted_path_passes(tmp_path):
+    cl = tmp_path / ".claude"
+    (cl / "hooks").mkdir(parents=True)
+    g = cl / "hooks" / "report-only-guard.sh"
+    g.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    g.chmod(0o755)
+    (cl / "settings.local.json").write_text(
+        '{"hooks":{"PreToolUse":[{"hooks":[{"type":"command",'
+        '"command":"\\"$CLAUDE_PROJECT_DIR/.claude/hooks/report-only-guard.sh\\""}]}]}}',
+        encoding="utf-8")
+    assert vc.check_guard_wiring(tmp_path) == []
+
+
+def test_guard_deleted_but_still_wired_fails(tmp_path):
+    cl = tmp_path / ".claude"
+    (cl / "hooks").mkdir(parents=True)
+    # guard file intentionally absent, but settings still wires it
+    (cl / "settings.local.json").write_text(
+        '{"hooks":{"PreToolUse":[{"hooks":[{"type":"command",'
+        '"command":"$CLAUDE_PROJECT_DIR/.claude/hooks/report-only-guard.sh"}]}]}}',
+        encoding="utf-8")
+    assert vc.check_guard_wiring(tmp_path) != []
+
+
+def test_guard_wiring_tolerates_malformed_settings_shape(tmp_path):
+    cl = tmp_path / ".claude"
+    (cl / "hooks").mkdir(parents=True)
+    (cl / "hooks" / "report-only-guard.sh").write_text("x", encoding="utf-8")
+    for bad in ('{"hooks": "not a dict"}',
+                '{"hooks": {"PreToolUse": "not a list"}}',
+                '{"hooks": {"PreToolUse": [{"hooks": "nope"}]}}',
+                '[]'):
+        (cl / "settings.local.json").write_text(bad, encoding="utf-8")
+        # must not raise, and must not fail on a shape it can't interpret
+        assert vc.check_guard_wiring(tmp_path) == []
+
+
 def test_guard_wiring_green_on_real_repo():
     assert vc.check_guard_wiring(REPO_ROOT) == []
+
+
+# ── MODEL_ID_RE precision (P2) ───────────────────────────────────────────────
+
+def test_model_id_regex_does_not_overcapture(tmp_path):
+    sk = tmp_path / ".claude" / "skills" / "ok"
+    sk.mkdir(parents=True)
+    # current ID at a sentence end, and a longer dated suffix — both current
+    (sk / "SKILL.md").write_text(
+        "---\nname: ok\nmodel: opus\n---\n"
+        "We pin claude-opus-4-8. Also claude-haiku-4-5-20251001 works.\n",
+        encoding="utf-8")
+    assert vc.check_model_roster(tmp_path) == []
+
+
+# ── degradation short-row + negated exemption (P2/P3) ────────────────────────
+
+def test_degradation_missing_column_is_a_failure():
+    matrix = ("| id | verdict | wave | target files |\n"
+              "|---|---|---|---|\n"
+              "| workflows.tool | adopt | C | `.claude/skills/x/SKILL.md` |\n")
+    assert vc.check_degradation_coverage(MANIFEST, matrix) != []
+
+
+def test_degradation_negated_portable_prose_fails():
+    matrix = ("| id | verdict | wave | target files | degradation | u | t |\n"
+              "|---|---|---|---|---|---|---|\n"
+              "| workflows.tool | adopt | C | `.claude/skills/x/SKILL.md` | no — NOT portable prose | no | — |\n")
+    assert vc.check_degradation_coverage(MANIFEST, matrix) != []
 
 
 # ── warn-class checks ────────────────────────────────────────────────────────

@@ -30,8 +30,13 @@ CURRENT_MODEL_IDS = {
     "claude-haiku-4-5", "claude-sonnet-4-5",
 }
 # Model-ID SHAPE: `claude-` then eventually a digit (distinguishes real IDs
-# like claude-opus-4-8 from non-model tokens like claude-code).
-MODEL_ID_RE = re.compile(r"claude-(?:[a-z]+-)*\d[a-z0-9.\-]*")
+# like claude-opus-4-8 from non-model tokens like claude-code). The trailing
+# class excludes a final `.`/`-` and does not span a version separator, so a
+# current ID at a sentence end ("…claude-opus-4-8.") or a longer suffix
+# ("claude-opus-4-8-20260101") is captured exactly, not mangled into a
+# false-positive. `[a-z]+` segments must not themselves end in a digit run
+# that belongs to the id.
+MODEL_ID_RE = re.compile(r"claude-(?:[a-z]+-)*\d[a-z0-9]*(?:-[a-z0-9]+)*")
 
 # Frontmatter-bearing framework files (tiering scans these).
 _FRONTMATTER_GLOBS = (
@@ -132,34 +137,58 @@ def check_degradation_coverage(manifest_text: str, matrix_text: str) -> list[str
     native = _claude_native_ids(manifest_text)
     fails = []
     for cells in _table_rows(matrix_text):
-        if len(cells) < 5:
+        if len(cells) < 4:
             continue
-        cid, verdict, _wave, targets, degradation = cells[:5]
+        cid, verdict = cells[0], cells[1]
+        targets = cells[3]
         if verdict not in ("adopt", "adopt-partial"):
             continue
         if cid not in native:
             continue
         if not _GENERATED_TARGET.search(targets):
             continue  # not adopted into a generated body — no fence needed
+        # A row missing the degradation column entirely (truncated to <5
+        # cells) is a violation, not a skip — that is exactly the omission
+        # the check exists to catch.
+        degradation = cells[4] if len(cells) >= 5 else ""
         deg = degradation.lower()
-        if deg.startswith("yes") or "portable prose" in deg:
+        # Require an affirmative "yes" mechanism or an explicit, unqualified
+        # "portable prose" exemption. A negated form ("not portable prose")
+        # must not pass.
+        exempt_portable = ("portable prose" in deg
+                           and "not portable prose" not in deg
+                           and "n't portable prose" not in deg)
+        if deg.startswith("yes") or exempt_portable:
             continue
         fails.append(f"degradation-coverage: adopt row `{cid}` (claude-native, "
                      f"generated target) names no degradation mechanism: "
-                     f"'{degradation}'")
+                     f"'{degradation or '<missing column>'}'")
     return fails
 
 
 # ── tracked-artifact secret-scan (KTD-13, blocking) ──────────────────────────
 _SECRET_PATTERNS = (
-    (re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"), "private key header"),
+    (re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----"), "private key header"),
     (re.compile(r"\bAKIA[0-9A-Z]{16}\b"), "AWS access key id"),
     (re.compile(r"\bASIA[0-9A-Z]{16}\b"), "AWS temp key id"),
     (re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}\b"), "GitHub token"),
+    (re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}\b"), "GitHub fine-grained PAT"),
     (re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b"), "Slack token"),
+    # Anthropic and OpenAI-project keys carry hyphens right after the prefix,
+    # so match the broader shape; the generic sk- backstop follows.
+    (re.compile(r"\bsk-ant-[A-Za-z0-9_-]{20,}"), "Anthropic API key"),
+    (re.compile(r"\bsk-proj-[A-Za-z0-9_-]{20,}"), "OpenAI project key"),
     (re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"), "API secret key"),
-    (re.compile(r"(?i)\b(?:password|passwd|secret|api[_-]?key)\b\s*[:=]\s*"
-                r"['\"][^'\"]{6,}['\"]"), "inline credential assignment"),
+    (re.compile(r"\bAIza[0-9A-Za-z_-]{30,}"), "Google API key"),
+    (re.compile(r"\bya29\.[0-9A-Za-z_-]{20,}"), "Google OAuth token"),
+    (re.compile(r"\bglpat-[0-9A-Za-z_-]{20,}"), "GitLab PAT"),
+    (re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}"),
+     "JWT"),
+    # Credential assignments — quoted OR unquoted value with enough entropy.
+    (re.compile(r"(?i)\b(?:password|passwd|secret|api[_-]?key|access[_-]?token"
+                r"|auth[_-]?token|client[_-]?secret)\b\s*[:=]\s*"
+                r"(?:['\"][^'\"]{6,}['\"]|[^\s'\"#]{8,})"),
+     "credential assignment"),
 )
 _SECRET_SCAN_ROOTS = ("docs/ledger", "docs/capabilities.md", "core/watchers")
 _ALLOW_ESCAPE = "# secret-scan: allow"
@@ -196,13 +225,11 @@ def check_tracked_secret_scan(root: Path | str) -> list[str]:
 
 # ── guard-wiring (KTD-5) ─────────────────────────────────────────────────────
 def check_guard_wiring(root: Path | str) -> list[str]:
-    """The committed-but-unwired guard ALWAYS passes (CI/skip-adopter
-    state). Wiring is asserted executable/correct only when a
-    settings.local.json entry references it; never required."""
+    """Wiring is NEVER required — the committed-but-unwired guard (and a
+    skip-adopter with no guard at all) always passes. But when
+    settings.local.json wires any command hook, that hook must resolve to an
+    existing, executable script, whatever it points at."""
     root = Path(root)
-    guard = root / ".claude" / "hooks" / "report-only-guard.sh"
-    if not guard.exists():
-        return []  # nothing to validate; presence is not required here
     local = root / ".claude" / "settings.local.json"
     if not local.exists():
         return []  # committed-and-unwired: the shipped state, always green
@@ -210,20 +237,34 @@ def check_guard_wiring(root: Path | str) -> list[str]:
         settings = json.loads(local.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return []  # malformed local settings is a separate concern, not ours
+    if not isinstance(settings, dict):
+        return []
     import os
     fails = []
+    hooks = settings.get("hooks")
+    if not isinstance(hooks, dict):
+        return []
     # Any command hook wired locally must resolve to an existing, executable
     # script — this subsumes the guard and never requires it to be wired.
-    for _event, configs in (settings.get("hooks", {}) or {}).items():
+    for _event, configs in hooks.items():
+        if not isinstance(configs, list):
+            continue
         for cfg in configs:
-            for hk in cfg.get("hooks", []):
-                if hk.get("type") != "command":
+            if not isinstance(cfg, dict):
+                continue
+            for hk in cfg.get("hooks", []) or []:
+                if not isinstance(hk, dict) or hk.get("type") != "command":
                     continue
                 cmd = hk.get("command", "")
+                if not isinstance(cmd, str):
+                    continue
                 m = re.search(r"\$CLAUDE_PROJECT_DIR/(\S+)", cmd)
                 if not m:
                     continue
-                target = root / m.group(1)
+                # Strip surrounding quotes the command may carry around the
+                # path (the style Claude Code's own docs use).
+                rel = m.group(1).strip('"\'')
+                target = root / rel
                 if not target.exists():
                     fails.append(f"hook wired in settings.local.json to a "
                                  f"missing path: {cmd}")
