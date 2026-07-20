@@ -69,7 +69,7 @@ _BARE_URL = (
 )
 _DANGEROUS = re.compile(
     "(" + "|".join([_MD_IMAGE, _MD_LINK, _MD_REFDEF, _HTML_TAG, _BARE_URL]) + ")",
-    re.MULTILINE | re.DOTALL,
+    re.MULTILINE | re.DOTALL | re.IGNORECASE,  # IGNORECASE: catch HTTP://, HtTp://
 )
 
 _SCHEME = re.compile(r"\b(https|http|ftp|data|javascript|vbscript)(:)", re.IGNORECASE)
@@ -218,6 +218,12 @@ def _selftest() -> None:
     assert defang(block) == block
     # Inline code spans are already inert and left alone.
     assert defang("use `<img>` carefully") == "use `<img>` carefully"
+    # Case-insensitive: uppercase/mixed-case bare URL schemes are defused too
+    # (host text is preserved inert; only the live scheme is neutralized).
+    for u in ("HTTP://EVIL/X", "HtTpS://evil/x", "bare FTP://evil/x"):
+        low = defang(u).lower()
+        assert "http://" not in low and "https://" not in low \
+            and "ftp://" not in low, defang(u)
     # Unclosed fence or backtick run is text, not code: still neutralized.
     assert "hxxp" in defang("```\n<img src=http://evil/unclosed.png>")
     assert "hxxp" in defang("` <img src=http://evil/tick.png>")
