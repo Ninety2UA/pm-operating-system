@@ -1,5 +1,7 @@
 ---
 name: session-review
+model: sonnet
+effort: medium
 description: >
   Captures a structured review of the current Claude Code session — user
   prompts verbatim, tools used, workflow chains, what worked, missing

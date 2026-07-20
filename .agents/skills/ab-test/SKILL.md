@@ -4,7 +4,7 @@ description: |-
   Analyzes A/B test results with statistical rigor — calculates significance, confidence intervals, sample size adequacy, and gives a clear "ship it / keep testing / stop" recommendation. Use this skill whenever the user mentions A/B tests, experiments, statistical significance, conversion lift, "variant vs control", "is this result significant", "analyze this test", or shares test data from campaigns or product experiments — even if they don't say "A/B test" explicitly.
 argument-hint: "<description or file path> [--plan]"
 generated_from: .claude/skills/ab-test/SKILL.md
-source_sha256: 136cc40fd931fadd57bf6d69a461307fec9d4eabdbb3409b7079683f0ce31652
+source_sha256: 321c3ea44b43132eb580525cc0ecb962859c836032492d54efa4c36014786181
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

@@ -1,5 +1,7 @@
 ---
 name: spec
+model: inherit
+effort: xhigh
 description: >
   Generate a technical design spec (spec.md) — the HOW-only build contract an AI
   coding agent (or engineer) implements from alone: pinned tech stack + package

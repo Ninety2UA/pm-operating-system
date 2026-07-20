@@ -1,5 +1,7 @@
 ---
 name: prd
+model: inherit
+effort: high
 description: >
   Generate a Product Requirements Document for a project. Use when creating a PRD,
   writing product specs, documenting requirements for a new feature, or when a project

@@ -4,7 +4,7 @@ description: |-
   Performs deep competitive analysis for a project — maps competitor landscape, feature comparison matrix, pricing analysis, strengths/weaknesses, and differentiation strategy. Use this skill whenever the user mentions competitors, market positioning, differentiation, "analyze competitors", "competitive analysis", "who are the competitors", "competitive landscape", "how do I differentiate", "who else is doing this", "battlecards", or is deciding positioning for a project — even if they just say "look into the competition."
 argument-hint: "<project-name> [--model quick|search|deep|reason]"
 generated_from: .claude/skills/competitive-analysis/SKILL.md
-source_sha256: fdad4333107e05bb39ba13f96d91d54fca427ce1a566a9a582a1efae82d1d76a
+source_sha256: 995afc4880b23ef06d39faf53ffeac647693fdb3710ef57ec26ca385fb3a545a
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

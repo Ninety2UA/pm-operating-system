@@ -4,7 +4,7 @@ description: |-
   Creates a Go-to-Market plan for a project — ICP, beachhead segment, positioning, channels, launch timeline, and growth loops. Use this skill whenever the user mentions launching, selling, positioning, distribution, channels, pricing strategy, "go to market plan", "how do I launch this", "who should I sell to", "GTM strategy", "plan launch for", or whenever a project has a validated business model and needs a launch strategy — even if they don't say "GTM" explicitly.
 argument-hint: "<project-name> [--model quick|search|deep|reason]"
 generated_from: .claude/skills/gtm-plan/SKILL.md
-source_sha256: 578ea821b17bc5e3a470e08893bff6fd612c102e185daa9b389dd0c04b0e4bdc
+source_sha256: 882479a3820408100ee867f3c9c4381956c593652fa4de3c8bfa6a34b9c4b7cc
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

@@ -1,5 +1,7 @@
 ---
 name: pre-mortem
+model: inherit
+effort: high
 description: >
   Runs a pre-mortem risk analysis on a project — imagines the project has
   already failed 6 months out and works backward to identify what went

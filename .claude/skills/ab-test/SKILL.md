@@ -1,5 +1,7 @@
 ---
 name: ab-test
+model: sonnet
+effort: medium
 description: >
   Analyzes A/B test results with statistical rigor — calculates significance,
   confidence intervals, sample size adequacy, and gives a clear "ship it / keep

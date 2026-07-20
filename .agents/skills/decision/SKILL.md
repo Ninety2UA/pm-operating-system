@@ -4,7 +4,7 @@ description: |-
   Documents a decision with structured context, options considered, pros/cons, reversibility assessment, and rationale — saved to knowledge/decisions/ for future reference. Use this skill whenever the user says "I need to decide", "log this decision", "decision record", "ADR", "let's pick between X and Y", mentions a tough call, weighs options, frames a strategic/architectural choice they'll want to revisit, or is about to commit to a path that's non-trivial to reverse — even if they don't explicitly ask to "log" it.
 argument-hint: "<topic>"
 generated_from: .claude/skills/decision/SKILL.md
-source_sha256: 34fc8ef6eb3cf256fd8d080f3621b63de6db67a6a9c55e9199f377b92ce2dbcb
+source_sha256: 2f8de16bac4ff8ca9ee38e32f71acba291a63e54f35b7d03e8b5dadca93f2622
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

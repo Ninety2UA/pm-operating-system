@@ -4,7 +4,7 @@ description: |-
   Generates an outcome-focused roadmap from active projects and goals, reframing work from "what to build" to "what outcomes to achieve." Use this skill whenever the user questions what they're working toward, has many projects without clear alignment, feels scattered or overwhelmed by the backlog, says "show my roadmap", "what outcomes am I working toward", "outcome roadmap", "reframe my projects", or during quarterly planning — even if they don't say "roadmap."
 argument-hint: "[--save]"
 generated_from: .claude/skills/outcome-roadmap/SKILL.md
-source_sha256: 1de9d67e48dc6df41b36d123f3c3c3a35a2c87d4aaa838cb0aa7ce907b1c55df
+source_sha256: 3145be64ee87f724b4d4664318610588d9a7953dd5e246318343a6a2b9eaddad
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

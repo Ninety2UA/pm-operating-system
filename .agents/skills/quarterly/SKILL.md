@@ -4,7 +4,7 @@ description: |-
   Run a 45-minute quarterly review — score OKRs against completion data, purge stale projects, refresh GOALS.md, set new OKRs informed by past calibration, update Claude memories, audit AGENTS.md against the quarter's learnings, and save a quarterly summary. Use this skill whenever the user mentions quarterly review, end of quarter, OKR scoring, planning the next quarter, runs `/quarterly`, or says anything like "how did Q2 go," "time to plan Q3," "score the OKRs," "strategic refresh," or "end-of-quarter reflection." Push toward this at quarter boundaries even if the user doesn't explicitly ask.
 argument-hint: "[quick]"
 generated_from: .claude/skills/quarterly/SKILL.md
-source_sha256: 378c2613ab7c2f7091810fa16f10e8320a131624967e62e4e9f8dc8fa6ec7a55
+source_sha256: 3c47bae9c511ab580d3404c150a819377ab8026d4579345f4e7a14d51b52051e
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

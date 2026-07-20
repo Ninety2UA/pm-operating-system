@@ -4,7 +4,7 @@ description: |-
   Run a specific project through the full evaluation pipeline — validate → lean canvas → GTM → competitive analysis → pre-mortem → spec → user stories — with a Go/No-Go gate after each evaluation stage and project-status updates as the project moves through idea → evaluating → ready → active. Use this skill whenever the user wants to evaluate, validate, or launch a specific project end-to-end, runs `/launch <project-name>`, or says anything like "run the pipeline on X," "full evaluation of Y," "is Z worth building," or "take this project through the evaluation flow." Starts from the first missing artifact unless `--from <stage>` is specified.
 argument-hint: "<project-name> [--from <stage>]"
 generated_from: .claude/skills/launch/SKILL.md
-source_sha256: 4e56c0140eb4e0917503bdee5aa841655024f3987b52d018ee631087791cf74a
+source_sha256: 6b69a2c0c7c4e5a421967ab0a30b15308dfa215c12d134f96dcfcfb9436b892c
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

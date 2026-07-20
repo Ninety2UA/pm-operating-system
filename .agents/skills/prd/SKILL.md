@@ -4,7 +4,7 @@ description: |-
   Generate a Product Requirements Document for a project. Use when creating a PRD, writing product specs, documenting requirements for a new feature, or when a project needs a prd.md file. Triggers on: "create a prd", "write prd for", "plan this feature", "requirements for", "spec out", "product spec", "hypothesis for", "what should we build". Also use proactively during backlog processing when a new project is created and needs a PRD, or when an existing project lacks a prd.md. Even if the user doesn't say "PRD" explicitly — if they're describing a product idea with enough detail to spec out, this skill applies. Do not use for early brainstorming or idea capture — use idea.md for that. This skill applies when formalizing requirements, not exploring. Runs non-interactively by default (safe for automated batch calls from `/process-backlog`); pass `--ask` for guided clarification via structured questions.
 argument-hint: "<project-name> [--ask]"
 generated_from: .claude/skills/prd/SKILL.md
-source_sha256: efb4f37e376ab8128bf00bfd4abbc0894096efabecca40962dbbaa50ec0163e6
+source_sha256: 428bbd6894a4c03945bcdce031e02e483a56dc19f6831b4c33a84ef5e346ca4f
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

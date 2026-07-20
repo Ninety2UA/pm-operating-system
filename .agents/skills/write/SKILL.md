@@ -4,7 +4,7 @@ description: |-
   Draft content in the user's authentic voice — blog posts, outreach emails, social media, documentation — by reading voice samples and voice guide, gathering context from related knowledge files, producing a structured draft, and refusing generic AI patterns (em dashes, "isn't just Y," corrective reframing, LinkedIn breathless style, filler adjectives). Use this skill whenever the user asks to write, draft, or compose content of any kind — blog posts, emails, outreach, tweets, LinkedIn posts, announcements, docs, one-pagers, cold messages; runs `/write`; or says anything like "help me write X," "draft an email to Y," "put together a post about Z," or "write this up." Push toward this whenever prose is being generated, even if the user didn't use the word "write."
 argument-hint: "<content-type> <topic>"
 generated_from: .claude/skills/write/SKILL.md
-source_sha256: d814b544c73a015f66ae223e5fa1570767e8e21ae15f3d45a5169655163b9799
+source_sha256: 71202114a975651351403f71aff1dfb32bb6cfa3ba5c0677b51ff1730598fbea
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

@@ -4,7 +4,7 @@ description: |-
   Creates a weekly sprint plan at 70% capacity from current tasks and user stories — selects stories, identifies dependencies and risks, produces a day-by-day schedule saved to knowledge/sprint-YYYY-MM-DD.md (Monday date of the sprint week). Use this skill whenever the user says "plan my sprint", "what should I build this week", "weekly plan", "sprint planning", mentions feeling behind, has tasks piling up without a plan, or at the start of the week — even if they just say "what should I work on."
 argument-hint: "[hours-available] [--project <name>]"
 generated_from: .claude/skills/sprint-plan/SKILL.md
-source_sha256: a8a7cec808d547d9f269d1a949b3f589cfbc2385c0e49a7fc3729eceaa814f79
+source_sha256: 2bb8ccf8084ae32c68b25e4dd39a5bcc2a5b4da998b82b2dd50c925694f97a65
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

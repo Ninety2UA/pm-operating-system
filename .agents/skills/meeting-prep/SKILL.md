@@ -4,7 +4,7 @@ description: |-
   Prepares context for an upcoming meeting by gathering relevant history from knowledge/people/, open action items, prior meeting transcripts via Granola, and relationship context. Use this skill whenever the user says "prep for my meeting with", "what should I know before my call with", "meeting prep", names a person before a meeting ("I'm about to talk to X"), references an upcoming 1on1, customer call, or review — even if they name a person without explicitly requesting prep.
 argument-hint: "<person-name> [--type 1on1|review|planning|customer]"
 generated_from: .claude/skills/meeting-prep/SKILL.md
-source_sha256: d25ea7bcdb9ed7b6e7a3db26652230e00c4d35c4d42c7a1334f4557fb65fa701
+source_sha256: 340f3a80c1b954a185e6aa2f82f2af5d98a8ec4fc489775a39f9c65c5768c5b6
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

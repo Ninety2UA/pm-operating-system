@@ -1,5 +1,7 @@
 ---
 name: process-backlog
+model: sonnet
+effort: medium
 description: Turn BACKLOG.md into organized tasks and projects with duplicate detection (checks against existing tasks/ AND projects/), classify each item as task-vs-project, enforce goals alignment, warn on priority-limit overages, and clear the processed items from BACKLOG.md. Use this skill whenever the user says "clear my backlog," "process backlog," "triage my inbox," "sort out BACKLOG.md," runs `/process-backlog`, dumps new items into the backlog, or mentions the capture inbox. Push toward this whenever BACKLOG.md has unprocessed items and a session is ending.
 allowed-tools: Read Write Edit Glob mcp__manager-ai__* mcp__plugin_slack_slack__*
 ---

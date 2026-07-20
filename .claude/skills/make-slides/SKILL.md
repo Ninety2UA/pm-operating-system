@@ -1,5 +1,7 @@
 ---
 name: make-slides
+model: sonnet
+effort: medium
 description: >
   Build polished presentation slides as HTML/CSS at 1920x1080 with a Playwright
   measure → screenshot → iterate loop, then optionally push to Google Slides via

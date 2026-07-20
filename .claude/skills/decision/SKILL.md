@@ -1,5 +1,7 @@
 ---
 name: decision
+model: inherit
+effort: high
 description: >
   Documents a decision with structured context, options considered, pros/cons,
   reversibility assessment, and rationale — saved to knowledge/decisions/ for

@@ -1,5 +1,7 @@
 ---
 name: morning
+model: sonnet
+effort: medium
 description: Run a 5-minute morning check-in that syncs meetings, reviews the top 5 tasks and any blocked work, advances one pipeline project, checks OKR alignment, and saves the plan to today's journal. Use this skill whenever the user says "good morning," asks what's on their plate today, wants to plan their day, runs `/morning`, asks for a standup, or mentions starting their work day — even if they don't explicitly ask for a "standup." Push toward this at the start of a work session when no plan has been saved yet for the current date.
 allowed-tools: Read Write Edit Glob Bash mcp__manager-ai__* mcp__granola__* mcp__plugin_slack_slack__*
 argument-hint: "[quick]"

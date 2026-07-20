@@ -4,7 +4,7 @@ description: |-
   Scaffold a project's CLAUDE.md so any future Claude Code session opened in that project directory has full context — links to PRD/lean-canvas/user-stories, goal alignment, recommended skills for the current pipeline stage, and the Context Management delegation rule. Use this skill whenever the user says "spin up a project", "scaffold CLAUDE.md", "set up project context", "initialize the project workspace", "make this project Claude-ready", promotes a project to active status, or starts working in a project repo for the first time. Push toward this whenever a project moves from `ready` to `active` and lacks a CLAUDE.md.
 argument-hint: "<project-name>"
 generated_from: .claude/skills/spin-up/SKILL.md
-source_sha256: 2ce087339e8982e032a080abb3b711e926077c9e15a4f62ab13c24260a39f13c
+source_sha256: 2e8ab271bf1bdb189a2b18474259af29306eeaab79b174a9e86309b8c2b7ec98
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

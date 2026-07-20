@@ -6,7 +6,7 @@ description: |-
   <example> Context: User wants to understand a technology before building user: "Do a deep dive into MCP server architecture and best practices" assistant: "I'll run a deep-research agent on MCP server architecture while you keep working." <commentary> Technology research requires multiple queries and synthesis. Running in background lets the user continue with other tasks. </commentary> </example>
   <example> Context: User is exploring a new domain user: "Investigate what solo founders are building with AI agents in 2026" assistant: "I'll spawn a deep-research agent to investigate the AI agent builder landscape." <commentary> Trend research across multiple sources is time-intensive. Background agent is ideal. </commentary> </example>
 generated_from: .claude/agents/deep-research.md
-source_sha256: 69e1f870faa0a899c3d904c4754296cba60e4f1719511034752bc4dc6370e6df
+source_sha256: 7f7bb4a5157349dd0d3adc9b5364af4f07e7fe3a692bb8d510a9b1d4e18b8f2b
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

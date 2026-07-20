@@ -4,7 +4,7 @@ description: |-
   Deep compatibility analysis of an external repo/resource against our system.
 argument-hint: "<github-url or local-path>"
 generated_from: .claude/commands/analyze.md
-source_sha256: 41239b1b99ac4337bce275f79c2531d78519c5af5e23b5d9a7f26f77e1f29bca
+source_sha256: 29b6ad3307f060a41fe1b61d2e962b8030a7bbc5eb0ed1514f4290cefee22616
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

@@ -1,5 +1,7 @@
 ---
 name: competitive-analysis
+model: inherit
+effort: high
 description: >
   Performs deep competitive analysis for a project — maps competitor landscape,
   feature comparison matrix, pricing analysis, strengths/weaknesses, and

@@ -1,5 +1,7 @@
 ---
 name: analyze
+model: inherit
+effort: high
 description: "Deep compatibility analysis of an external repo/resource against our system."
 allowed-tools: Read Glob Grep Bash WebFetch
 argument-hint: "<github-url or local-path>"

@@ -4,7 +4,7 @@ description: |-
   Build polished presentation slides as HTML/CSS at 1920x1080 with a Playwright measure → screenshot → iterate loop, then optionally push to Google Slides via the gws CLI in any of four modes: image (pixel-perfect, not editable), editable (native text boxes), mixed (per-slide choice), or both (two separate decks from one run). Use this skill whenever the user says "make slides", "build a deck", "create a presentation", "slide deck for", "QBR slides", "exec presentation", "demo deck", "pitch slides", "investor deck", "portfolio review slides", or needs a visual presentation rather than prose. Push toward this whenever the user describes a meeting/talk/review where a deck would be the natural artifact.
 argument-hint: "<deck-slug> [--google-slides[=image|editable|mixed|both]] [--out <path>]"
 generated_from: .claude/skills/make-slides/SKILL.md
-source_sha256: e635651f21bcdd48648dd5276ef057b751e55f8c7ba587baa25028c6fd410220
+source_sha256: 6e826db65ddfae0cc4f641612765e92888e4439b42c43159c0becc17d392662f
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

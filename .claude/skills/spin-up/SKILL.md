@@ -1,5 +1,7 @@
 ---
 name: spin-up
+model: sonnet
+effort: medium
 description: >
   Scaffold a project's CLAUDE.md so any future Claude Code session opened in
   that project directory has full context — links to PRD/lean-canvas/user-stories,

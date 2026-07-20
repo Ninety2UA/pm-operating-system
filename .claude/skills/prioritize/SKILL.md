@@ -1,5 +1,7 @@
 ---
 name: prioritize
+model: sonnet
+effort: medium
 description: >
   Ranks projects or tasks using structured prioritization frameworks — ICE,
   RICE, Opportunity Score, or Impact-Effort matrix — producing a scored list

@@ -4,7 +4,7 @@ description: |-
   Create a structured meeting note artifact for meetings not captured by Granola (manual notes, walk-and-talks, phone calls, in-person meetings, team standups) using a type-specific template (1on1, interview, one-off, standup). Use this skill whenever the user says "log a meeting", "capture meeting notes", "I just had a 1:1 with X", "log my interview with X", "log today's standup", "took notes from a call", "create a meeting file", or wants to record a meeting that won't be auto-synced from Granola. For Granola-captured meetings use `/meeting-sync` instead. For pre-meeting briefings use `/meeting-prep`.
 argument-hint: "<type:1on1|interview|one-off|standup> <person-team-or-topic>"
 generated_from: .claude/skills/log-meeting/SKILL.md
-source_sha256: ad85ecdea766e291b4157b6282324b7fd6269592d0a65dba65b17e1dbf2fdcaf
+source_sha256: 1460ba928efe6057fc9f4e09788cd1e1a010fc0e5f7e15fb2bdf7d8623555a53
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

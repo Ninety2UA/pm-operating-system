@@ -1,5 +1,7 @@
 ---
 name: log-meeting
+model: haiku
+effort: low
 description: >
   Create a structured meeting note artifact for meetings not captured by Granola
   (manual notes, walk-and-talks, phone calls, in-person meetings, team standups)

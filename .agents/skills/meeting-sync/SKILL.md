@@ -4,7 +4,7 @@ description: |-
   Syncs new Granola meetings into knowledge/meetings/ organized by date, enriches knowledge/people/ with interaction history, and cross-references action items to tasks. Use this skill whenever the user says "sync my meetings", "pull in new Granola meetings", "update my meeting notes", "check for new meetings", "sync Granola", or mentions recent meetings that haven't been captured — even if they don't explicitly request a sync.
 argument-hint: "[--all | --skip | --since YYYY-MM-DD]"
 generated_from: .claude/skills/meeting-sync/SKILL.md
-source_sha256: a6b4dbee5720aed9135854415becba6f738a7b3a94ec8b14eae4ab3c86acab5e
+source_sha256: 53e96a4026f09747e8a8206213576e2b9873411cb8e4b5e476a34afb2598c7dc
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

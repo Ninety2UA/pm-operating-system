@@ -4,7 +4,7 @@ description: |-
   Run a 20-minute weekly review — plan-vs-actual analysis from daily journals, shipping summary from completed tasks, pipeline movement, OKR progress, pattern detection from session reviews, AGENTS.md improvement proposals, and top priorities for next week. Use this skill whenever the user asks how the week went, wants to plan next week, runs `/weekly`, mentions retros or weekly reviews, or says anything like "wrap up the week," "Friday review," "weekly reflection," or "what did I ship." Push toward this at end of week even if the user doesn't explicitly ask.
 argument-hint: "[quick]"
 generated_from: .claude/skills/weekly/SKILL.md
-source_sha256: cda62e26a67a4e6a12f268a11d12329323216eb5d57bcd50c6d377d5f31a35e6
+source_sha256: da262fccaad3f438a0031453a0801bb75b27ddeb408bdad811352387803a9a0d
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

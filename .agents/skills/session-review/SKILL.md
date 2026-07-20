@@ -4,7 +4,7 @@ description: |-
   Captures a structured review of the current Claude Code session — user prompts verbatim, tools used, workflow chains, what worked, missing capabilities — and saves it to knowledge/session-reviews/ for weekly pattern analysis. Use this skill whenever the user says "review this session", "save session learnings", "what did we do", "capture what we learned", "session review", at the end of long or significant sessions, when the session-end reflection rule in AGENTS.md fires, or after a substantial work session — even if the user doesn't use the word "review."
 argument-hint: "(no arguments — uses the current session)"
 generated_from: .claude/skills/session-review/SKILL.md
-source_sha256: 5319e2cd37126c03d0c187c99fe329c2df526bc6981e701647147c415483c82d
+source_sha256: 01bcda6572cee720a1bca9b02254fadaede5ce98037bf9b318121aa7d4dbce6c
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

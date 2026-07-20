@@ -5,7 +5,7 @@ model: inherit
 readonly: false
 is_background: true
 generated_from: .claude/agents/batch-evaluator.md
-source_sha256: 11eb2f691bd23e56b16fd8b7c9da26094a639ada7284e8bf1ee28ed45e22548b
+source_sha256: 05d110da9583b1dca9c078bdead95550a7fc8ee5444bfa658f30217985fc862d
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

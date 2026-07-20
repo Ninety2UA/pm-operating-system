@@ -6,7 +6,7 @@ description: |-
   <example> Context: User wants to decide which projects to pursue this quarter user: "Compare these projects and tell me which ones have the best market opportunity: ad-spend-anomaly-detector, creative-performance-heatmap, metric-dictionary" assistant: "I'll spawn a batch-evaluator agent to research and compare those three projects." <commentary> Comparative evaluation across multiple projects benefits from parallel research and structured comparison criteria. </commentary> </example>
   <example> Context: User wants to quickly triage idea-stage projects user: "Which of my P1 projects should I evaluate first?" assistant: "I'll run a batch-evaluator agent on your P1 idea-stage projects to identify the strongest opportunities." <commentary> Proactive batch evaluation helps the user focus pipeline effort on the most promising projects. </commentary> </example>
 generated_from: .claude/agents/batch-evaluator.md
-source_sha256: 11eb2f691bd23e56b16fd8b7c9da26094a639ada7284e8bf1ee28ed45e22548b
+source_sha256: 05d110da9583b1dca9c078bdead95550a7fc8ee5444bfa658f30217985fc862d
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

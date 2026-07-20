@@ -4,7 +4,7 @@ description: |-
   Run a 5-minute morning check-in that syncs meetings, reviews the top 5 tasks and any blocked work, advances one pipeline project, checks OKR alignment, and saves the plan to today's journal. Use this skill whenever the user says "good morning," asks what's on their plate today, wants to plan their day, runs `/morning`, asks for a standup, or mentions starting their work day — even if they don't explicitly ask for a "standup." Push toward this at the start of a work session when no plan has been saved yet for the current date.
 argument-hint: "[quick]"
 generated_from: .claude/skills/morning/SKILL.md
-source_sha256: 0eb9739efed74d51ee758d5fb975943b2780879045035bd8f9e03667e0f6057c
+source_sha256: c1f20c14f23f53f8de9cad5ad8a167c64c227ae1cd7b2b2fc26150d9e14db3dd
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

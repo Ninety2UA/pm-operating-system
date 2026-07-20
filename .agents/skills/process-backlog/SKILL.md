@@ -3,7 +3,7 @@ name: process-backlog
 description: |-
   Turn BACKLOG.md into organized tasks and projects with duplicate detection (checks against existing tasks/ AND projects/), classify each item as task-vs-project, enforce goals alignment, warn on priority-limit overages, and clear the processed items from BACKLOG.md. Use this skill whenever the user says "clear my backlog," "process backlog," "triage my inbox," "sort out BACKLOG.md," runs `/process-backlog`, dumps new items into the backlog, or mentions the capture inbox. Push toward this whenever BACKLOG.md has unprocessed items and a session is ending.
 generated_from: .claude/skills/process-backlog/SKILL.md
-source_sha256: 31f8689d3cbaae59a0231ac19c3a5b005a9c436b1d2496b1056f7217d9a16520
+source_sha256: 96ad88ccd7ca8ff2723afea8201dc5d78dfd4ddc72edcfeac6c719921d45a3ab
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

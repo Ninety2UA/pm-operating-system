@@ -1,5 +1,7 @@
 ---
 name: weekly-update
+model: sonnet
+effort: medium
 description: >
   Generate an outbound, stakeholder-facing weekly update memo (TL;DR, status,
   progress, blockers, asks, decisions needed) and save it to

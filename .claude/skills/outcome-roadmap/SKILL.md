@@ -1,5 +1,7 @@
 ---
 name: outcome-roadmap
+model: inherit
+effort: high
 description: >
   Generates an outcome-focused roadmap from active projects and goals,
   reframing work from "what to build" to "what outcomes to achieve." Use this
