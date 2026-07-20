@@ -58,8 +58,12 @@ _INVISIBLE = re.compile("[​-‏‪-‮⁠-⁤⁦-⁩﻿]")
 _BRACKETED = r"\[(?:[^\[\]]|\[[^\]]*\])*\]"
 _MD_IMAGE = rf"!{_BRACKETED}\([^)]*\)|!{_BRACKETED}{_BRACKETED}"
 _MD_LINK = rf"{_BRACKETED}\([^)]*\)|{_BRACKETED}{_BRACKETED}"
-# Reference definition lines: [ref]: http://...
-_MD_REFDEF = r"^[ \t]{0,3}\[[^\]]+\]:[ \t]*\S[^\n]*$"
+# Reference definition lines: `[ref]: dest`. Match the label-and-colon line
+# whether or not a destination follows on the SAME line — CommonMark also
+# allows the destination on the next line (`[ref]:\n//host`), and a
+# protocol-relative dest evades the URL backstop, so neutralizing the
+# label+colon breaks the definition and any shortcut `![ref]` that used it.
+_MD_REFDEF = r"^[ \t]{0,3}\[[^\]]+\]:[ \t]*(?:\S[^\n]*)?$"
 # Anything tag-shaped, including comments, autolinks, and multi-line tags.
 _HTML_TAG = r"<[A-Za-z/!?][^>]{0,2000}>"
 # Scheme-bearing URLs are the backstop: every live fetch needs a scheme.

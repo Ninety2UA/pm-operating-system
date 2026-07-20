@@ -128,6 +128,20 @@ def test_code_span_in_link_alt_does_not_protect():
     assert defang("use `<img>` carefully") == "use `<img>` carefully"
 
 
+def test_multiline_reference_definition_beacon_neutralized():
+    """A reference definition can put its destination on the next line
+    ([ref]:\\n//host); a protocol-relative dest evades the URL backstop, so
+    the label+colon line must be neutralized to break the definition
+    (round-7 P1; verified inert vs cmark-gfm)."""
+    for s in ("![beacon]\n\n[beacon]:\n//evil.example/pixel.png\n",
+              "![beacon]\n\n[beacon]: //evil.example/pixel.png\n",
+              "text ![ref] and\n\n[ref]: //evil/img\n"):
+        d = defang(s)
+        assert "]:\n//evil" not in d and "]: //evil" not in d.replace("`", ""), (s, d)
+    # non-regression: prose with a colon is untouched
+    assert defang("Note: this is fine") == "Note: this is fine"
+
+
 def test_deeply_nested_link_brackets_neutralized():
     """CommonMark allows arbitrarily deep bracket nesting in link/image
     text; a regex can't model it, so a balanced-bracket scanner must — a
