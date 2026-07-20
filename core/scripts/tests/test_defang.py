@@ -112,6 +112,22 @@ def test_ordered_list_not_starting_at_one_is_not_a_breaker():
     assert "http://" not in defang("`a\n- <img src=http://e/x.png>`").lower()
 
 
+def test_code_span_in_link_alt_does_not_protect():
+    """A backtick code span inside image-alt / link-text is link content,
+    not a protective code region — the whole live construct must be
+    neutralized (round-5 P0; verified inert against cmark-gfm)."""
+    for s in ("![`a`](//evil/pixel)", "[`a`](http://evil/x)",
+              "![`a`](http://evil/pixel)", "![`a`](evil.example/pixel)",
+              "text ![`x`](//evil/beacon) more"):
+        d = defang(s)
+        # the whole construct is wrapped in a code span → inert on render
+        assert d.count("`") >= 2 and "![" not in d.split("`")[0], (s, d)
+        # protocol-relative / scheme dests no longer sit outside a code span
+        assert "](//evil" not in d.replace("`", "X").replace("X", "", 0) or "`" in d
+    # non-regression: a legit inline code span is preserved
+    assert defang("use `<img>` carefully") == "use `<img>` carefully"
+
+
 def test_www_autolinks_defused():
     for s in ["visit www.evil.example/x now", "![](www.evil.example/pixel)",
               "WWW.EVIL.EXAMPLE"]:

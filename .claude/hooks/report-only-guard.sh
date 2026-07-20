@@ -124,17 +124,20 @@ case "$tool" in
       *"://"*) : ;;
       *) deny "WebFetch with schemeless/unparseable URL: ${url:-<none>}" ;;
     esac
-    # Parse the RFC 3986 authority correctly: strip scheme, drop any query
-    # or fragment, take the substring after the LAST '@' as authority (so a
-    # userinfo like `github.com:@evil` cannot masquerade as the host), then
-    # strip the port. Reject anything with characters outside a hostname.
+    # The guard reads RAW (not JSON-decoded) payload bytes, but WebFetch
+    # JSON-decodes then parses via WHATWG. A backslash in the raw value is
+    # therefore a parser-differential vector — either a JSON control escape
+    # (\t \n \r \uXXXX, which WHATWG strips → different host) or a WHATWG
+    # authority delimiter (\ acts like / for special schemes). A legitimate
+    # allowlisted https URL never contains a backslash, so fail closed.
+    case "$url" in
+      *\\*) deny "WebFetch URL contains a backslash (parser-differential): $url" ;;
+    esac
+    # Parse the RFC 3986 authority: strip scheme, drop any query or fragment,
+    # take the substring after the LAST '@' as authority (so a userinfo like
+    # `github.com:@evil` cannot masquerade as the host), then strip the port.
     rest="${url#*://}"
     rest="${rest%%[?#]*}"
-    # WHATWG (Node's URL, which WebFetch uses) treats '\' as an authority
-    # delimiter for special schemes, so normalize backslashes to slashes
-    # BEFORE splitting — else `evil.example\@github.com` would parse to the
-    # allowlisted `github.com` here while the fetcher connects to evil.example.
-    rest="${rest//\\//}"
     authority="${rest%%/*}"
     hostport="${authority##*@}"
     host="${hostport%%:*}"

@@ -153,14 +153,31 @@ def _neutralize_text(chunk: str) -> str:
     return _DANGEROUS.sub(_neutralize_match, chunk)
 
 
+def _enclosing_danger(text: str, s: int, e: int, pos: int):
+    """A dangerous link/image/HTML construct that ENCLOSES [s, e). A code
+    span inside `![alt](url)` or `[text](url)` is link/image content, not a
+    protective code region — the whole construct is live (CommonMark parses
+    the code span first, THEN the enclosing link), so it must be neutralized.
+    `_DANGEROUS` already matches such constructs even with backticks inside
+    the brackets (`_BRACKETED` allows them)."""
+    for m in _DANGEROUS.finditer(text, pos):
+        if m.start() > s:
+            break  # matches are ordered; nothing starting before the span
+        if m.start() <= s and m.end() >= e:
+            return m
+    return None
+
+
 def _split_inline(text: str):
     """Split text into (is_code, chunk) pairs by CommonMark-style code spans.
 
     A span opens with a backtick run and closes at the next run of the same
     length; it may cross newlines but never a blank line NOR a block-level
     interrupter (heading, blockquote, list marker, thematic break, fenced
-    code, setext underline). Once a run cannot be closed, the remainder is
-    literal text (fail-safe: it gets neutralized).
+    code, setext underline). A backtick run that sits INSIDE a link/image
+    bracket is not a protective span — the enclosing construct is live — so
+    it is left as text for neutralization. Once a run cannot be closed, the
+    remainder is literal text (fail-safe: it gets neutralized).
     """
     parts, pos = [], 0
     while pos < len(text):
@@ -182,6 +199,14 @@ def _split_inline(text: str):
         region = text[open_m.start():close.end()] if close else ""
         if close and not _BLANK_LINE.search(text, open_m.start(), close.end()) \
                 and not _crosses_block_interrupter(region):
+            danger = _enclosing_danger(text, open_m.start(), close.end(), pos)
+            if danger:
+                # The span is inside a live link/image/HTML construct: emit
+                # everything through that construct as text so it is
+                # neutralized, and resume after it.
+                parts.append((False, text[pos:danger.end()]))
+                pos = danger.end()
+                continue
             parts.append((False, text[pos:open_m.start()]))
             parts.append((True, region))
             pos = close.end()
