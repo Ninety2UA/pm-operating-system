@@ -65,14 +65,18 @@ _MD_LINK = rf"{_BRACKETED}\([^)]*\)|{_BRACKETED}{_BRACKETED}"
 # label+colon breaks the definition and any shortcut `![ref]` that used it.
 _MD_REFDEF = r"^[ \t]{0,3}\[[^\]]+\]:[ \t]*(?:\S[^\n]*)?$"
 # Anything tag-shaped, including comments, autolinks, and multi-line tags.
-_HTML_TAG = r"<[A-Za-z/!?][^>]{0,2000}>"
+# No length cap: a tag longer than a fixed bound would otherwise escape the
+# net (an over-long <img> carrying a protocol-relative src). `[^>]*` is
+# linear, so there is no catastrophic-backtracking risk.
+_HTML_TAG = r"<[A-Za-z/!?][^>]*>"
 # Scheme-bearing URLs are the backstop: every live fetch needs a scheme.
-# GFM also autolinks scheme-less `www.` hostnames into live links, so those
-# are matched too.
+# GFM also autolinks scheme-less `www.` hostnames — which need only ONE dot
+# (`www.` + a label), so the tail label group is `*`, not `+` (`www.evil`
+# autolinks just like `www.evil.com`).
 _BARE_URL = (
     r"\b(?:https?|ftp)://[^\s<>`]+"
     r"|\b(?:data|javascript|vbscript):[^\s<>`]{1,500}"
-    r"|\bwww\.[a-z0-9-]+(?:\.[a-z0-9-]+)+[^\s<>`]*"
+    r"|\bwww\.[a-z0-9-]+(?:\.[a-z0-9-]+)*[^\s<>`]*"
 )
 # Links/images are matched by a balanced-bracket SCANNER (_match_link_image),
 # not by regex — CommonMark allows arbitrarily deep bracket nesting in
@@ -217,12 +221,28 @@ _SPAN_BREAKERS = (
 )
 
 
-def _crosses_block_interrupter(region: str) -> bool:
-    """True if any line after the first in `region` begins a new block —
-    which means an enclosing code span cannot survive across it."""
+# Any list-item marker (bullet or ordered, ANY start number). When the code
+# span's own opening line is a list item, the block is already a list, so a
+# following marker of any number continues the list and ends the span — a
+# broader rule than the paragraph-interrupter one baked into _SPAN_BREAKERS
+# (which only counts ordered markers that start at 1).
+_ANY_LIST_MARKER = re.compile(r"^ {0,3}(?:[-+*]|\d{1,9}[.)])(?:\s|$)")
+
+
+def _crosses_block_interrupter(text: str, open_start: int, close_end: int) -> bool:
+    """True if the code span [open_start, close_end) crosses a block boundary
+    and therefore cannot survive as a span. The region is taken from the
+    START of the opening line so its own list-item context is visible: if the
+    span opens inside a list item, any subsequent list marker (any number)
+    breaks it, not just a paragraph-interrupting `1.`."""
+    line_start = text.rfind("\n", 0, open_start) + 1
+    region = text[line_start:close_end]
     lines = region.split("\n")
+    opens_in_list = bool(lines and _ANY_LIST_MARKER.match(lines[0]))
     for line in lines[1:]:
         if any(p.match(line) for p in _SPAN_BREAKERS):
+            return True
+        if opens_in_list and _ANY_LIST_MARKER.match(line):
             return True
     return False
 
@@ -303,9 +323,9 @@ def _split_inline(text: str):
                 close = close_m
                 break
             search_from = close_m.end()
-        region = text[open_m.start():close.end()] if close else ""
         if close and not _BLANK_LINE.search(text, open_m.start(), close.end()) \
-                and not _crosses_block_interrupter(region):
+                and not _crosses_block_interrupter(text, open_m.start(), close.end()):
+            region = text[open_m.start():close.end()]
             danger = _enclosing_danger(text, open_m.start(), close.end(), pos)
             if danger:
                 # The span is inside a live link/image/HTML construct: emit

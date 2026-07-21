@@ -128,6 +128,29 @@ def test_code_span_in_link_alt_does_not_protect():
     assert defang("use `<img>` carefully") == "use `<img>` carefully"
 
 
+def test_code_span_opening_inside_list_item_is_broken():
+    """When a code span OPENS inside a list item, the block is already a
+    list, so a following marker of ANY number continues the list and ends
+    the span (round-final P0; verified inert vs cmark-gfm). Distinct from a
+    span in a plain paragraph, where only a start-1 marker interrupts."""
+    for s in ("1. `x\n2. ![](http://evil/ol.png)`",
+              "3. `x\n4. ![](http://evil/y.png)`",
+              "1) `x\n2) [click](http://evil/link)`",
+              "1. `x\n2. <img src=http://evil/raw.png>`"):
+        assert "http://" not in defang(s).lower(), s
+    # non-regression: a span in a plain paragraph with a non-1 marker stays
+    # a valid inert span (not opened inside a list).
+    assert defang("`a\n2. b`") == "`a\n2. b`"
+
+
+def test_www_single_dot_and_overlong_tag_neutralized():
+    """GFM autolinks www. with a single dot; and an over-long HTML tag must
+    still be caught (backstop gaps, round-final P2; verified vs cmark-gfm)."""
+    d = defang("visit www.evil/track?leak=secret end")
+    assert "www.evil" not in d  # www label broken
+    long = '<img alt="' + "x" * 2100 + '" src="//evil.example/p.png">'
+    assert "`" in defang(long) and defang(long) != long  # wrapped inert
+
 def test_backtick_fence_info_string_is_not_a_fence():
     """CommonMark forbids a backtick in a backtick-fence info string, so a
     backtick fence whose info string has a backtick is a paragraph (its
