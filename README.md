@@ -120,7 +120,7 @@ cd pm-operating-system
 ./setup.sh
 ```
 
-`setup.sh` creates your workspace directories (`tasks/`, `projects/`, `knowledge/`, `library/`), walks you through an interactive goals setup, optionally installs Playwright for `/make-slides`, and ends with an explicit automation choice — schedule the currency watchers' report-only runs locally (launchd/Desktop), in the cloud (claude.ai routines, with a disclosure checklist), or skip entirely (the default: nothing runs unattended unless you choose it). MCP server dependencies install automatically on first `uv run`. MCP server dependencies install automatically on first `uv run`.
+`setup.sh` creates your workspace directories (`tasks/`, `projects/`, `knowledge/`, `library/`), walks you through an interactive goals setup, optionally installs Playwright for `/make-slides`, and ends with an explicit automation choice — schedule the currency watchers' report-only runs locally (launchd/Desktop), in the cloud (claude.ai routines, with a disclosure checklist), or skip entirely (the default: nothing runs unattended unless you choose it). MCP server dependencies install automatically on first `uv run`.
 
 Next, populate your goals through a guided conversation:
 
@@ -407,6 +407,7 @@ The manager-ai MCP server provides 11 tools for task and project management. It 
 | `get_project_artifacts` | Check which evaluation artifacts exist |
 | `get_project_summary` | Aggregate project stats and artifact coverage |
 | `get_system_status` | Full dashboard (tasks + projects + backlog) |
+| `get_watcher_status` | Currency watcher status — last report, days since, undecided candidates |
 | `process_backlog_with_dedup` | Deduplicate backlog items against existing work |
 
 </details>
@@ -589,9 +590,17 @@ Inline `# /// script` metadata auto-installs `pyyaml`, so no venv setup is neede
 
 **Exit codes:** `0` clean, `1` findings, `2` missing `pyyaml` (should not happen thanks to inline deps). Warnings (non-blocking) are reported separately and never affect the exit code.
 
+Run it before any PR. The validator is also the canonical answer to "is my framework healthy?" — drift accumulates, and the earlier you catch it the cheaper it is to fix.
+
 ## Staying current
 
 The framework keeps itself at the current Anthropic state of the art rather than drifting a generation behind between manual catch-ups.
+
+<div align="center">
+
+![Staying Current — releases and external repos flow through the watchers into a dated decision report, an owner adopt/adapt/skip decision, and a transactional baseline advance](docs/images/staying-current.svg)
+
+</div>
 
 - **Model and effort tiers.** Every skill, agent, and command carries a deliberate `model:` assignment (and `effort:` where supported) — mechanical work runs on cheaper models, judgment work inherits the session model or pins higher. The adapter generator maps or omits these per host (Codex tiers, Cursor's verified model set), so the portable tree never leaks a raw model ID.
 - **Two currency watchers.** `/cli-watch` tracks Claude Code / Anthropic releases; `/repo-watch` tracks a registry of external agent frameworks (seeded with the six analyzed in [`docs/ledger/`](docs/ledger/)). Both read a baseline, fetch only the delta, and write a dated report classifying each change — adopting anything is always a separate, owner-gated step. The baseline advances transactionally only after adopted work is committed.
@@ -599,7 +608,20 @@ The framework keeps itself at the current Anthropic state of the art rather than
 - **Currency visibility.** The `get_watcher_status` MCP tool and a step in `/morning` and `/weekly` surface how current the framework is — days since each watcher last ran, undecided candidates awaiting your decision.
 - **Verified capability baseline.** [`docs/capabilities.md`](docs/capabilities.md) records the current Claude Code capability surface (models, effort, workflows, scheduling, hooks) verified against live documentation, and is the platform watcher's first baseline.
 
-Run it before any PR. The validator is also the canonical answer to "is my framework healthy?" — drift accumulates, and the earlier you catch it the cheaper it is to fix.
+### Hardened automation path
+
+The unattended path is wrapped in five independent layers — a restricted tool profile, a write fence, an egress pin, a fail-closed `PreToolUse` guard, and defang on ingestion — so every fetched byte is neutralized before it can reach a report:
+
+<div align="center">
+
+![Defense in depth — restricted tool profile, write fence, egress pin, fail-closed PreToolUse guard, and a report-only watcher run at the center; defang, validator enforcement, and adversarial hardening alongside](docs/images/automation-guard.svg)
+
+</div>
+
+- **Fail-closed guard.** The `PreToolUse` guard parses tool calls with a real JSON parser and denies on any doubt — schemeless URLs, path traversal, credential-store reads, unexpected exits — rather than allowing on error.
+- **Defang on ingestion.** Web content fetched by the watchers is neutralized before it lands in a report: links, autolinks, code-fence info strings, reference definitions, and HTML blocks are all defused so a malicious changelog can't smuggle instructions to the next session that reads the report.
+- **Adversarially reviewed.** The guard and defang layers went through nine rounds of adversarial review — each round attempting fresh bypasses (GFM tables, block interrupters, balanced-bracket links, control-character escapes) until a full round produced no new findings.
+- **Validator-enforced.** Checks 39–46 keep the roster tiered, the guard wired, the secret scan green, and the degradation rules present — the hardening can't silently rot.
 
 ---
 
