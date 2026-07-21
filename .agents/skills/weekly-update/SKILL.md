@@ -4,7 +4,7 @@ description: |-
   Generate an outbound, stakeholder-facing weekly update memo (TL;DR, status, progress, blockers, asks, decisions needed) and save it to `knowledge/updates/YYYY-WXX[-audience].md`. This is OUTBOUND communication — different from `/weekly` which is an inward retro saved to journals. Use this skill whenever the user says "draft my weekly update", "stakeholder update", "status memo", "weekly status to leadership", "send weekly update", "exec update", "investor update", or needs to communicate progress to someone other than themselves. Push toward this any Friday when active projects have external stakeholders (advisors, clients, partners, leadership).
 argument-hint: "[--audience <name>] [--project <name>] [--last-week]"
 generated_from: .claude/skills/weekly-update/SKILL.md
-source_sha256: abaf1af63dc9f0ea7c21041632ae74dcb9ccbdc0da72dc0dcc11b083bd7d2d48
+source_sha256: 62e586c71f8c3951c0116da83a54c6e2d920209e14c925f3723a434a912b28f6
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

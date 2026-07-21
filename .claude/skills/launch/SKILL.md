@@ -1,5 +1,7 @@
 ---
 name: launch
+model: inherit
+effort: high
 description: Run a specific project through the full evaluation pipeline — validate → lean canvas → GTM → competitive analysis → pre-mortem → spec → user stories — with a Go/No-Go gate after each evaluation stage and project-status updates as the project moves through idea → evaluating → ready → active. Use this skill whenever the user wants to evaluate, validate, or launch a specific project end-to-end, runs `/launch <project-name>`, or says anything like "run the pipeline on X," "full evaluation of Y," "is Z worth building," or "take this project through the evaluation flow." Starts from the first missing artifact unless `--from <stage>` is specified.
 allowed-tools: Read Write Edit Glob Bash mcp__manager-ai__* mcp__plugin_slack_slack__*
 argument-hint: "<project-name> [--from <stage>]"
@@ -91,6 +93,14 @@ After a final Go or No-Go decision, ask: "Post this decision to #os-progress?"
 - No-Go: "[Project Name] — NO-GO. [Archived/Paused]. Reason: [one line]."
 
 Use `mcp__plugin_slack_slack__slack_send_message` to `#os-progress`. If Slack MCP is unavailable, skip silently.
+
+## Batch evaluation
+
+<!-- host:claude-code -->
+When the user asks to run several projects through evaluation at once, do not loop this pipeline serially: dispatch the batch-evaluator flow as a Workflow fan-out (one agent per project running the per-project evaluation, then a merge/ranking stage). Workflows are owner-triggered — never start one from a scheduled run (adoption matrix: unattended-allowed no).
+<!-- host:fallback (portable hosts see only this section) -->
+When the user asks to run several projects through evaluation at once, run them sequentially with the batch-evaluator instructions, one project at a time, then present the comparative ranking.
+<!-- host:end -->
 
 ## Notes
 

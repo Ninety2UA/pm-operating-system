@@ -1,5 +1,7 @@
 ---
 name: discover-ideas
+model: sonnet
+effort: medium
 description: >
   Searches the web and social media for project ideas and trending opportunities
   across the user's goal domains. Use this skill whenever the user says "find

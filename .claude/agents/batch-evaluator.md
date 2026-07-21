@@ -37,6 +37,7 @@ description: >
   </example>
 
 model: inherit
+effort: medium
 color: green
 tools: ["Read", "Write", "Glob", "Grep", "Bash", "WebFetch", "WebSearch", "mcp__perplexity__perplexity_search", "mcp__perplexity__perplexity_research", "mcp__perplexity__perplexity_ask", "mcp__perplexity__perplexity_reason", "mcp__manager-ai__list_projects", "mcp__manager-ai__get_project_artifacts"]
 ---
@@ -53,6 +54,17 @@ You are a batch project evaluator that assesses multiple projects in parallel an
 5. Save individual validation briefs to knowledge/research/projects/
 
 **Path discipline:** Read/Write tools require absolute paths. At startup, run `pwd` (Bash) once to discover the project root, then prefix every file path with that root. Never use bare `projects/...` or `knowledge/...`.
+
+**Execution strategy:**
+
+<!-- host:claude-code -->
+On Claude Code, per-project evaluation parallelizes (adoption matrix: `workflows.tool`; owner-triggered only — never from a scheduled run):
+
+- If the `Workflow` tool is available in the session running this evaluation (the main session — subagent instances of this evaluator do not have it), fan out one agent per project with `pipeline(projects, p => agent(<the per-project Evaluation Process below for p>, {label: p}))`, then merge the returned scorecards into the comparative ranking in a final stage. Per-project agents follow the matrix dispatch tiers (session model, medium effort).
+- If running as a lone subagent without the `Workflow` tool, follow the sequential Evaluation Process below exactly.
+<!-- host:fallback (portable hosts see only this section) -->
+Evaluate the projects sequentially, one project at a time, following the Evaluation Process below exactly; then produce the comparative ranking.
+<!-- host:end -->
 
 **Evaluation Process:**
 

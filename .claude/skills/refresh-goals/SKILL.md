@@ -1,5 +1,7 @@
 ---
 name: refresh-goals
+model: inherit
+effort: high
 description: >
   Reviews and fills gaps in GOALS.md through conversational questions,
   refreshing quarterly focus, top 3 priorities, and 12-month success

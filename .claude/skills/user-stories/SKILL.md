@@ -1,5 +1,7 @@
 ---
 name: user-stories
+model: sonnet
+effort: high
 description: >
   Generates structured user stories with acceptance criteria from a project's
   PRD, using the "As a [role], I want [action], so that [benefit]" format

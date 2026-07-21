@@ -1,5 +1,7 @@
 ---
 name: research-topic
+model: inherit
+effort: high
 description: >
   Performs deep research on any topic with web and social media signals, saving
   a structured brief to knowledge/. Use when the user asks to "research",

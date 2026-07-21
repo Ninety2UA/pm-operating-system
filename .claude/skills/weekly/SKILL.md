@@ -1,5 +1,7 @@
 ---
 name: weekly
+model: inherit
+effort: high
 description: Run a 20-minute weekly review — plan-vs-actual analysis from daily journals, shipping summary from completed tasks, pipeline movement, OKR progress, pattern detection from session reviews, AGENTS.md improvement proposals, and top priorities for next week. Use this skill whenever the user asks how the week went, wants to plan next week, runs `/weekly`, mentions retros or weekly reviews, or says anything like "wrap up the week," "Friday review," "weekly reflection," or "what did I ship." Push toward this at end of week even if the user doesn't explicitly ask.
 allowed-tools: Read Write Edit Glob Bash mcp__manager-ai__* mcp__plugin_slack_slack__*
 argument-hint: "[quick]"
@@ -41,6 +43,10 @@ Compile into a shipping summary:
 For each task where the Progress Log doesn't contain a clear impact statement, ask: "What was the impact of completing [task name]?"
 
 Include this section in the weekly summary saved in Step 9.
+
+<!-- host:claude-code -->
+Steps 2 and 8 read many files (a week of journals, session reviews). Delegate each to a background subagent (haiku or sonnet tier — mechanical extraction) and merge their summaries; keep the main context for the analysis itself.
+<!-- host:end -->
 
 ## Step 2: Journal review (plan vs. actual)
 
@@ -87,6 +93,10 @@ Read `GOALS.md`. If OKRs exist, update the "Current" column:
 - Flag KRs falling behind
 
 If no OKRs exist: "Run `/plan-okrs` to make your quarterly goals measurable."
+
+## Step 4b: Currency drift roll-up
+
+Aggregate the week's framework currency (read-only, silent-degrade like the morning step): call `mcp__manager-ai__get_watcher_status` (fallback: newest completed reports under `knowledge/currency/reports/*/`). Report: days since each watcher last ran, undecided candidates accumulating, and — if a watcher hasn't produced a completed report in over 14 days while automation is meant to be active — flag it as drift to investigate. Skip silently if no currency data exists.
 
 ## Step 5: Blockers and stalled work
 

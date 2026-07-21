@@ -1,5 +1,7 @@
 ---
 name: write
+model: inherit
+effort: high
 description: Draft content in the user's authentic voice — blog posts, outreach emails, social media, documentation — by reading voice samples and voice guide, gathering context from related knowledge files, producing a structured draft, and refusing generic AI patterns (em dashes, "isn't just Y," corrective reframing, LinkedIn breathless style, filler adjectives). Use this skill whenever the user asks to write, draft, or compose content of any kind — blog posts, emails, outreach, tweets, LinkedIn posts, announcements, docs, one-pagers, cold messages; runs `/write`; or says anything like "help me write X," "draft an email to Y," "put together a post about Z," or "write this up." Push toward this whenever prose is being generated, even if the user didn't use the word "write."
 allowed-tools: Read Write Edit Glob mcp__plugin_slack_slack__*
 argument-hint: "<content-type> <topic>"

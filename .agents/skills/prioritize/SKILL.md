@@ -4,7 +4,7 @@ description: |-
   Ranks projects or tasks using structured prioritization frameworks — ICE, RICE, Opportunity Score, or Impact-Effort matrix — producing a scored list with rationale. Use this skill whenever the user sounds decision-fatigued, mentions "too many options", asks "what should I do first", says "prioritize my projects", "rank these ideas", "which project should I work on", "stack rank", has more than 10 projects in idea stage, or needs to choose between multiple options — even if they don't say "prioritize."
 argument-hint: "[--framework ice|rice|opportunity|impact-effort] [--scope projects|tasks|all]"
 generated_from: .claude/skills/prioritize/SKILL.md
-source_sha256: 5eef5fe89c3461c37f3f389c4adeadd6fe27977f5a85cfbbcf5d46977241dbed
+source_sha256: ba6cc6548561149a7d02acdc276746b3f3956d6e6ec1446ddaa8e51a2b6cd036
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

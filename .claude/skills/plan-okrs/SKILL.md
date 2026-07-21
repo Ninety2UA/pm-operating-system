@@ -1,5 +1,7 @@
 ---
 name: plan-okrs
+model: inherit
+effort: high
 description: >
   Creates or refreshes measurable OKRs (Objectives and Key Results) aligned
   with GOALS.md — converts informal objectives into structured OKRs with

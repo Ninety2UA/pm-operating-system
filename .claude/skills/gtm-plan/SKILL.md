@@ -1,5 +1,7 @@
 ---
 name: gtm-plan
+model: inherit
+effort: high
 description: >
   Creates a Go-to-Market plan for a project — ICP, beachhead segment,
   positioning, channels, launch timeline, and growth loops. Use this skill

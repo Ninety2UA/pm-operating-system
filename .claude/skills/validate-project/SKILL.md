@@ -1,5 +1,7 @@
 ---
 name: validate-project
+model: inherit
+effort: high
 description: >
   Researches and validates a project idea against market reality — competitors,
   market size, social sentiment, and feasibility — producing a structured

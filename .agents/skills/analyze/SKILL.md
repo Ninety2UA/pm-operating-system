@@ -4,7 +4,7 @@ description: |-
   Deep compatibility analysis of an external repo/resource against our system.
 argument-hint: "<github-url or local-path>"
 generated_from: .claude/commands/analyze.md
-source_sha256: 41239b1b99ac4337bce275f79c2531d78519c5af5e23b5d9a7f26f77e1f29bca
+source_sha256: 2a2e7a05b1d6924a60eb6768e608576c71ebd5a3c6c2da4e62b17ecc79c4a3b5
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -65,3 +65,7 @@ Each row = one concrete extractable element.
 - Be exhaustive — scan all key files (AGENTS.md, prompts, configs, orchestration logic, README, src/)
 - Compare against our current conventions (check AGENTS.md, CONVENTIONS.md, docs/) to avoid redundant suggestions
 - If the input is a URL, use WebFetch to retrieve and analyze it; if a local path, use Read/Glob to inspect it directly
+
+## Position discipline
+
+Form and record your own compatibility verdict before consulting external reviews or popularity signals — an analysis anchored on stars and testimonials is not an analysis. Every adopt/adapt/skip verdict must cite evidence from this repo's actual files and constraints (the "project floor"), never a generic judgment of the target. (CE-13)

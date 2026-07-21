@@ -5,7 +5,7 @@ model: inherit
 readonly: true
 is_background: false
 generated_from: .claude/agents/system-health.md
-source_sha256: 7f7274c536f70a075e876b35ee2b339e5049c5a317d4ade3b247c3ba6dfd8280
+source_sha256: 92ced1940fdba55bb24ad689764b5f93c8071bf3e60ed90c4ab3eb1fa840c7e7
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

@@ -52,10 +52,10 @@ In his [Stanford talk](https://www.youtube.com/watch?v=c3b-JASoPi0) and subseque
 | LLM OS Concept | How It Works Here |
 |---|---|
 | **Strategic memory** | `GOALS.md` is read every session to prioritize your work |
-| **Specialized capabilities** | 30 skills the LLM can invoke (validation, risk analysis, build-ready technical specs, sprint planning, slide generation) plus 1 standalone command (`/analyze`) |
-| **Recurring workflows** | Workflow skills (`/morning`, `/weekly`, `/quarterly`, `/process-backlog`, `/launch`, `/write`) for daily, weekly, and quarterly cycles |
+| **Specialized capabilities** | 32 skills the LLM can invoke (validation, risk analysis, build-ready technical specs, sprint planning, slide generation) plus 1 standalone command (`/analyze`) |
+| **Recurring workflows** | Workflow skills (`/morning`, `/weekly`, `/quarterly`, `/process-backlog`, `/launch`, `/write`) for daily, weekly, and quarterly cycles, plus currency watchers (`/cli-watch`, `/repo-watch`) that keep the framework itself current |
 | **Autonomous sub-processes** | 3 agents that run in the background (research, evaluation, diagnostics) |
-| **Structured tool use** | MCP server with 10 tools for task and project management |
+| **Structured tool use** | MCP server with 11 tools for task and project management |
 | **Long-term memory** | `knowledge/` compounds from daily journals to quarterly assessments |
 
 The result: each session makes the next one more effective. Your assistant does not start from zero; it starts from everything it has learned about you, your goals, and your work.
@@ -100,10 +100,10 @@ The system learns through three nested feedback loops. Each layer feeds the next
 
 | Category | What You Get |
 |---|---|
-| **Skills** | 30 skills covering ideation, validation, technical spec, planning, execution, communication, and recurring workflows |
+| **Skills** | 32 skills covering ideation, validation, technical spec, planning, execution, communication, and recurring workflows |
 | **Commands** | 1 standalone command (`/analyze`); workflow slash-invocations are skills |
 | **Agents** | 3 autonomous agents for deep research, batch evaluation, and system diagnostics |
-| **MCP Server** | 10 tools with fuzzy deduplication for tasks and projects |
+| **MCP Server** | 11 tools with fuzzy deduplication for tasks and projects |
 | **Prioritization** | Goal-driven P0-P3 levels tied to your strategic objectives |
 | **Pipeline** | Project evaluation with Go/No-Go gates at each stage |
 | **Knowledge** | Compounding loops from daily journals to quarterly OKR scoring |
@@ -120,7 +120,7 @@ cd pm-operating-system
 ./setup.sh
 ```
 
-`setup.sh` creates your workspace directories (`tasks/`, `projects/`, `knowledge/`, `library/`), walks you through an interactive goals setup, and optionally installs Playwright for `/make-slides`. MCP server dependencies install automatically on first `uv run`.
+`setup.sh` creates your workspace directories (`tasks/`, `projects/`, `knowledge/`, `library/`), walks you through an interactive goals setup, optionally installs Playwright for `/make-slides`, and ends with an explicit automation choice — schedule the currency watchers' report-only runs locally (launchd/Desktop), in the cloud (claude.ai routines, with a disclosure checklist), or skip entirely (the default: nothing runs unattended unless you choose it). MCP server dependencies install automatically on first `uv run`. MCP server dependencies install automatically on first `uv run`.
 
 Next, populate your goals through a guided conversation:
 
@@ -167,7 +167,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 ## What You Get
 
 <details>
-<summary><strong>Skills Reference (30 skills — 24 specialized below + 6 daily-workflow commands in the next section)</strong></summary>
+<summary><strong>Skills Reference (32 skills — 26 specialized below + 6 daily-workflow commands in the next section)</strong></summary>
 
 <br>
 
@@ -225,6 +225,13 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 | `/meeting-prep` | Prepare context for an upcoming meeting from People, transcripts, and tasks |
 | `/log-meeting` | Capture a meeting not synced by Granola (1-on-1, interview, one-off, standup) |
 
+**Currency (framework self-maintenance)**
+
+| Skill | Description |
+|-------|-------------|
+| `/cli-watch` | Platform watcher — classify Claude Code / Anthropic changes since the last baseline into a dated decision report (report-only is schedulable; `full` is owner-run) |
+| `/repo-watch` | Ecosystem watcher — per-repo adopt/adapt/skip candidate lines over the registered external repos (seeded with the six from the ecosystem-mining pass) |
+
 </details>
 
 <details>
@@ -265,7 +272,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 pm-operating-system/
 |
 |-- .claude/
-|   |-- skills/                  30 skills
+|   |-- skills/                  32 skills
 |   |   |-- morning/SKILL.md
 |   |   |-- weekly/SKILL.md
 |   |   |-- launch/SKILL.md
@@ -289,7 +296,7 @@ pm-operating-system/
 |   +-- settings.local.json      Per-user permissions + plugin enablement (gitignored)
 |
 |-- core/
-|   +-- mcp/                     manager-ai MCP server (10 tools + dedup)
+|   +-- mcp/                     manager-ai MCP server (11 tools + dedup)
 |
 |-- library/                     Reusable artifact catalog
 |-- AGENTS.md                    AI assistant instructions
@@ -368,7 +375,7 @@ Compiles a shipping summary, reads journals for plan-vs-actual patterns, reviews
 
 ### MCP Server (Required)
 
-The manager-ai MCP server provides 10 tools for task and project management. It is wired up in the committed `.mcp.json` at the repo root — `setup.sh` installs the dependencies and you are good to go:
+The manager-ai MCP server provides 11 tools for task and project management. It is wired up in the committed `.mcp.json` at the repo root — `setup.sh` installs the dependencies and you are good to go:
 
 ```json
 {
@@ -385,7 +392,7 @@ The manager-ai MCP server provides 10 tools for task and project management. It 
 ```
 
 <details>
-<summary><strong>MCP Tools Reference (10 tools)</strong></summary>
+<summary><strong>MCP Tools Reference (11 tools)</strong></summary>
 
 <br>
 
@@ -408,7 +415,7 @@ The manager-ai MCP server provides 10 tools for task and project management. It 
 
 This system isn't Claude-only. It's built on three open standards, so it runs in **OpenAI Codex CLI**, **Cursor**, **Google Antigravity**, and other conformant tools with no rewrite:
 
-- **Skills** — all 30 skills (plus the 3 agents and the `analyze` command) generate to a committed `.agents/skills/` tree these tools read natively.
+- **Skills** — all 32 skills (plus the 3 agents and the `analyze` command) generate to a committed `.agents/skills/` tree these tools read natively.
 - **Instructions** — `AGENTS.md` is the shared, tool-neutral operating manual; `CLAUDE.md` is just the thin Claude-specific overlay.
 - **Tools** — the `manager-ai` MCP server works in every host.
 
@@ -562,7 +569,7 @@ uv run core/scripts/validate.py
 
 Inline `# /// script` metadata auto-installs `pyyaml`, so no venv setup is needed.
 
-**37 deterministic checks** span the entire framework:
+**46 deterministic checks** span the entire framework:
 
 | Category | What it catches |
 |---|---|
@@ -574,9 +581,23 @@ Inline `# /// script` metadata auto-installs `pyyaml`, so no venv setup is neede
 | **Pipeline conformance** | Projects at `evaluating`/`ready`/`active` have the expected artifacts (validation brief, pre-mortem, PRD, user stories) — reported as warnings, not failures |
 | **External deps** | Skills that need `npm`, `gh`, `gws`, etc. flag missing CLIs as warnings |
 | **Hygiene** | Tracked `.DS_Store` / `node_modules`, `TODO`/`FIXME` markers in shipped docs, stale lock files outside `.gitignore`, hardcoded user paths in the validator itself |
-| **Runtime** | `setup.sh` + hooks pass `bash -n`; MCP server imports cleanly |
+| **Model currency** | No framework file references a retired model ID; every skill, agent, and command carries a deliberate `model:` assignment (a pin or explicit `inherit`) |
+| **Degradation coverage** | Every adopted Claude-native capability that lands in a generated body ships a degradation rule (a fenced fallback or a renderer mapping), so the portable `.agents/skills/` tree stays free of Claude-only tokens |
+| **Secret hygiene** | Blocking scan of tracked, portfolio-public artifacts (`docs/ledger/`, `docs/capabilities.md`, `core/watchers/`) for credential-shaped strings, with an inline `# secret-scan: allow` escape |
+| **Automation guard** | The committed-but-unwired report-only guard hook never trips the orphan-hook scan; local `settings.local.json` wiring is validated only when present |
+| **Runtime** | `setup.sh` + hooks pass `bash -n`; MCP server imports cleanly; the `core/scripts/` pytest harness runs green |
 
 **Exit codes:** `0` clean, `1` findings, `2` missing `pyyaml` (should not happen thanks to inline deps). Warnings (non-blocking) are reported separately and never affect the exit code.
+
+## Staying current
+
+The framework keeps itself at the current Anthropic state of the art rather than drifting a generation behind between manual catch-ups.
+
+- **Model and effort tiers.** Every skill, agent, and command carries a deliberate `model:` assignment (and `effort:` where supported) — mechanical work runs on cheaper models, judgment work inherits the session model or pins higher. The adapter generator maps or omits these per host (Codex tiers, Cursor's verified model set), so the portable tree never leaks a raw model ID.
+- **Two currency watchers.** `/cli-watch` tracks Claude Code / Anthropic releases; `/repo-watch` tracks a registry of external agent frameworks (seeded with the six analyzed in [`docs/ledger/`](docs/ledger/)). Both read a baseline, fetch only the delta, and write a dated report classifying each change — adopting anything is always a separate, owner-gated step. The baseline advances transactionally only after adopted work is committed.
+- **Least-privilege automation.** Scheduled watcher runs are report-only by construction: a restricted tool profile (deny Bash and mutating MCP, fence writes to `knowledge/currency/`, pin fetch egress) plus a defense-in-depth `PreToolUse` guard. `setup.sh` offers automation as an explicit first-run choice — local, cloud, hybrid, or skip — with each home's true enforcement guarantee disclosed. Nothing runs unattended unless you choose it.
+- **Currency visibility.** The `get_watcher_status` MCP tool and a step in `/morning` and `/weekly` surface how current the framework is — days since each watcher last ran, undecided candidates awaiting your decision.
+- **Verified capability baseline.** [`docs/capabilities.md`](docs/capabilities.md) records the current Claude Code capability surface (models, effort, workflows, scheduling, hooks) verified against live documentation, and is the platform watcher's first baseline.
 
 Run it before any PR. The validator is also the canonical answer to "is my framework healthy?" — drift accumulates, and the earlier you catch it the cheaper it is to fix.
 

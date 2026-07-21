@@ -4,7 +4,7 @@ description: |-
   Run a specific project through the full evaluation pipeline — validate → lean canvas → GTM → competitive analysis → pre-mortem → spec → user stories — with a Go/No-Go gate after each evaluation stage and project-status updates as the project moves through idea → evaluating → ready → active. Use this skill whenever the user wants to evaluate, validate, or launch a specific project end-to-end, runs `/launch <project-name>`, or says anything like "run the pipeline on X," "full evaluation of Y," "is Z worth building," or "take this project through the evaluation flow." Starts from the first missing artifact unless `--from <stage>` is specified.
 argument-hint: "<project-name> [--from <stage>]"
 generated_from: .claude/skills/launch/SKILL.md
-source_sha256: 4e56c0140eb4e0917503bdee5aa841655024f3987b52d018ee631087791cf74a
+source_sha256: c0b03ba59e9164ce96f67e8c9f69dbb74fcf6600decf554e8a189acfe2f30c5b
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -94,6 +94,10 @@ After a final Go or No-Go decision, ask: "Post this decision to #os-progress?"
 - No-Go: "[Project Name] — NO-GO. [Archived/Paused]. Reason: [one line]."
 
 Use the `slack_send_message` tool (Slack MCP server) to `#os-progress`. If Slack MCP is unavailable, skip silently.
+
+## Batch evaluation
+
+When the user asks to run several projects through evaluation at once, run them sequentially with the batch-evaluator instructions, one project at a time, then present the comparative ranking.
 
 ## Notes
 

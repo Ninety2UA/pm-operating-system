@@ -1,7 +1,9 @@
-# generated-from: .claude/agents/system-health.md  sha256:7f7274c536f70a075e876b35ee2b339e5049c5a317d4ade3b247c3ba6dfd8280
+# generated-from: .claude/agents/system-health.md  sha256:92ced1940fdba55bb24ad689764b5f93c8071bf3e60ed90c4ab3eb1fa840c7e7
 # do not edit — regenerate with: uv run core/scripts/build_adapters.py
 name = "system-health"
 description = "Use this agent to run a diagnostic scan of the personal OS — tasks, projects, goals, and backlog. Use before weekly reviews, when something feels off, or proactively when the user asks about system health. Do NOT use for listing tasks or projects — use the MCP tools directly for those."
+model = "gpt-5.6-terra"
+model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 developer_instructions = '''
 **READ-ONLY:** This is a diagnostic scan — never modify any file or task/project state.

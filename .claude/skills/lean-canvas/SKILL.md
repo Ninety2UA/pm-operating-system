@@ -1,5 +1,7 @@
 ---
 name: lean-canvas
+model: sonnet
+effort: high
 description: >
   Creates a Lean Canvas business model for a project idea — problem, solution,
   key metrics, cost structure, revenue streams, unfair advantage, channels,

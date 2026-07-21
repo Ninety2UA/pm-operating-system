@@ -4,7 +4,7 @@ description: |-
   Creates or refreshes measurable OKRs (Objectives and Key Results) aligned with GOALS.md — converts informal objectives into structured OKRs with baselines, targets, and owners, informed by past OKR calibration history. Use this skill whenever the user mentions OKRs, quarterly goals, "make my goals measurable", "set quarterly goals", "plan OKRs", "create OKRs", when GOALS.md has objectives without key results, or during quarterly planning — even if they don't use the word "OKR."
 argument-hint: "[quarter, e.g. Q2-2026]"
 generated_from: .claude/skills/plan-okrs/SKILL.md
-source_sha256: fb79790879c2dc5bd4cc4b78bfe3b9e2ae880a119bd5336b1264ad6cdc318dca
+source_sha256: 0af0701f299ab7f9ac669613768d69aa7d83ec294e9211abaf89935f1ff7b920
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

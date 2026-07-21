@@ -3,7 +3,7 @@ name: process-backlog
 description: |-
   Turn BACKLOG.md into organized tasks and projects with duplicate detection (checks against existing tasks/ AND projects/), classify each item as task-vs-project, enforce goals alignment, warn on priority-limit overages, and clear the processed items from BACKLOG.md. Use this skill whenever the user says "clear my backlog," "process backlog," "triage my inbox," "sort out BACKLOG.md," runs `/process-backlog`, dumps new items into the backlog, or mentions the capture inbox. Push toward this whenever BACKLOG.md has unprocessed items and a session is ending.
 generated_from: .claude/skills/process-backlog/SKILL.md
-source_sha256: 31f8689d3cbaae59a0231ac19c3a5b005a9c436b1d2496b1056f7217d9a16520
+source_sha256: e1f84b61a196e5baad9026521e7d18bbbc30c967c87930d7fb947ed4a542d0c3
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -41,6 +41,7 @@ For items that pass dedup:
   - Invoke the `/prd` skill to generate `projects/<project-name>/prd.md`.
     - `/prd` defaults to non-interactive auto-inference. For backlog items with <1 paragraph of context, most PRD sections will be flagged `[INFERRED]` — tell the user to re-run `/prd <project-name> --ask` later to refine, or pass `--ask` directly here if the item needs clarification up-front.
 
+
 ## Step 4: Check priority limits
 
 Call the `check_priority_limits` tool (manager-ai MCP server) before assigning P0/P1 to new items. If limits are exceeded (P0 > 3 or P1 > 7), warn the user and ask to downgrade or defer.
@@ -62,3 +63,9 @@ Show:
 ## Step 7: Clear backlog
 
 After the user confirms, clear processed items from `BACKLOG.md`. Leave any items that were deferred or need clarification with a one-line note about why.
+
+## Rationalization guard
+
+- *"This item is obvious — I'll skip the duplicate check."* The dedup call is one tool invocation; a duplicate project costs weeks. Always run it.
+- *"The user is busy — I'll guess the priority instead of asking."* The STOP-and-ask rule for missing context/priority exists because a wrong P0 pollutes every daily plan. Batch the questions and ask once.
+- *"I'll create the project now and generate the PRD later."* A project without its PRD stalls at the first pipeline gate; generate it as part of this flow.

@@ -4,7 +4,7 @@ description: |-
   Captures a structured review of the current Claude Code session — user prompts verbatim, tools used, workflow chains, what worked, missing capabilities — and saves it to knowledge/session-reviews/ for weekly pattern analysis. Use this skill whenever the user says "review this session", "save session learnings", "what did we do", "capture what we learned", "session review", at the end of long or significant sessions, when the session-end reflection rule in AGENTS.md fires, or after a substantial work session — even if the user doesn't use the word "review."
 argument-hint: "(no arguments — uses the current session)"
 generated_from: .claude/skills/session-review/SKILL.md
-source_sha256: 5319e2cd37126c03d0c187c99fe329c2df526bc6981e701647147c415483c82d
+source_sha256: cda06213b9e137c903cc418ca9d20eb20c5149a4db5a92e40b2978c3b7e2fcaa
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -125,3 +125,7 @@ Tell the user:
 - Don't include trivial prompts like "yes", "ok", "continue". Capture the substantive requests.
 - `## Missing Capabilities` directly feeds the weekly pattern analysis that suggests new commands/skills.
 - Reviews are read by `/weekly` command for pattern analysis across the week's sessions.
+
+## Attribution rule
+
+Every learning captured must cite the artifact or exchange it came from (file path, prompt, or tool output) — extract only what is explicitly documented in the session; never invent or embellish a learning. Promoted learnings (ones that become AGENTS.md rules or new skills) note their promotion in the source review. (GSD-07)

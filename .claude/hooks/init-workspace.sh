@@ -46,6 +46,8 @@ mkdir -p \
   knowledge/voice-samples \
   knowledge/updates \
   knowledge/decks \
+  knowledge/currency/reports/cli \
+  knowledge/currency/reports/repo \
   library/prompts \
   library/systems \
   library/skills \

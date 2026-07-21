@@ -1,5 +1,7 @@
 ---
 name: session-review
+model: sonnet
+effort: medium
 description: >
   Captures a structured review of the current Claude Code session — user
   prompts verbatim, tools used, workflow chains, what worked, missing
@@ -130,3 +132,7 @@ Tell the user:
 - Don't include trivial prompts like "yes", "ok", "continue". Capture the substantive requests.
 - `## Missing Capabilities` directly feeds the weekly pattern analysis that suggests new commands/skills.
 - Reviews are read by `/weekly` command for pattern analysis across the week's sessions.
+
+## Attribution rule
+
+Every learning captured must cite the artifact or exchange it came from (file path, prompt, or tool output) — extract only what is explicitly documented in the session; never invent or embellish a learning. Promoted learnings (ones that become AGENTS.md rules or new skills) note their promotion in the source review. (GSD-07)

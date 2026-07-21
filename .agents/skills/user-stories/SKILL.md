@@ -4,7 +4,7 @@ description: |-
   Generates structured user stories with acceptance criteria from a project's PRD, using the "As a [role], I want [action], so that [benefit]" format with INVEST criteria. Use this skill whenever the user says "create user stories", "break this into stories", "decompose this PRD", "what should I build first", "user stories for X", or whenever a project has a PRD and is moving from evaluating to active — even if the user just says "let's start building X." Pass `--tasks` to also generate individual task files.
 argument-hint: "<project-name> [--tasks]"
 generated_from: .claude/skills/user-stories/SKILL.md
-source_sha256: 2910ef2758e306b65351ce05f8e9ab6d85ef431d575e64e073d3e1c0d33c140b
+source_sha256: e5df4f276f4b7786fa58580875b66f50b0cbc27ca72e9e0f905f03dbb60af883
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

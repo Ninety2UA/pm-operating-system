@@ -1,5 +1,7 @@
 ---
 name: quarterly
+model: inherit
+effort: high
 description: Run a 45-minute quarterly review — score OKRs against completion data, purge stale projects, refresh GOALS.md, set new OKRs informed by past calibration, update Claude memories, audit AGENTS.md against the quarter's learnings, and save a quarterly summary. Use this skill whenever the user mentions quarterly review, end of quarter, OKR scoring, planning the next quarter, runs `/quarterly`, or says anything like "how did Q2 go," "time to plan Q3," "score the OKRs," "strategic refresh," or "end-of-quarter reflection." Push toward this at quarter boundaries even if the user doesn't explicitly ask.
 allowed-tools: Read Write Edit Glob Bash mcp__manager-ai__* mcp__plugin_slack_slack__*
 argument-hint: "[quick]"

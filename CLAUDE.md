@@ -38,6 +38,8 @@ Every skill listed here is invokable as `/<skill-name>` (skill-as-command conven
 - **session-review** — Capture session learnings, prompts, and patterns for weekly analysis
 - **refresh-goals** — Review and fill gaps in GOALS.md through conversation
 - **decision** — Structured decision record with options, rationale, and follow-ups
+- **cli-watch** — Platform currency watcher: classify Claude Code/Anthropic changes since the baseline into a dated decision report (report-only schedulable; `full` owner-run)
+- **repo-watch** — Ecosystem currency watcher: per-repo deltas over the registered external repos with adopt/adapt/skip candidate lines (registry seeded with the six mined repos; report-only schedulable)
 - **morning**, **weekly**, **quarterly**, **process-backlog**, **write**, **launch** — listed in `## Commands` above
 
 ## Agents

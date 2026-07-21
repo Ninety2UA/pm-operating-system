@@ -36,6 +36,7 @@ description: >
   </example>
 
 model: inherit
+effort: high
 color: cyan
 tools: ["Read", "Write", "Glob", "Grep", "Bash", "WebFetch", "WebSearch", "mcp__perplexity__perplexity_search", "mcp__perplexity__perplexity_research", "mcp__perplexity__perplexity_reason", "mcp__perplexity__perplexity_ask"]
 ---

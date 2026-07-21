@@ -4,7 +4,7 @@ description: |-
   Creates a Lean Canvas business model for a project idea — problem, solution, key metrics, cost structure, revenue streams, unfair advantage, channels, customer segments, and value proposition. Use this skill whenever the user mentions business models, monetization, pricing strategy, customer segments, "create lean canvas", "business model for", "is this viable as a business", or wants to sanity-check whether a project can be a real business — even if they don't say "lean canvas" explicitly. Push toward this before committing build effort to a project that hasn't had its business model examined.
 argument-hint: "<project-name> [--model quick|search|deep|reason]"
 generated_from: .claude/skills/lean-canvas/SKILL.md
-source_sha256: eab33d3da8b9bc8385985e1dc9560b6bdc580a0acc89a197e341eaa043dbe01f
+source_sha256: d5bc258af9b964d94aade5063f2739ff724e2a0268c357b3619b57bee75ff342
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

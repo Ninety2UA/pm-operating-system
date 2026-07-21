@@ -4,7 +4,7 @@ description: |-
   Performs deep research on any topic with web and social media signals, saving a structured brief to knowledge/. Use when the user asks to "research", "look into", "find out about", "investigate", "deep dive into", or wants to understand a topic, technology, or market before making decisions.
 argument-hint: "<topic> [--model quick|search|deep|reason]"
 generated_from: .claude/skills/research-topic/SKILL.md
-source_sha256: a3d3a9188b3379f87d422856de56dc9409de578e8bec760e08afc17949e30fd4
+source_sha256: 8ede59d9a3aa9e55151b3c8a8f1f53df57905d77f7ee5ac9cb6382173907ef7b
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

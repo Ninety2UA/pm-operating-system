@@ -15,6 +15,11 @@ This system is authored for Claude Code, but it is built on three open standards
 | Skills | `.claude/skills/` (source) | `.agents/skills/` | `.agents/skills/` | `.agents/skills/` |
 | Per-skill `references/` | yes | yes | yes | yes |
 | Subagents (separate context / background) | yes | partial | yes | yes |
+| Model/effort tier pins | native frontmatter (`model:`, `effort:`) | mapped (`model` omitted for inherit; `model_reasoning_effort`) | dropped (portable tree carries no pins) | `model:` from the verified set only (`claude-opus-4-8`), else `inherit` |
+| Host-conditional sections | full content (fences visible as comments) | fallback prose only | fallback prose only | fallback prose only |
+| Watchers (`/cli-watch`, `/repo-watch`) | yes (skills) | yes — report-only pipeline is fetch+write prose | yes | yes |
+| Scheduled automation (report-only) | launchd/cron wrapper (full enforcement) · Desktop tasks (partial) · cloud routines | via each host's own scheduler if any — the skills stay manual otherwise | manual | manual |
+| Report-only guard hook | PreToolUse (`settings.local.json`, opt-in) | not available — enforcement rests on the wrapper/profile layer | not available | not available |
 
 > Also works with Windsurf, GitHub Copilot, and other tools that adopt the Agent Skills standard — they read the same `.agents/skills/` tree.
 

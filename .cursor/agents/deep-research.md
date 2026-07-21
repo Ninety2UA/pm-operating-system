@@ -5,7 +5,7 @@ model: inherit
 readonly: false
 is_background: true
 generated_from: .claude/agents/deep-research.md
-source_sha256: 69e1f870faa0a899c3d904c4754296cba60e4f1719511034752bc4dc6370e6df
+source_sha256: 7f7bb4a5157349dd0d3adc9b5364af4f07e7fe3a692bb8d510a9b1d4e18b8f2b
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

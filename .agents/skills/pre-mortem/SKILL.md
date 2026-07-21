@@ -4,7 +4,7 @@ description: |-
   Runs a pre-mortem risk analysis on a project — imagines the project has already failed 6 months out and works backward to identify what went wrong. Produces a ranked risk matrix with mitigations and a Go/No-Go recommendation. Use this skill whenever the user mentions "what could go wrong", "risk analysis", "pre-mortem", "stress test this project", "failure modes", shows enthusiasm for building without having examined failure modes, or is about to move a project from evaluating to active — even if they don't say "pre-mortem."
 argument-hint: "<project-name>"
 generated_from: .claude/skills/pre-mortem/SKILL.md
-source_sha256: 4cef603a049f6738831e9a818837d8ad11b081e08f6839829509a68a65873c6f
+source_sha256: 83e38880d9bc7fc14c30e6fd831b1ac299f6e89c5614d6e798b8e8425e5ab4cd
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

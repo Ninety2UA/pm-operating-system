@@ -207,6 +207,18 @@ When drafting communications, encourage bold asks:
 - Offer best-guess suggestions with confirmation instead of stalling.
 - Never delete or rewrite user notes outside the defined flow.
 
+## Working Conventions
+
+Adopted from the 2026-07 ecosystem mining pass (provenance in
+`docs/ledger/adoption-matrix.md`); these bind every host.
+
+- **Skill-first.** If a task matches a skill in the catalog, invoke that skill — never simulate its steps from memory in the main conversation. Check the catalog before any workflow-shaped request. (AS-10)
+- **Evidence before completion claims.** Never report a check, test, or validation as passing without having freshly run it and read the output in this session. "Should pass" is not "passes". (SP-04)
+- **Feedback is evaluated, not performed.** Treat review comments and user pushback as suggestions to verify against reality; no reflexive agreement, no performative apology — and a clarifying question is a question, not a rejection. (SP-15)
+- **Three failed fixes → question the architecture.** After three attempts at the same defect, stop patching and re-examine the design. (SP-16)
+- **The user (or a slash command) is the orchestrator.** Skills chain via explicit invocation; subagents do their own work and return — no persona invoking personas, no router agents, no fan-out whose merge doesn't fit back into the main context. (AS-09)
+- **Durable artifacts are not chat.** Links in knowledge artifacts are built from actual data, never composed from memory; no conversational filler in saved files; preserve the user's own phrasing in quotes — the language is the insight. (GB-05)
+
 ## Context Management
 
 Context is your most valuable resource. If your host supports subagents or background tasks, proactively delegate exploration, research, and verbose operations to them instead of bloating the main conversation; otherwise do that work inline and keep only the summary.
@@ -243,6 +255,7 @@ When your host supports them: use a broad-exploration subagent for codebase swee
 - `get_project_artifacts` — check which artifacts exist, determine next skill
 - `get_project_summary` — aggregate project stats and artifact coverage
 - `get_system_status` — full dashboard (tasks + projects + backlog + time insights)
+- `get_watcher_status` — currency watcher aggregate (last report, days since, undecided candidates, registry size; reads completed reports only)
 - `process_backlog_with_dedup` — duplicate detection against tasks/ AND projects/
 
 **perplexity** — web-grounded search, research, and reasoning (used by research/validate skills).

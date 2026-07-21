@@ -37,6 +37,7 @@ description: >
   </example>
 
 model: sonnet
+effort: medium
 color: yellow
 # Diagnostic-only agent: tools list is intentionally limited to READ-ONLY
 # filesystem + read-only manager-ai MCP tools. Mutating MCP tools

@@ -4,7 +4,7 @@ description: |-
   Searches the web and social media for project ideas and trending opportunities across the user's goal domains. Use this skill whenever the user says "find ideas", "discover opportunities", "what should I build", "scan for trends", "find trending topics", "I need new ideas", "give me project suggestions", mentions feeling stuck for ideas, wants inspiration, asks about market trends, or says they want to explore new directions — even if they don't use the word "discover". Accepts optional topic argument to narrow focus.
 argument-hint: "[topic] [--model quick|search|deep|reason]"
 generated_from: .claude/skills/discover-ideas/SKILL.md
-source_sha256: b4e512b93375f3040dc14522bab39a984871a3f131fb53de19004d328f492704
+source_sha256: bf46b31a1c231f09adfb9d66f229c550f63489b18aaa4dbe294c08a8a4ff4af3
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

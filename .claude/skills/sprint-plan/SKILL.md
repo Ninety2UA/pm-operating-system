@@ -1,5 +1,7 @@
 ---
 name: sprint-plan
+model: sonnet
+effort: medium
 description: >
   Creates a weekly sprint plan at 70% capacity from current tasks and user
   stories — selects stories, identifies dependencies and risks, produces a

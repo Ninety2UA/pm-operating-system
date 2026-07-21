@@ -4,7 +4,7 @@ description: |-
   Reviews and fills gaps in GOALS.md through conversational questions, refreshing quarterly focus, top 3 priorities, and 12-month success criteria. Use this skill whenever the user says "refresh goals", "my goals are stale", "update GOALS.md", "I need to rethink my goals", "quarterly goal refresh", "fill in my north star", when GOALS.md has empty sections, at the start of a new quarter, or when the user expresses uncertainty about direction — even if they don't explicitly ask to refresh goals.
 argument-hint: "[--section <section-name>]"
 generated_from: .claude/skills/refresh-goals/SKILL.md
-source_sha256: d6ab0a23303854d2e38bf8fff1ad373ba42a3c329661ea98fb7f7e63f3bee87e
+source_sha256: 7e2dc3f7b274b986b84b76a8091e5f17d6fb5da3bbe7d7a0afd42f84a64c09c7
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

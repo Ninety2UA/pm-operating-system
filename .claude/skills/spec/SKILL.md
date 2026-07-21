@@ -1,5 +1,7 @@
 ---
 name: spec
+model: inherit
+effort: xhigh
 description: >
   Generate a technical design spec (spec.md) — the HOW-only build contract an AI
   coding agent (or engineer) implements from alone: pinned tech stack + package
@@ -211,3 +213,15 @@ Before saving, verify:
 - **Spec owns the build task graph.** §20 emits stable `T-IDs`; `/user-stories --tasks` and `/sprint-plan` **consume** them as the decomposition source of truth rather than re-deriving. Run `/spec` **before** `/user-stories` so stories cite concrete tasks/components.
 - Spec does NOT duplicate adjacent skills: no product requirements (PRD), no risk matrix (pre-mortem), no business model (lean-canvas), no channel strategy (gtm-plan). Link and summarize in one line max.
 - `/launch` inserts `/spec` as a non-blocking stage between `/pre-mortem` and `/user-stories`. You can also run `/spec` standalone whenever.
+
+## Rationalization guard
+
+The Spec Rule (every spec.md comes from this skill; updates via `--deepen`/`--rebuild`) has no exceptions:
+
+- *"It's just a small tech note — I'll add it to spec.md directly."* Direct edits break revision archiving and drift from the 29-section contract. Use `--deepen`.
+- *"The PRD already implies the stack."* Implication is not a pinned manifest. The spec exists to remove every such inference from build time.
+- *"Time pressure — skip the Test List this once."* The Test List is what makes the WBS executable test-first; without it the spec is a summary, not a build contract.
+
+## For consumers of a generated spec
+
+A finished spec.md is long by design. Do not read it end-to-end to act on it: scan the section headings first, read §1 (Overview) and the section your task cites, and pull other sections only when referenced. (CE-05)

@@ -1,5 +1,7 @@
 ---
 name: meeting-sync
+model: haiku
+effort: medium
 description: >
   Syncs new Granola meetings into knowledge/meetings/ organized by date,
   enriches knowledge/people/ with interaction history, and cross-references

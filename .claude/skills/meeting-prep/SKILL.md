@@ -1,5 +1,7 @@
 ---
 name: meeting-prep
+model: sonnet
+effort: medium
 description: >
   Prepares context for an upcoming meeting by gathering relevant history from
   knowledge/people/, open action items, prior meeting transcripts via Granola,

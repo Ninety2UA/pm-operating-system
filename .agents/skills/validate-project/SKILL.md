@@ -4,7 +4,7 @@ description: |-
   Researches and validates a project idea against market reality — competitors, market size, social sentiment, and feasibility — producing a structured validation brief with a "pursue / kill / pivot" recommendation. Use this skill whenever the user says "validate a project", "check if this idea is viable", "research competitors for", "evaluate this project", "market research for", "is this worth building", "does this market exist", or proactively whenever a new project idea is mentioned and hasn't been validated — market research is cheap compared to building the wrong thing.
 argument-hint: "<project-name> [--model quick|search|deep|reason]"
 generated_from: .claude/skills/validate-project/SKILL.md
-source_sha256: a9818376897f4110a8f9143482f37ad320fe5215367a7598cdd386116ecfb1e4
+source_sha256: 18dc716e0d6e42302ec1a7d484cd5bdde5b45adbbb5cc88ce8ab63e03df10c8c
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 

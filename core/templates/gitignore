@@ -48,3 +48,15 @@ test_*.py
 .mcp_cache/
 *.pid
 *.lock
+# ── Credentials (never track, any location) ──────────
+client_secret*.json
+*-token.json
+.env.*
+
+# ── Watcher live state (baselines, reports, lock) ─────
+knowledge/currency/**
+!knowledge/currency/.gitkeep
+knowledge/.granola-sync.json
+
+# The framework test harness stays tracked despite the global test rule
+!core/scripts/tests/test_*.py
