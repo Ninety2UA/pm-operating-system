@@ -128,6 +128,22 @@ def test_code_span_in_link_alt_does_not_protect():
     assert defang("use `<img>` carefully") == "use `<img>` carefully"
 
 
+def test_backtick_fence_info_string_is_not_a_fence():
+    """CommonMark forbids a backtick in a backtick-fence info string, so a
+    backtick fence whose info string has a backtick is a paragraph (its
+    following lines render live), not a fence, and its content must be
+    neutralized (round-8 P0; verified inert vs cmark-gfm). Tilde fences
+    allow backticks in the info string and are unaffected."""
+    for s in ("```js`x\n![beacon](http://evil/beacon.png)\n```\n",
+              "```a`b\n[t](http://evil/l.png)\n```\n",
+              "``` foo `bar` baz\n![b](http://evil/z.png)\n```\n"):
+        assert "http://" not in defang(s).lower(), s
+    for s in ("```python\nprint('<img src=http://x>')\n```",
+              "```\n![notabeacon](http://x/y)\n```",
+              "~~~js`x\n![ok](http://x)\n~~~"):
+        assert defang(s) == s, s
+
+
 def test_multiline_reference_definition_beacon_neutralized():
     """A reference definition can put its destination on the next line
     ([ref]:\\n//host); a protocol-relative dest evades the URL backstop, so

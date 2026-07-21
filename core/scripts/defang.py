@@ -172,6 +172,21 @@ _FENCE_OPEN = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 _TICKS = re.compile(r"`+")
 _BLANK_LINE = re.compile(r"\n[ \t]*\n")
 
+
+def _valid_fence_open(line: str):
+    """Return the fence delimiter run if `line` validly OPENS a fenced code
+    block, else None. CommonMark forbids a backtick in a backtick-fence info
+    string, so ```` ```js`x ```` is a paragraph (its following lines render
+    live), NOT a fence — treating it as a fence would let a beacon through.
+    Tilde fences allow backticks in the info string, so they are unaffected."""
+    m = _FENCE_OPEN.match(line)
+    if not m:
+        return None
+    delim = m.group(1)
+    if delim[0] == "`" and "`" in line[m.end():]:
+        return None
+    return delim
+
 # Block-level interrupters: a CommonMark paragraph (and therefore any inline
 # code span inside it) ends when one of these begins a line. A backtick run
 # that "closes" only after crossing such a line is NOT a real span — the
@@ -342,13 +357,13 @@ def defang(text: str) -> str:
             if is_closing(line, fence):
                 in_fence = False
             continue
-        m = _FENCE_OPEN.match(line)
+        delim = _valid_fence_open(line)
         # Only trust a fence that actually closes; an unclosed fence may be
         # rendered as text, so it is neutralized instead of skipped.
-        if m and any(is_closing(later, m.group(1)) for later in lines[i + 1:]):
+        if delim and any(is_closing(later, delim) for later in lines[i + 1:]):
             flush_text()
             out.append(line)
-            in_fence, fence = True, m.group(1)
+            in_fence, fence = True, delim
         else:
             buf.append(line)
     flush_text()
