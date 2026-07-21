@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PM Operating System — AI-Powered Productivity for Claude Code</title>
   <meta name="description" content="A Claude Code configuration that gives your AI assistant a structured productivity layer. Goals, tasks, projects, pipeline evaluation, and compounding knowledge — all in markdown.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233b82f6'/%3E%3Cstop offset='1' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Ctext x='16' y='21.5' font-family='-apple-system,Segoe UI,sans-serif' font-size='13' font-weight='800' fill='%23fff' text-anchor='middle'%3EPM%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -456,6 +457,18 @@
     .integ-cmd { display: block; margin: 6px 0; padding: 8px 12px; background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--green); overflow-x: auto; }
     .integ-note { font-size: 11px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
 
+    /* ──── DIAGRAMS ──── */
+    .diagram-card {
+      background: #ffffff; border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg); padding: 28px; margin: 0 auto;
+      max-width: 940px; box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+    .diagram-card img { width: 100%; height: auto; display: block; }
+    .diagram-caption {
+      font-size: 13px; color: var(--text-muted); text-align: center;
+      margin-top: 14px; max-width: 640px; margin-left: auto; margin-right: auto;
+    }
+
     /* ──── FAQ ──── */
     .faq-item { border-bottom: 1px solid var(--border); }
     .faq-q {
@@ -522,6 +535,7 @@
       nav { padding: 0 16px; }
       .loop-visual { flex-direction: column; align-items: center; }
       .loop-arrow-wrap { transform: rotate(90deg); }
+      .prereqs, .tools-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     }
   </style>
 </head>
@@ -545,6 +559,7 @@
       <li><a href="#commands">Commands</a></li>
       <li><a href="#agents">Agents</a></li>
       <li><a href="#validate">Validate</a></li>
+      <li><a href="#currency">Currency</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <div class="nav-right">
@@ -591,7 +606,7 @@
 
     <div class="stats-row reveal" id="statsRow">
       <div class="stat-item">
-        <div class="stat-num" data-target="24">0</div>
+        <div class="stat-num" data-target="32">0</div>
         <div class="stat-label">Skills</div>
       </div>
       <div class="stat-item">
@@ -603,7 +618,7 @@
         <div class="stat-label">Agents</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num" data-target="10">0</div>
+        <div class="stat-num" data-target="11">0</div>
         <div class="stat-label">MCP Tools</div>
       </div>
     </div>
@@ -631,7 +646,7 @@
       <div class="card reveal reveal-delay-1">
         <div class="card-icon" style="background:rgba(167,139,250,.12)">&#x26a1;</div>
         <div class="card-title">Specialized Capabilities</div>
-        <div class="card-text">26 skills the LLM can invoke — validation, risk analysis, build-ready technical specs (with task breakdowns), sprint planning, slide generation, and more.</div>
+        <div class="card-text">32 skills the LLM can invoke — validation, risk analysis, build-ready technical specs (with task breakdowns), sprint planning, slide generation, and more.</div>
       </div>
       <div class="card reveal reveal-delay-2">
         <div class="card-icon" style="background:rgba(52,211,153,.12)">&#x1f504;</div>
@@ -771,10 +786,10 @@
     <div class="section-title reveal">Everything You Get</div>
     <p class="section-desc center reveal">A complete productivity system — from ideation to execution to compounding knowledge.</p>
     <div class="grid-4">
-      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f3af;</div><div class="card-title">30 Skills</div><div class="card-text">Ideation, validation, build-ready technical specs, planning, execution, content output, and analysis — all invocable by your AI assistant.</div></div>
+      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f3af;</div><div class="card-title">32 Skills</div><div class="card-text">Ideation, validation, build-ready technical specs, planning, execution, content output, and analysis — all invocable by your AI assistant.</div></div>
       <div class="card feature-card reveal reveal-delay-1"><div class="card-icon green">&#x2318;</div><div class="card-title">7 Commands</div><div class="card-text">Daily standups, weekly reviews, quarterly scoring, backlog processing, project launching, and repo analysis.</div></div>
       <div class="card feature-card reveal reveal-delay-2"><div class="card-icon purple">&#x1f916;</div><div class="card-title">3 Agents</div><div class="card-text">Deep research, batch evaluation, and system diagnostics — each runs autonomously in the background.</div></div>
-      <div class="card feature-card reveal reveal-delay-3"><div class="card-icon amber">&#x1f527;</div><div class="card-title">10 MCP Tools</div><div class="card-text">Fuzzy deduplication, task queries, project pipeline status, system dashboard, and priority alerts.</div></div>
+      <div class="card feature-card reveal reveal-delay-3"><div class="card-icon amber">&#x1f527;</div><div class="card-title">11 MCP Tools</div><div class="card-text">Fuzzy deduplication, task queries, project pipeline status, system dashboard, priority alerts, and currency status.</div></div>
       <div class="card feature-card reveal"><div class="card-icon rose">&#x1f4cb;</div><div class="card-title">Prioritization</div><div class="card-text">Goal-driven P0-P3 levels tied to your strategic objectives. ICE/RICE framework scoring.</div></div>
       <div class="card feature-card reveal reveal-delay-1"><div class="card-icon blue">&#x1f680;</div><div class="card-title">Pipeline</div><div class="card-text">7-stage project pipeline — 5 evaluation stages with Go/No-Go, a non-blocking spec stage, and story decomposition.</div></div>
       <div class="card feature-card reveal reveal-delay-2"><div class="card-icon green">&#x1f4d6;</div><div class="card-title">Knowledge</div><div class="card-text">Compounding loops from daily journals to session reviews to quarterly OKR assessments.</div></div>
@@ -846,8 +861,8 @@
 <section id="skills">
   <div class="container">
     <div class="section-label reveal">Skills</div>
-    <div class="section-title reveal">24 Specialized Skills</div>
-    <p class="section-desc reveal">Each skill teaches your AI assistant a focused capability — from market validation to sprint planning.</p>
+    <div class="section-title reveal">32 Skills</div>
+    <p class="section-desc reveal">Each skill teaches your AI assistant a focused capability — from market validation to sprint planning. 26 specialized skills below, plus 6 daily-workflow skills that appear as commands in the next section (the 7th command, <code>/analyze</code>, is standalone).</p>
     <div class="skills-group reveal">
       <div class="skills-group-title">Ideation &amp; Discovery</div>
       <div class="skill-row"><span class="skill-name">/discover-ideas</span><span class="skill-desc">Search the web for project ideas and trending opportunities</span></div>
@@ -949,7 +964,7 @@
 <section id="tools">
   <div class="container">
     <div class="section-label reveal">MCP Server</div>
-    <div class="section-title reveal">10 Structured Tools</div>
+    <div class="section-title reveal">11 Structured Tools</div>
     <p class="section-desc reveal">The manager-ai MCP server provides programmatic access to tasks, projects, and system state — with fuzzy deduplication built in.</p>
     <table class="tools-table reveal">
       <thead><tr><th>Tool</th><th>Description</th></tr></thead>
@@ -963,6 +978,7 @@
         <tr><td>get_project_artifacts</td><td>Check which evaluation artifacts exist for a project</td></tr>
         <tr><td>get_project_summary</td><td>Aggregate project stats and artifact coverage</td></tr>
         <tr><td>get_system_status</td><td>Full dashboard — tasks + projects + backlog + time insights</td></tr>
+        <tr><td>get_watcher_status</td><td>Currency watcher status — last report, days since, undecided candidates</td></tr>
         <tr><td>process_backlog_with_dedup</td><td>Deduplicate backlog items against existing work</td></tr>
       </tbody>
     </table>
@@ -1028,7 +1044,8 @@
           <li>Stage 3: Go-to-market strategy</li>
           <li>Stage 4: Competitive landscape analysis</li>
           <li>Stage 5: Pre-mortem risk analysis</li>
-          <li>Stage 6: Decompose into buildable user stories</li>
+          <li>Stage 6: Build-ready technical spec (non-blocking)</li>
+          <li>Stage 7: Decompose into buildable user stories</li>
         </ol>
         <div class="code-block"><span class="t-prompt">&gt;</span> <span class="t-cmd">/launch my-project</span>
 
@@ -1037,7 +1054,7 @@
 <span class="t-out">Building lean canvas...</span>
 <span class="t-success">&#10003; Stage 2 passed — viable model</span>
 <span class="t-out">...</span>
-<span class="t-success">&#10003; All 6 stages complete. Ready to build.</span></div>
+<span class="t-success">&#10003; All 7 stages complete. Ready to build.</span></div>
       </div>
     </div>
     <div class="tab-panel" id="usage-weekly">
@@ -1129,8 +1146,42 @@
       <div class="card feature-card reveal reveal-delay-1"><div class="card-icon blue">&#x1f6e3;&#xfe0f;</div><div class="card-title">Pipeline conformance</div><div class="card-text">Projects at <code>evaluating</code>/<code>ready</code>/<code>active</code> flagged when expected artifacts (validation, pre-mortem, PRD, stories) are missing.</div></div>
       <div class="card feature-card reveal reveal-delay-2"><div class="card-icon green">&#x1f4e6;</div><div class="card-title">External deps</div><div class="card-text">Skills that call <code>npm</code>, <code>gh</code>, or <code>gws</code> warn if the CLI is not on <code>PATH</code>.</div></div>
       <div class="card feature-card reveal reveal-delay-3"><div class="card-icon purple">&#x1f9f9;</div><div class="card-title">Hygiene</div><div class="card-text">Tracked <code>.DS_Store</code>, stray <code>TODO</code>/<code>FIXME</code> markers, stale lock files, hardcoded user paths in the validator itself.</div></div>
+      <div class="card feature-card reveal"><div class="card-icon amber">&#x1f916;</div><div class="card-title">Model currency</div><div class="card-text">No file references a retired model ID; every skill, agent, and command carries a deliberate <code>model:</code> assignment.</div></div>
+      <div class="card feature-card reveal reveal-delay-1"><div class="card-icon rose">&#x1fa82;</div><div class="card-title">Degradation coverage</div><div class="card-text">Every Claude-native capability ships a fallback rule, so the portable <code>.agents/skills/</code> tree stays free of Claude-only tokens.</div></div>
+      <div class="card feature-card reveal reveal-delay-2"><div class="card-icon blue">&#x1f510;</div><div class="card-title">Secret hygiene</div><div class="card-text">Blocking scan of tracked, portfolio-public artifacts for credential-shaped strings.</div></div>
+      <div class="card feature-card reveal reveal-delay-3"><div class="card-icon green">&#x1f6e1;&#xfe0f;</div><div class="card-title">Automation guard</div><div class="card-text">The report-only guard hook stays wired and validated — local wiring is checked whenever present.</div></div>
     </div>
     <p class="section-desc center reveal" style="margin-top:32px;font-size:14px;">Exit <code>0</code> clean, <code>1</code> on findings. Warnings (non-blocking) are reported separately. Run it before every PR.</p>
+  </div>
+</section>
+
+
+<!-- STAYING CURRENT -->
+<section id="currency">
+  <div class="container">
+    <div class="section-label reveal">Staying Current</div>
+    <div class="section-title reveal">The Framework Keeps Itself Current</div>
+    <p class="section-desc reveal">Two currency watchers track the Anthropic platform and the wider agent ecosystem, write dated decision reports, and leave every adoption decision to you — so the framework never drifts a generation behind between manual catch-ups.</p>
+
+    <div class="diagram-card reveal">
+      <img src="images/staying-current.svg" alt="Staying Current architecture — Anthropic releases and external agent frameworks flow through /cli-watch and /repo-watch into a dated decision report, an owner adopt/adapt/skip decision, and a transactional baseline advance, with currency visibility surfaced in /morning and /weekly" loading="lazy">
+    </div>
+    <p class="diagram-caption reveal">Watchers fetch only the delta since the last baseline. Adopting anything is a separate, owner-gated step — the baseline advances only after adopted work is committed.</p>
+
+    <div class="grid-4" style="margin-top:48px;">
+      <div class="card feature-card reveal"><div class="card-icon blue">&#x1f39a;&#xfe0f;</div><div class="card-title">Model &amp; effort tiers</div><div class="card-text">Every skill, agent, and command carries a deliberate <code>model:</code> assignment — mechanical work runs cheap, judgment work pins higher. Adapters map tiers per host.</div></div>
+      <div class="card feature-card reveal reveal-delay-1"><div class="card-icon green">&#x1f4e1;</div><div class="card-title">Two watchers</div><div class="card-text"><code>/cli-watch</code> tracks Claude Code / Anthropic releases; <code>/repo-watch</code> tracks a registry of external agent frameworks. Both write dated decision reports.</div></div>
+      <div class="card feature-card reveal reveal-delay-2"><div class="card-icon purple">&#x1f441;&#xfe0f;</div><div class="card-title">Currency visibility</div><div class="card-text">The <code>get_watcher_status</code> MCP tool plus a step in <code>/morning</code> and <code>/weekly</code> surface days since the last run and undecided candidates.</div></div>
+      <div class="card feature-card reveal reveal-delay-3"><div class="card-icon amber">&#x1f4d0;</div><div class="card-title">Capability baseline</div><div class="card-text"><code>docs/capabilities.md</code> records the verified Claude Code capability surface — models, effort, workflows, scheduling, hooks — as the watcher's first baseline.</div></div>
+    </div>
+
+    <div class="section-title reveal" style="margin-top:72px;font-size:clamp(1.3rem,2.5vw,1.7rem);">Least-Privilege by Construction</div>
+    <p class="section-desc reveal">Scheduled watcher runs are report-only behind five independent layers — restricted tool profile, write fence, egress pin, fail-closed guard, and defang on ingestion — adversarially reviewed through nine rounds of bypass attempts.</p>
+
+    <div class="diagram-card reveal">
+      <img src="images/automation-guard.svg" alt="Defense-in-depth automation guard — nested layers: restricted tool profile, write fence to knowledge/currency/, egress pin to allowlisted hosts, fail-closed PreToolUse guard, and the report-only watcher run at the center; defang, validator enforcement, and adversarial hardening annotated alongside" loading="lazy">
+    </div>
+    <p class="diagram-caption reveal">The fail-closed guard denies on any parse doubt, fetched web content is defanged before it can reach a report, and validator checks 39&ndash;46 keep the whole path enforced.</p>
   </div>
 </section>
 
@@ -1150,6 +1201,7 @@
       <div class="faq-item"><button class="faq-q">What is knowledge compounding?<span class="faq-icon">+</span></button><div class="faq-a">The system learns through three loops: daily (journals), weekly (pattern detection + shipping summaries), and quarterly (OKR scoring + system audit). Each layer feeds the next — so your assistant gets smarter about your work patterns, estimates, and priorities over time.</div></div>
       <div class="faq-item"><button class="faq-q">How is my data stored?<span class="faq-icon">+</span></button><div class="faq-a">Everything is plain markdown with YAML frontmatter, stored locally on your machine. No cloud sync, no databases, no external storage. Personal directories (tasks/, knowledge/, etc.) are gitignored by default. You control exactly what gets committed.</div></div>
       <div class="faq-item"><button class="faq-q">How do I check the framework is healthy?<span class="faq-icon">+</span></button><div class="faq-a">Run <code>uv run core/scripts/validate.py</code>. The validator runs 46 deterministic checks covering frontmatter, cross-references, registry parity, MCP tool wiring, workspace shape, pipeline conformance, external CLI deps, and hygiene. Exit <code>0</code> means clean. Warnings (non-blocking) are reported separately. Run it before every PR, or any time something feels off.</div></div>
+      <div class="faq-item"><button class="faq-q">Is the scheduled automation safe to leave running?<span class="faq-icon">+</span></button><div class="faq-a">Scheduled watcher runs are report-only by construction: a restricted tool profile denies Bash and mutating MCP tools, writes are fenced to <code>knowledge/currency/</code>, fetches are pinned to allowlisted hosts, and a fail-closed <code>PreToolUse</code> guard denies anything it can't parse cleanly. Fetched web content is defanged before it lands in a report, and the whole path went through nine rounds of adversarial review. Nothing runs unattended unless you explicitly choose it during setup.</div></div>
     </div>
   </div>
 </section>
@@ -1188,7 +1240,7 @@
 
   var mobileMenu = document.getElementById('mobileMenu');
   var hamburgerBtn = document.getElementById('hamburgerBtn');
-  var menuLinks = ['overview','philosophy','architecture','features','install','skills','commands','agents','validate','faq'];
+  var menuLinks = ['overview','philosophy','architecture','features','install','skills','commands','agents','validate','currency','faq'];
 
   menuLinks.forEach(function(id) {
     var a = document.createElement('a');
@@ -1285,9 +1337,9 @@
       { br: true },
       { text: '  \u2713 Channel: dev communities + content', cls: 't-success' },
       { br: true },
-      { text: '  Stage 4-6: Running...', cls: 't-out' },
+      { text: '  Stage 4-7: Running...', cls: 't-out' },
       { br: true },
-      { text: '  \u2713 All 6 stages passed. Ready to build.', cls: 't-success' }
+      { text: '  \u2713 All 7 stages passed. Ready to build.', cls: 't-success' }
     ],
     [
       { text: '> /process-backlog', cls: 't-cmd' },
