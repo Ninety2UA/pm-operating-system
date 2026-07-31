@@ -84,7 +84,7 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 14px; font-weight: 800; color: #fff;
     }
-    .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; min-width: 0; }
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
     .nav-links a {
       color: var(--text-secondary); font-size: 13px; font-weight: 500;
       padding: 6px 12px; border-radius: 8px; transition: all .2s;
@@ -513,11 +513,14 @@
     .reveal-delay-4 { transition-delay: .4s; }
 
     /* ──── RESPONSIVE ──── */
+    /* Collapse the inline nav into the hamburger before the links can crowd the CTAs */
+    @media (max-width: 992px) {
+      .nav-links { display: none; }
+      .hamburger { display: block; }
+    }
     @media (max-width: 900px) {
       .grid-3 { grid-template-columns: repeat(2, 1fr); }
       .grid-4 { grid-template-columns: repeat(2, 1fr); }
-      .nav-links { display: none; }
-      .hamburger { display: block; }
       .usage-content { grid-template-columns: 1fr; }
       .stats-row { gap: 32px; }
     }
@@ -555,16 +558,10 @@
     </a>
     <ul class="nav-links">
       <li><a href="#overview">Overview</a></li>
-      <li><a href="#philosophy">Philosophy</a></li>
       <li><a href="#architecture">Architecture</a></li>
       <li><a href="#features">Features</a></li>
-      <li><a href="#portability">Portability</a></li>
       <li><a href="#install">Install</a></li>
       <li><a href="#skills">Skills</a></li>
-      <li><a href="#commands">Commands</a></li>
-      <li><a href="#agents">Agents</a></li>
-      <li><a href="#validate">Validate</a></li>
-      <li><a href="#currency">Currency</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <div class="nav-right">
@@ -1245,12 +1242,12 @@
 
   var mobileMenu = document.getElementById('mobileMenu');
   var hamburgerBtn = document.getElementById('hamburgerBtn');
-  var menuLinks = ['overview','philosophy','architecture','features','install','skills','commands','agents','validate','currency','faq'];
+  var menuLinks = ['overview','philosophy','architecture','features','portability','install','skills','commands','agents','validate','currency','faq'];
 
   menuLinks.forEach(function(id) {
     var a = document.createElement('a');
     a.href = '#' + id;
-    a.textContent = id.charAt(0).toUpperCase() + id.slice(1);
+    a.textContent = id === 'faq' ? 'FAQ' : id.charAt(0).toUpperCase() + id.slice(1);
     a.addEventListener('click', function() { mobileMenu.classList.remove('open'); });
     mobileMenu.appendChild(a);
   });
