@@ -108,7 +108,7 @@ The system learns through three nested feedback loops. Each layer feeds the next
 | **Pipeline** | Project evaluation with Go/No-Go gates at each stage |
 | **Knowledge** | Compounding loops from daily journals to quarterly OKR scoring |
 | **Integrations** | Optional: Granola (meetings), Slack (messaging), Perplexity (research) |
-| **Portability** | Runs in Codex CLI, Cursor, Antigravity & other Agent-Skills tools — generated `.agents/skills/`, native subagents, one-command MCP install |
+| **Portability** | Runs in Codex CLI, Cursor, Antigravity & other Agent-Skills tools — manifest-guarded generated `.agents/skills/`, native subagents, one-command MCP install |
 
 ---
 
@@ -290,13 +290,15 @@ pm-operating-system/
 |   |   +-- system-health.md
 |   |
 |   |-- hooks/
-|   |   +-- init-workspace.sh    SessionStart bootstrap (wired in settings.json)
+|   |   |-- init-workspace.sh    SessionStart bootstrap (wired in settings.json)
+|   |   +-- report-only-guard.sh PreToolUse backstop for scheduled watcher runs (wired by hand, local only)
 |   |
 |   |-- settings.json            Hook wiring (committed)
 |   +-- settings.local.json      Per-user permissions + plugin enablement (gitignored)
 |
 |-- core/
-|   +-- mcp/                     manager-ai MCP server (11 tools + dedup)
+|   |-- mcp/                     manager-ai MCP server (11 tools + dedup)
+|   +-- CODING_STANDARDS.md      Review criteria for core/ (validator-check contract, guard floors, tests must be able to fail)
 |
 |-- library/                     Reusable artifact catalog
 |-- AGENTS.md                    AI assistant instructions
@@ -310,8 +312,9 @@ pm-operating-system/
 |-- BACKLOG.md                   Raw capture inbox (per-user, gitignored)
 |
 |-- README.md                    This file
+|-- CONTRIBUTING.md              The three PR gates + the docs/ PR rule
 |-- LICENSE
-|-- docs/                        GitHub Pages site
+|-- docs/                        GitHub Pages site + capabilities.md, data-handling.md, ledger/
 +-- setup.sh                     Interactive goals setup
 ```
 
@@ -426,7 +429,7 @@ The 3 agents also emit as **native subagents** for Cursor (`.cursor/agents/`) an
 uv run core/scripts/install_for.py --tool cursor --apply   # or codex / antigravity / all
 ```
 
-Adapters are regenerated with `uv run core/scripts/build_adapters.py`, and the validator's check 38 keeps them in sync. Full per-tool setup: **[docs/portability.md](docs/portability.md)**.
+Adapters are regenerated with `uv run core/scripts/build_adapters.py`. Every build writes `.agents/skills.lock.json` — a manifest of generated paths and content hashes — and refuses to overwrite or remove any file it cannot prove it generated (`--force` overrides). The validator's check 38 runs the same `--check`, which stays red on drift, an orphan, or a stale manifest until the file is moved or the build is forced. Full per-tool setup: **[docs/portability.md](docs/portability.md)**.
 
 ### Optional Integrations
 
@@ -553,7 +556,7 @@ gws calendar events list --params '{"calendarId": "primary", "timeMin": "2026-04
 
 | What | How |
 |------|-----|
-| Add a skill | Create `.claude/skills/<name>/SKILL.md` with frontmatter (`name`, `description`). Descriptions should enumerate explicit trigger phrases so Claude auto-invokes reliably. |
+| Add a skill | Create `.claude/skills/<name>/SKILL.md` with frontmatter (`name`, `description`). Descriptions should enumerate explicit trigger phrases so Claude auto-invokes reliably. Then run `uv run core/scripts/build_adapters.py` and commit the regenerated `.agents/` tree and `.agents/skills.lock.json` together with the source. |
 | Add an agent | Create `.claude/agents/<name>.md` with frontmatter (`name`, `description`, `model`, `tools`) |
 | Change behavior | Edit `AGENTS.md` to modify prioritization rules, categories, or interaction style |
 | Add MCP server | Edit `.mcp.json` at the repo root |
@@ -581,16 +584,20 @@ Inline `# /// script` metadata auto-installs `pyyaml`, so no venv setup is neede
 | **Workspace shape** | `AGENTS.md` workspace tree matches reality; `init-workspace.sh` scaffolds the documented paths |
 | **Pipeline conformance** | Projects at `evaluating`/`ready`/`active` have the expected artifacts (validation brief, pre-mortem, PRD, user stories) — reported as warnings, not failures |
 | **External deps** | Skills that need `npm`, `gh`, `gws`, etc. flag missing CLIs as warnings |
-| **Hygiene** | Tracked `.DS_Store` / `node_modules`, `TODO`/`FIXME` markers in shipped docs, stale lock files outside `.gitignore`, hardcoded user paths in the validator itself |
+| **Hygiene** | Tracked `.DS_Store` / `node_modules`, `TODO`/`FIXME` markers in shipped docs, stale lock files outside `.gitignore`, a UTF-8 BOM at the top of any framework markdown or doc file (Claude Code silently ignores such files), hardcoded user paths in the validator itself |
 | **Model currency** | No framework file references a retired model ID; every skill, agent, and command carries a deliberate `model:` assignment (a pin or explicit `inherit`) |
 | **Degradation coverage** | Every adopted Claude-native capability that lands in a generated body ships a degradation rule (a fenced fallback or a renderer mapping), so the portable `.agents/skills/` tree stays free of Claude-only tokens |
-| **Secret hygiene** | Blocking scan of tracked, portfolio-public artifacts (`docs/ledger/`, `docs/capabilities.md`, `core/watchers/`) for credential-shaped strings, with an inline `# secret-scan: allow` escape |
-| **Automation guard** | The committed-but-unwired report-only guard hook never trips the orphan-hook scan; local `settings.local.json` wiring is validated only when present |
-| **Runtime** | `setup.sh` + hooks pass `bash -n`; MCP server imports cleanly; the `core/scripts/` pytest harness runs green |
+| **Secret hygiene** | Blocking scan of tracked, portfolio-public artifacts (`docs/ledger/`, `docs/capabilities.md`, `core/watchers/`) for credential-shaped strings, plus a warn-class lint over the skill, agent, and command catalog for prose that tells an agent to read a credential-shaped path — a read the report-only guard would deny — both with an inline `# secret-scan: allow` escape |
+| **Automation guard** | The committed-but-unwired report-only guard hook never trips the orphan-hook scan; local `settings.local.json` wiring is validated only when present, and a wired guard that declares a `timeout` below 600 s draws a warning — a timed-out `PreToolUse` hook is cancelled and the tool call proceeds, so the guard's own stall budget must be what denies |
+| **Runtime** | `setup.sh` + hooks pass `bash -n`; MCP server imports cleanly and actually starts |
+| **Backup coverage** | Warns when the framework cannot be recreated from its remote — no `origin`, or `main` ahead of its upstream — so a local-only copy never passes as backed up |
+| **Adapter manifest** | Generated `.agents/skills/`, `.codex/agents/`, and `.cursor/agents/` trees match the `.claude/` source, and `.agents/skills.lock.json` matches the generated bytes — reported as `missing`, `orphan`, `stale`, `leftover`, or `manifest` verdicts |
 
-**Exit codes:** `0` clean, `1` findings, `2` missing `pyyaml` (should not happen thanks to inline deps). Warnings (non-blocking) are reported separately and never affect the exit code.
+**Exit codes:** `0` clean, `1` findings, `2` missing `pyyaml` (should not happen thanks to inline deps). Warnings (non-blocking) are reported separately and never affect the exit code. The documented warn classes are `pipeline-artifact`, `external-dep`, `lock-hygiene`, `ledger-link`, `live-registry`, `secret-bypass`, `backup-coverage`, and the `guard-wiring` timeout notice — green means zero failures with warnings only in those classes; a warning in any other class is drift to fix. Pass `--staleness-report` for a local-only, warn-only pass over gitignored data: project specs that name retired model IDs, watcher reports older than 14 days, and projects whose Progress Log never records their status.
 
 Run it before any PR. The validator is also the canonical answer to "is my framework healthy?" — drift accumulates, and the earlier you catch it the cheaper it is to fix.
+
+The validator is one of three deterministic gates. The other two are the pytest suite — `uv run --with pytest --with pyyaml pytest core/scripts/tests/ -q`, covering the validator checks, the adapter build, the currency helpers, and the guard drill — and `uv run core/scripts/build_adapters.py --check`. [CONTRIBUTING.md](CONTRIBUTING.md) lists all three with their pass conditions; [core/CODING_STANDARDS.md](core/CODING_STANDARDS.md) holds the criteria a review of `core/` cites, including the rule that every framework test must be able to fail. Claude Code's own `claude plugin validate .` is a complementary frontmatter check the validator does not run.
 
 ## Staying current
 
@@ -603,10 +610,10 @@ The framework keeps itself at the current Anthropic state of the art rather than
 </div>
 
 - **Model and effort tiers.** Every skill, agent, and command carries a deliberate `model:` assignment (and `effort:` where supported) — mechanical work runs on cheaper models, judgment work inherits the session model or pins higher. The adapter generator maps or omits these per host (Codex tiers, Cursor's verified model set), so the portable tree never leaks a raw model ID.
-- **Two currency watchers.** `/cli-watch` tracks Claude Code / Anthropic releases; `/repo-watch` tracks a registry of external agent frameworks (seeded with the six analyzed in [`docs/ledger/`](docs/ledger/)). Both read a baseline, fetch only the delta, and write a dated report classifying each change — adopting anything is always a separate, owner-gated step. The baseline advances transactionally only after adopted work is committed.
-- **Least-privilege automation.** Scheduled watcher runs are report-only by construction: a restricted tool profile (deny Bash and mutating MCP, fence writes to `knowledge/currency/`, pin fetch egress) plus a defense-in-depth `PreToolUse` guard. `setup.sh` offers automation as an explicit first-run choice — local, cloud, hybrid, or skip — with each home's true enforcement guarantee disclosed. Nothing runs unattended unless you choose it.
+- **Two currency watchers.** `/cli-watch` tracks Claude Code / Anthropic releases; `/repo-watch` tracks a registry of external agent frameworks (seeded with the six analyzed in [`docs/ledger/`](docs/ledger/)). Both read a baseline, fetch only the delta, and write a dated report classifying each change — adopting anything is always a separate, owner-gated step. Every report carries a self-attested egress-receipts table (one row per fetch: defanged URL, purpose, outcome, size) that reconciles against the guard's local log, and a recovery table that covers a wave whose PR closed unmerged. The baseline advances transactionally only after adopted work is committed.
+- **Least-privilege automation.** Scheduled watcher runs are report-only by construction: a restricted tool profile (deny Bash and mutating MCP, fence writes to `knowledge/currency/`, pin fetch egress) plus a defense-in-depth `PreToolUse` guard that narrows writes further to the run lock and today's report. `setup.sh` offers automation as an explicit first-run choice — local, cloud, hybrid, or skip — with each home's true enforcement guarantee disclosed, including what the cloud home loses (a stateless clone, no local MCP servers, no guard unless wired there). A non-interactive run selects skip. Nothing runs unattended unless you choose it.
 - **Currency visibility.** The `get_watcher_status` MCP tool and a step in `/morning` and `/weekly` surface how current the framework is — days since each watcher last ran, undecided candidates awaiting your decision.
-- **Verified capability baseline.** [`docs/capabilities.md`](docs/capabilities.md) records the current Claude Code capability surface (models, effort, workflows, scheduling, hooks) verified against live documentation, and is the platform watcher's first baseline.
+- **Verified capability baseline.** [`docs/capabilities.md`](docs/capabilities.md) records the current Claude Code capability surface (models, effort, workflows, scheduling, hooks) verified against live documentation — last re-verified 2026-09-11 at Claude Code v2.1.268, with Opus 5 and Fable 5.1 on the roster — and is the platform watcher's baseline. Each full-mode wave re-verifies it.
 
 ### Hardened automation path
 
@@ -618,10 +625,10 @@ The unattended path is wrapped in five independent layers — a restricted tool 
 
 </div>
 
-- **Fail-closed guard.** The `PreToolUse` guard parses tool calls with a real JSON parser and denies on any doubt — schemeless URLs, path traversal, credential-store reads, unexpected exits — rather than allowing on error.
+- **Fail-closed guard.** The `PreToolUse` guard parses tool calls with a real JSON parser and denies on any doubt — schemeless URLs, path traversal, credential-store reads (matched case-insensitively), a tool field carrying a line break, path-less or out-of-project `Read`/`Grep`/`Glob`, any write that is not the run lock or today's report, unexpected exits — rather than allowing on error. Every external step runs under a 10-second stall budget and `TERM`/`HUP`/`INT` are trapped into the same deny path, so a hung or killed guard blocks the call instead of being skipped. Allowed fetches are logged by full URL with secret-shaped query and fragment parameters redacted.
 - **Defang on ingestion.** Web content fetched by the watchers is neutralized before it lands in a report: links, autolinks, code-fence info strings, reference definitions, and HTML blocks are all defused so a malicious changelog can't smuggle instructions to the next session that reads the report.
 - **Adversarially reviewed.** The guard and defang layers went through nine rounds of adversarial review — each round attempting fresh bypasses (GFM tables, block interrupters, balanced-bracket links, control-character escapes) until a full round produced no new findings.
-- **Validator-enforced.** Checks 39–50 keep the roster tiered, the guard wired, the secret scan green, the degradation rules present, the catalog free of secret-bypass instructions, and the remote a full backup — the hardening can't silently rot.
+- **Validator-enforced.** Checks 39–50 keep the roster current and tiered, every framework file BOM-free, the guard wired without a fail-open timeout, the secret scan green, the degradation rules present, the catalog free of secret-bypass instructions, and the remote a full backup — the hardening can't silently rot.
 
 ---
 
@@ -629,12 +636,13 @@ The unattended path is wrapped in five independent layers — a restricted tool 
 
 Contributions are welcome. Please:
 
-- Do not include personal information in commits
+- Do not include personal information in commits — what counts, and where personal data may live, is in [docs/data-handling.md](docs/data-handling.md)
 - Keep additions generic and configurable
-- Follow the existing patterns for skills, commands, and agents
+- Follow the existing patterns for skills, commands, and agents; changes under `core/` follow [core/CODING_STANDARDS.md](core/CODING_STANDARDS.md)
+- After editing anything under `.claude/skills`, `.claude/agents`, or `.claude/commands`, run `uv run core/scripts/build_adapters.py` and commit the regenerated `.agents/`, `.codex/`, `.cursor/` trees and `.agents/skills.lock.json` in the same commit
 - Include documentation for new features
 - Test that `setup.sh` still works after your changes
-- **Run `uv run core/scripts/validate.py` and ensure `✓ ALL CHECKS PASS`** before opening a PR (the full gate list, and the intent-paragraph plus screenshot rule for `docs/`-facing PRs, is in [CONTRIBUTING.md](CONTRIBUTING.md))
+- **Run all three gates before opening a PR:** `uv run core/scripts/validate.py` must end `✓ ALL CHECKS PASS`, `uv run core/scripts/build_adapters.py --check` must exit 0, and `uv run --with pytest --with pyyaml pytest core/scripts/tests/ -q` must pass — quote their output in the PR. The full gate list, and the intent-paragraph plus screenshot rule for `docs/`-facing PRs, is in [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
