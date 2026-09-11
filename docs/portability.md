@@ -23,6 +23,8 @@ This system is authored for Claude Code, but it is built on three open standards
 
 > Also works with Windsurf, GitHub Copilot, and other tools that adopt the Agent Skills standard — they read the same `.agents/skills/` tree.
 
+> **Cloud routines** (the "cloud" automation home above) run a stateless clone: no local MCP servers reach it (the watchers need none), the report-only guard applies only if wired locally in that clone, and reports never land as local files — `/repo-watch` there sees only the delta since the tracked seed cursors.
+
 ## Wiring the manager-ai MCP server
 
 **Quick path — `install_for.py`** previews the config changes for every tool, then applies them:
