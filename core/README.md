@@ -181,6 +181,8 @@ Contributions welcome! The goal is a reusable system that works for different wo
 - Improved deduplication algorithms
 - Integration examples
 
+Before changing anything under `core/`, read [CODING_STANDARDS.md](CODING_STANDARDS.md) — reviews cite its headings rather than restating them — and the repo-level [CONTRIBUTING.md](../CONTRIBUTING.md) for the gates every pull request must pass.
+
 ## License
 
 MIT - Use freely for personal or commercial projects.
