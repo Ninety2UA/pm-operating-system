@@ -4,7 +4,7 @@ description: |-
   Run a 20-minute weekly review — plan-vs-actual analysis from daily journals, shipping summary from completed tasks, pipeline movement, OKR progress, pattern detection from session reviews, AGENTS.md improvement proposals, and top priorities for next week. Use this skill whenever the user asks how the week went, wants to plan next week, runs `/weekly`, mentions retros or weekly reviews, or says anything like "wrap up the week," "Friday review," "weekly reflection," or "what did I ship." Push toward this at end of week even if the user doesn't explicitly ask.
 argument-hint: "[quick]"
 generated_from: .claude/skills/weekly/SKILL.md
-source_sha256: a766d1df03eebd467909a435af342e2a78dde0f7c02245603f6f4abb74bb297e
+source_sha256: 3a69fa39900a6fe23d58a2a3f3fc7ceff5e0f892fb5c931c76b7db082d226102
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -133,6 +133,8 @@ For each recurring pattern, suggest:
 - "You asked [prompt] X times this week. Consider creating a `/skill-name` skill for this."
 - "You ran [skill-A then skill-B then skill-C] as a chain X times. Consider creating a `/chained-skill` that automates this sequence."
 
+If a pattern points at an existing skill that misled or cost effort rather than at a missing one, it is a rewrite candidate, not a new-skill candidate — 8c applies before anything is proposed.
+
 ### 8b: Missing capabilities
 
 Across all session reviews, read `## Missing Capabilities` sections. Aggregate:
@@ -142,7 +144,19 @@ Across all session reviews, read `## Missing Capabilities` sections. Aggregate:
 
 Present: "Based on this week's sessions, these capabilities are missing: [list]. Want me to create any of these as skills?"
 
-### 8c: AGENTS.md improvement proposals
+Also read every `## Skill gaps` section: which skill's guidance was wrong or missing, the excerpt that misled, and what was done instead. Count how many sessions each skill appears in. These are rewrite candidates and go through 8c.
+
+### 8c: Before-measurement for rewrites
+
+A proposal to rewrite or restructure an existing skill must carry a before-measurement taken from this week's evidence, not from impression:
+
+- **What it costs or misses today** — figures from the journals or session reviews: how many sessions hit the gap (`## Skill gaps` and `## What Didn't Work` entries), how many retries or manual workarounds each cost, or which output the skill produced that the owner then corrected.
+- **The source lines** — the review or journal files the figures came from, so the owner can check them.
+- **The one number the rewrite should move** — so next week's review can take the after-measurement and say whether the rewrite worked.
+
+No before-measurement, no rewrite proposal: record the pattern under carried-over findings (Step 9) and measure it next week. New-skill proposals from 8a and 8b need none — there is nothing to measure yet. (RW-2026-09-11-18)
+
+### 8d: AGENTS.md improvement proposals
 
 Based on journal patterns and session review analysis:
 
@@ -152,7 +166,7 @@ Based on journal patterns and session review analysis:
 
 Present 0–2 specific AGENTS.md changes. **Never auto-apply.** Always present for user approval.
 
-### 8d: Memory maintenance
+### 8e: Memory maintenance
 
 Read `MEMORY.md` from this project's memory directory (typically `~/.claude/projects/<encoded-cwd>/memory/MEMORY.md`) and check the linked memory files for:
 
@@ -173,9 +187,22 @@ Include:
 - Pipeline movement
 - OKR scores (if they exist)
 - Patterns detected from journals and session reviews
-- Skills suggested
+- Skills suggested, and rewrite proposals with their before-measurement
 - AGENTS.md proposals (accepted or rejected)
 - Top priorities for next week
+
+Segment the findings (patterns, blockers, skill gaps, proposals) into two blocks and keep them apart in the file:
+
+```markdown
+## Findings
+### This week (new: N)
+- [finding first seen in this week's journals or session reviews]
+
+### Carried over (open: M)
+- [W36] [finding already listed in an earlier weekly summary and still open]
+```
+
+Build the carried-over block from the previous `WXX.md`: its carried-over block plus its this-week block, minus anything the owner addressed or dismissed since, each tagged with the week it first appeared. A finding leaves the list only on the owner's say-so, never because it stopped being mentioned. Put the two counts in the summary header so `/quarterly` reads them without re-deriving. (RW-2026-09-11-25)
 
 This file becomes input for `/quarterly` reviews and long-term trend analysis.
 

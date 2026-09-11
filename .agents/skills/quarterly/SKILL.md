@@ -4,7 +4,7 @@ description: |-
   Run a 45-minute quarterly review — score OKRs against completion data, purge stale projects, refresh GOALS.md, set new OKRs informed by past calibration, update Claude memories, audit AGENTS.md against the quarter's learnings, and save a quarterly summary. Use this skill whenever the user mentions quarterly review, end of quarter, OKR scoring, planning the next quarter, runs `/quarterly`, or says anything like "how did Q2 go," "time to plan Q3," "score the OKRs," "strategic refresh," or "end-of-quarter reflection." Push toward this at quarter boundaries even if the user doesn't explicitly ask.
 argument-hint: "[quick]"
 generated_from: .claude/skills/quarterly/SKILL.md
-source_sha256: 3c47bae9c511ab580d3404c150a819377ab8026d4579345f4e7a14d51b52051e
+source_sha256: 965b9b29b3e512f299d46f148aee454a16e95438923f723f4377e55b24eda802
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -105,6 +105,7 @@ Review Claude Code memories:
 
 - Read `MEMORY.md` from this project's memory directory and every file it links to. Resolve the path from `the project root`: Claude Code encodes the project path by replacing `/` with `-`, so the memory dir is `~/.claude/projects/$(pwd | tr / -)/memory/MEMORY.md`. If `the project root` is unavailable, compute from `pwd` (replace `/` with `-`). If the file does not exist, skip this step with a note — do not error.
 - Flag memories that reference outdated information (old project statuses, completed goals)
+- Check every slash command, skill name, flag, or script a memory file names against what exists today: the skill catalog in `CLAUDE.md` (§Commands and §Skills), the scripts under `core/scripts/`, and for host CLI commands or flags the host CLI's own help output or the newest completed cli watcher report under `knowledge/currency/reports/cli/` (it lists removed commands and flags). Flag every memory that names something that no longer exists, and propose rewriting it in place so the preference survives and only the removed mechanism goes — never drop the preference with the mechanism. (RW-2026-09-11-34)
 - Propose updates or deletions for stale memories
 - Save any new quarterly context as project memories
 
@@ -137,6 +138,19 @@ Include:
 - AGENTS.md changes accepted
 - Memory updates made
 - Key learnings from the quarter
+
+Segment the findings (recurring patterns, unaddressed proposals, skills suggested, stale memories) into two blocks and keep them apart in the file:
+
+```markdown
+## Findings
+### This quarter (new: N)
+- [finding that first appeared in this quarter's weekly summaries or reviews]
+
+### Carried over (open: M)
+- [Q2] [finding already open in an earlier quarterly summary, or carried over across the quarter's weekly summaries and never addressed]
+```
+
+Build the carried-over block from the previous `QX.md`'s two blocks and from the carried-over blocks of this quarter's weekly summaries (Step 2), minus what the owner addressed or dismissed, each tagged with where it first appeared. A finding leaves the list only on the owner's say-so. Put the two counts in the summary header. (RW-2026-09-11-25)
 
 ## Step 10: Post to Slack (optional)
 
