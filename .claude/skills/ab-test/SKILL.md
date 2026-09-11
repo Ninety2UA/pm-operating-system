@@ -94,6 +94,11 @@ Check for common issues:
 - **Test duration:** Warn if test ran < 7 days (day-of-week effects) or < 2 full business cycles.
 - **Multiple comparisons:** If testing more than one variant, note that significance thresholds should be adjusted (Bonferroni correction).
 
+**Guardrails (hard — these stop the analysis rather than warn):**
+- **No comparison without a matched control.** The control arm must be measured over the same window, on the same randomization unit, with the same metric definition as the variant. A pre-period, a different segment, a benchmark, or a "typical" rate is not a control — ask for the real one, and never synthesize it.
+- **Flag a sample too small to decide.** If either arm is below the Step 3 required `n` for the observed lift, or has fewer than 100 conversions, report observed vs required counts per arm and give the verdict `keep testing` — do not call significance either way.
+- **Never pad, recycle, or clamp observations.** Unequal arm sizes are handled by the Step 3 formula as they are; never fill a shorter series by repeating its last observation, drop rows from the larger arm to match, or index-clamp paired rows. An incomplete pair is reported as an error with observed vs required counts, not scored as a comparison. (RW-2026-09-11-12)
+
 ### Step 3: Calculate Statistics
 
 Perform these calculations (show your work):

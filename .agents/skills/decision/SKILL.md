@@ -1,10 +1,10 @@
 ---
 name: decision
 description: |-
-  Documents a decision with structured context, options considered, pros/cons, reversibility assessment, and rationale — saved to knowledge/decisions/ for future reference. Use this skill whenever the user says "I need to decide", "log this decision", "decision record", "ADR", "let's pick between X and Y", mentions a tough call, weighs options, frames a strategic/architectural choice they'll want to revisit, or is about to commit to a path that's non-trivial to reverse — even if they don't explicitly ask to "log" it.
+  Documents a decision with structured context, options considered, pros/cons, reversibility assessment, and rationale — saved to knowledge/decisions/ for future reference. Use this skill whenever the user says "I need to decide", "log this decision", "decision record", "ADR", "let's pick between X and Y", mentions a tough call, weighs options, frames a strategic/architectural choice they'll want to revisit, is about to commit to a path that's non-trivial to reverse, or wants to change an earlier recorded decision (a new record that amends the old one) — even if they don't explicitly ask to "log" it.
 argument-hint: "<topic>"
 generated_from: .claude/skills/decision/SKILL.md
-source_sha256: 56cc5c1eddc8fa60a2979ae784b137bb025ea34d7ab3f9253fc0695259da7845
+source_sha256: bad3b3731faf2add7202663151cdef7993a99916f2f382b0eccf69a1fa53a1a5
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -47,6 +47,8 @@ status: decided  # decided | deferred | revisit
 decision: [Which option was chosen]
 project: [project-name, if applicable]
 revisit_date: [YYYY-MM-DD, if applicable]
+amends: [knowledge/decisions/YYYY-MM-DD-topic-slug.md — optional, only when this record changes an earlier decision]
+amended_by: [knowledge/decisions/YYYY-MM-DD-topic-slug.md — optional, set on the older record when a later one amends it]
 ---
 # Decision: [Topic]
 
@@ -79,6 +81,8 @@ revisit_date: [YYYY-MM-DD, if applicable]
 [Leave empty — fill in when revisiting this decision later]
 ```
 
+**Amending an earlier decision.** When the new decision changes, narrows, or reverses a record that is already `decided`, do not edit the old record's body: write the new record with `amends:` pointing at the old file, and in the same session add the reciprocal `amended_by:` line to the old record's frontmatter (a one-line frontmatter append; its options and rationale stay as written). Both sides land before Step 5 confirms — a one-way pointer is the failure the pair exists to prevent. The newest record in an amends chain is the one in force; the old record's `## Review` section is for revisit notes that do not change the decision. (RW-2026-09-11-23)
+
 ### Step 4: Link to Project
 
 If the decision relates to a project:
@@ -95,6 +99,16 @@ Tell the user where the decision was saved and any follow-up actions identified.
 - For deferred decisions, set a `revisit_date` and status `deferred`.
 - `/weekly` and `/quarterly` scan `knowledge/decisions/` for recent decisions and surface repeat patterns.
 - If you notice the user making the same type of decision repeatedly, suggest codifying it as a rule in AGENTS.md.
+
+## Rationalization guard
+
+A decision record carries at least two options, each with pros, cons, effort, and reversibility, plus a rationale that cites this decision's own constraints — no exceptions. Common rationalizations, pre-answered:
+
+- *"There's really only one option — I'll skip the alternatives."* A record with one option is a note, not a decision; the rejected paths are what future-you needs when the context shifts. Name at least two, even if one is "do nothing".
+- *"The user already decided — I'll just log the outcome."* The outcome without the options and the "why" is exactly the record this skill exists to prevent. Ask the three Step 1 questions anyway; it takes a minute.
+- *"It's easily reversible, so it doesn't need a record."* Reversibility is an assessment to write down, not a reason to skip. Cheap-to-undo decisions are the ones that repeat, and the record is what lets `/weekly` surface the pattern.
+- *"Let me see what the research says first, then form a view."* Position discipline runs the other way: freeze your own recommendation before consulting any external opinion.
+- *"The old decision changed — I'll update that record in place."* Rewriting a decided record erases what was believed at the time. Write a new record that amends it and add the reciprocal line to the old one. Red flag: a Write to `knowledge/decisions/` with fewer than two options, or a rationale that cites no constraint from this decision's own context. (RW-2026-09-11-16)
 
 ## Position discipline
 

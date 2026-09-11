@@ -4,7 +4,7 @@ description: |-
   Draft content in the user's authentic voice — blog posts, outreach emails, social media, documentation — by reading voice samples and voice guide, gathering context from related knowledge files, producing a structured draft, and refusing generic AI patterns (em dashes, "isn't just Y," corrective reframing, LinkedIn breathless style, filler adjectives). Use this skill whenever the user asks to write, draft, or compose content of any kind — blog posts, emails, outreach, tweets, LinkedIn posts, announcements, docs, one-pagers, cold messages; runs `/write`; or says anything like "help me write X," "draft an email to Y," "put together a post about Z," or "write this up." Push toward this whenever prose is being generated, even if the user didn't use the word "write."
 argument-hint: "<content-type> <topic>"
 generated_from: .claude/skills/write/SKILL.md
-source_sha256: 71202114a975651351403f71aff1dfb32bb6cfa3ba5c0677b51ff1730598fbea
+source_sha256: 264ee7b32b853b788cac242f2387be46a3c0dd81e0d6f6cdbd81920f0a652180
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -77,3 +77,13 @@ After the user approves a draft, ask: "Share to Slack for feedback?"
 If yes, ask which channel or DM to send to. Post the draft via the `slack_send_message` tool (Slack MCP server) with a context line: "Draft [content-type]: [topic] — feedback welcome."
 
 If Slack MCP is unavailable, skip silently.
+
+## Rationalization guard
+
+The voice rules (read the samples first, never use a banned pattern, never invent an example or a number, never post before the user approves) have no exceptions. Common rationalizations, pre-answered:
+
+- *"It's a two-line reply — the voice samples don't matter."* Short pieces drift furthest because nothing else carries the voice. Read two samples; it takes a minute.
+- *"One em dash for rhythm is fine."* The banned-pattern list is the definition of "sounds like AI", and it makes no allowance for taste. Use a comma or a period.
+- *"A plausible number makes the argument land."* An invented statistic is a fabrication, not a placeholder. Write `[source needed]` or cut the claim.
+- *"The user writes well — I'll draft in neutral professional tone and let them fix it."* Fixing generic prose costs the user more than reading the samples costs you; neutral tone is the fallback only when no samples and no guide exist.
+- *"They said 'share it' earlier, so I'll post the revised draft to Slack."* Approval attaches to one specific draft. Red flag: a draft that would read the same with the user's name swapped out, or a Slack post that follows a revision without a fresh yes. (RW-2026-09-11-16)

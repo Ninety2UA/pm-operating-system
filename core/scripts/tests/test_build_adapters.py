@@ -2,7 +2,17 @@
 (KTD-4): each transform_body neutralization rule, the residual-token net,
 frontmatter rendering, and both native agent renderers — captured before the
 U5 mechanism changes so U5's diff shows up as deliberate test updates.
+
+The 2026-09 wave (U3) adds the generated-file manifest and the ownership
+refusal: those tests drive the real build against a `fake_root` fixture so
+every disk-touching scenario (delete, refuse, force, bootstrap) is real.
+`test_full_tree_in_sync` stays a real-repo test and needs the committed
+manifest at `.agents/skills.lock.json`.
 """
+import hashlib
+import json
+
+import pytest
 from conftest import REPO_ROOT
 
 import build_adapters as ba
@@ -59,9 +69,13 @@ def test_scan_residual_catches_every_token_family():
         "path $CLAUDE_PROJECT_DIR here",
         "tool AskUserQuestion here",
         "ref .claude/skills/morning/SKILL.md here",
+        "hook .claude/hooks/report-only-guard.sh here",
+        "flag run_in_background: false here",
+        "run /skill-doctor here",
+        "run claude plugin validate . here",
     ])
     problems = ba.scan_residual({"x.md": body.encode("utf-8")})
-    assert len(problems) == 5, problems
+    assert len(problems) == 9, problems
 
 
 def test_scan_residual_exempts_generated_from_line():
@@ -285,7 +299,8 @@ def test_cursor_renderer_verified_set_only():
 
 def test_leak_net_catches_raw_model_ids():
     for raw in ("claude-fable-5", "claude-3-5-sonnet-latest",
-                "claude-haiku-4-5-20251001", "claude-opus-4-8"):
+                "claude-haiku-4-5-20251001", "claude-opus-4-8",
+                "claude-opus-5", "claude-fable-5-1"):
         hits = ba.scan_residual({"x.md": f"pin {raw} here".encode("utf-8")})
         assert hits, raw
 
@@ -303,3 +318,331 @@ def test_leak_net_exempts_cursor_model_line_only():
     # …but the same model ID in a skill body is a real leak.
     skill = b"---\nname: x\n---\nmodel: claude-opus-4-8 here\n"
     assert ba.scan_residual({".agents/skills/x/SKILL.md": skill}) != []
+
+
+# ── U3: Claude-only pointers in the leak net (KTD11) ─────────────────────────
+# One case per new token; `Monitor` is deliberately NOT in the net (it occurs
+# as an ordinary word in a copied reference file).
+
+@pytest.mark.parametrize("leak", [
+    "see .claude/hooks/report-only-guard.sh",
+    "see .claude/agents/deep-research.md",
+    "see .claude/commands/morning.md",
+    "pass run_in_background: false",
+    "then run /skill-doctor",
+    "then run claude plugin validate .",
+])
+def test_leak_net_catches_claude_only_pointers(leak):
+    hits = ba.scan_residual({"x.md": f"body {leak} here".encode("utf-8")})
+    assert hits, leak
+
+
+def test_leak_net_leaves_monitor_and_core_paths_alone():
+    for benign in ("Monitor the run", "see core/scripts/validate.py",
+                   "the .claude/settings.json file"):
+        assert ba.scan_residual({"x.md": benign.encode("utf-8")}) == [], benign
+
+
+def test_leak_net_exempts_codex_provenance_header():
+    """The Codex TOML header names its `.claude/agents/` source on purpose,
+    exactly like the YAML `generated_from:` line."""
+    toml = (b"# generated-from: .claude/agents/probe.md  sha256:abc\n"
+            b"# do not edit\nname = \"probe\"\n")
+    assert ba.scan_residual({".codex/agents/probe.toml": toml}) == []
+
+
+# ── U3: manifest + ownership refusal (KTD4) ─────────────────────────────────
+
+SKILL_SRC = "---\nname: demo\ndescription: Demo skill\n---\n\nBody of demo.\n"
+REF_SRC = "Reference notes, first edition.\n"
+AGENT_SRC = ("---\nname: probe\ndescription: Probe agent\nmodel: opus\n---\n\n"
+             "Probe body.\n")
+
+DEMO_SKILL = ".agents/skills/demo/SKILL.md"
+DEMO_REF = ".agents/skills/demo/references/notes.md"
+PROBE_SKILL = ".agents/skills/probe/SKILL.md"
+PROBE_CURSOR = ".cursor/agents/probe.md"
+PROBE_CODEX = ".codex/agents/probe.toml"
+
+
+@pytest.fixture
+def fake_root(tmp_path, monkeypatch):
+    """A minimal source tree under tmp_path: one skill with a references/
+    file (unmarked generated copy) and one agent (all three managed bases).
+    ROOT and the SRC_* globals are import-time constants, so patch them."""
+    root = tmp_path / "repo"
+    (root / ".claude" / "skills" / "demo" / "references").mkdir(parents=True)
+    (root / ".claude" / "skills" / "demo" / "SKILL.md").write_text(SKILL_SRC, encoding="utf-8")
+    (root / ".claude" / "skills" / "demo" / "references" / "notes.md").write_text(
+        REF_SRC, encoding="utf-8")
+    (root / ".claude" / "agents").mkdir()
+    (root / ".claude" / "agents" / "probe.md").write_text(AGENT_SRC, encoding="utf-8")
+    (root / ".claude" / "commands").mkdir()
+    monkeypatch.setattr(ba, "ROOT", root)
+    monkeypatch.setattr(ba, "SRC_SKILLS", root / ".claude" / "skills")
+    monkeypatch.setattr(ba, "SRC_AGENTS", root / ".claude" / "agents")
+    monkeypatch.setattr(ba, "SRC_COMMANDS", root / ".claude" / "commands")
+    return root
+
+
+def _sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _build(force: bool = False) -> int:
+    return ba.cmd_build(dry_run=False, verbose=False, force=force)
+
+
+def test_deleted_source_skill_is_removed_via_manifest(fake_root, capsys):
+    """THE deadlock scenario (KTD4): a deleted source skill's generated copies
+    carry no marker in references/, so only the manifest can prove ownership
+    and let the build remove them."""
+    assert _build() == 0
+    assert (fake_root / DEMO_REF).is_file()
+    manifest = json.loads(ba.manifest_path().read_text(encoding="utf-8"))
+    assert DEMO_SKILL in manifest and DEMO_REF in manifest
+
+    import shutil
+    shutil.rmtree(fake_root / ".claude" / "skills" / "demo")
+
+    assert _build() == 0, capsys.readouterr()
+    assert not (fake_root / DEMO_SKILL).exists()
+    assert not (fake_root / DEMO_REF).exists()
+    assert not (fake_root / ".agents" / "skills" / "demo").exists()  # pruned
+    manifest = json.loads(ba.manifest_path().read_text(encoding="utf-8"))
+    assert DEMO_SKILL not in manifest and DEMO_REF not in manifest
+    assert PROBE_SKILL in manifest  # the surviving agent is still listed
+    assert ba.check_adapters() == []
+
+
+def test_manifest_is_written_temp_plus_rename(fake_root, monkeypatch):
+    """Temp-plus-rename (CODING_STANDARDS.md §Writes): the manifest another
+    run reads to prove ownership is never truncated in place. A build whose
+    rename is interrupted leaves the previous manifest intact, and a
+    completed write leaves no temp sibling behind."""
+    assert _build() == 0
+    before = ba.manifest_path().read_bytes()
+    # Change a source so the next build must rewrite the manifest.
+    (fake_root / ".claude" / "skills" / "demo" / "SKILL.md").write_text(
+        SKILL_SRC + "\nOne more line.\n", encoding="utf-8")
+
+    def refuse_replace(src, dst):
+        raise OSError("simulated crash between write and rename")
+    monkeypatch.setattr(ba.os, "replace", refuse_replace)
+    with pytest.raises(OSError):
+        _build()
+    assert ba.manifest_path().read_bytes() == before  # old content, whole
+    monkeypatch.undo()
+
+    assert _build() == 0
+    after = ba.manifest_path().read_bytes()
+    assert after != before
+    leftovers = [p.name for p in ba.manifest_path().parent.iterdir() if ".tmp" in p.name]
+    assert leftovers == [], leftovers
+
+
+def test_two_builds_produce_identical_deterministic_manifest(fake_root):
+    assert _build() == 0
+    first = ba.manifest_path().read_bytes()
+    assert _build() == 0
+    assert ba.manifest_path().read_bytes() == first
+
+    text = first.decode("utf-8")
+    manifest = json.loads(text)
+    outputs = ba.build_outputs()
+    # exactly the expected set, hashed over the generated bytes, all bases
+    assert manifest == {rel: _sha(data) for rel, data in outputs.items()}
+    assert {DEMO_SKILL, DEMO_REF, PROBE_SKILL, PROBE_CURSOR, PROBE_CODEX} <= set(manifest)
+    # sorted keys, one entry per line, no timestamps
+    assert list(manifest) == sorted(manifest)
+    entry_lines = [ln for ln in text.splitlines() if ln.strip().startswith('"')]
+    assert len(entry_lines) == len(manifest)
+    assert "time" not in text.lower() and "date" not in text.lower()
+    assert text.endswith("\n")
+
+
+def test_manifest_path_outside_managed_bases(fake_root):
+    assert _build() == 0
+    rel = ba.manifest_path().relative_to(fake_root).as_posix()
+    assert rel == ".agents/skills.lock.json"
+    assert ba.manifest_path().is_file()
+    assert rel not in ba.build_outputs()
+    assert rel not in ba.disk_files()
+
+
+def test_dry_run_never_writes_manifest_or_outputs(fake_root, capsys):
+    assert ba.cmd_build(dry_run=True, verbose=False, force=False) == 0
+    assert not ba.manifest_path().exists()
+    assert ba.disk_files() == set()
+    assert "would create 5" in capsys.readouterr().out
+
+
+def test_foreign_user_file_survives_and_fails_build(fake_root, capsys):
+    """A Cursor user's own `.cursor/agents/mine.md` (no marker, not in the
+    manifest) is never touched: it is named on stderr and the build exits 1
+    after writing every non-conflicting output. `--force` removes it."""
+    assert _build() == 0
+    capsys.readouterr()
+    mine = fake_root / ".cursor" / "agents" / "mine.md"
+    mine.write_text("---\nname: mine\n---\nMy own agent.\n", encoding="utf-8")
+    # make a real pending write so "non-conflicting outputs are written first" is observable
+    (fake_root / ".claude" / "skills" / "demo" / "SKILL.md").write_text(
+        SKILL_SRC.replace("Body of demo.", "Body of demo, v2."), encoding="utf-8")
+
+    assert _build() == 1
+    err = capsys.readouterr().err
+    assert ".cursor/agents/mine.md" in err
+    assert "--force" in err
+    assert mine.read_text(encoding="utf-8").endswith("My own agent.\n")
+    assert b"Body of demo, v2." in (fake_root / DEMO_SKILL).read_bytes()
+    # the manifest was still written and lists every expected path
+    manifest = json.loads(ba.manifest_path().read_text(encoding="utf-8"))
+    assert manifest == {rel: _sha(d) for rel, d in ba.build_outputs().items()}
+    # --check keeps today's orphan verdict for the refused file
+    assert "orphan: .cursor/agents/mine.md" in ba.check_adapters()
+
+    assert _build(force=True) == 0
+    assert not mine.exists()
+    assert ba.check_adapters() == []
+
+
+def test_bootstrap_without_manifest_overwrites_expected_keeps_foreign(fake_root, capsys):
+    """No manifest on disk (the July contract): every expected path is owned,
+    so an unmarked stale references/ copy is overwritten; a marker-less
+    non-expected file still needs the marker or --force and is left in place."""
+    stale_ref = fake_root / DEMO_REF
+    stale_ref.parent.mkdir(parents=True)
+    stale_ref.write_text("an older generated copy, no marker\n", encoding="utf-8")
+    stray = fake_root / ".agents" / "skills" / "stray.md"
+    stray.write_text("not ours\n", encoding="utf-8")
+    assert not ba.manifest_path().exists()
+
+    assert _build() == 1
+    err = capsys.readouterr().err
+    assert ".agents/skills/stray.md" in err
+    assert stray.read_text(encoding="utf-8") == "not ours\n"
+    assert stale_ref.read_bytes() == ba.build_outputs()[DEMO_REF]
+    assert ba.manifest_path().is_file()  # written even though the build exited 1
+
+
+def test_hand_edited_marked_skill_is_overwritten(fake_root):
+    assert _build() == 0
+    gen = fake_root / DEMO_SKILL
+    edited = gen.read_text(encoding="utf-8").replace("Body of demo.", "Body of demo, edited by hand.")
+    assert "generated_from:" in edited
+    gen.write_text(edited, encoding="utf-8")
+    assert _build() == 0
+    assert gen.read_bytes() == ba.build_outputs()[DEMO_SKILL]
+
+
+def test_unmarked_copy_matching_manifest_is_overwritten_on_source_change(fake_root):
+    assert _build() == 0
+    (fake_root / ".claude" / "skills" / "demo" / "references" / "notes.md").write_text(
+        "Reference notes, second edition.\n", encoding="utf-8")
+    assert _build() == 0
+    assert (fake_root / DEMO_REF).read_text(encoding="utf-8") == "Reference notes, second edition.\n"
+
+
+def test_unmarked_copy_matching_neither_is_refused(fake_root, capsys):
+    assert _build() == 0
+    capsys.readouterr()
+    ref = fake_root / DEMO_REF
+    ref.write_text("hand-edited generated copy\n", encoding="utf-8")
+    assert _build() == 1
+    err = capsys.readouterr().err
+    assert DEMO_REF in err
+    assert ref.read_text(encoding="utf-8") == "hand-edited generated copy\n"
+    # refused paths are omitted from the manifest; the rest is listed
+    manifest = json.loads(ba.manifest_path().read_text(encoding="utf-8"))
+    assert DEMO_REF not in manifest and DEMO_SKILL in manifest
+    # --force overwrites it and the tree is green again
+    assert _build(force=True) == 0
+    assert ref.read_bytes() == ba.build_outputs()[DEMO_REF]
+    assert ba.check_adapters() == []
+
+
+def test_classify_matrix():
+    """The write decision per the KTD4 diagram, as a pure function."""
+    marked = b"---\nname: x\ngenerated_from: .claude/skills/x/SKILL.md\n---\nbody\n"
+    plain = b"plain bytes\n"
+    other = b"other bytes\n"
+    manifest = {"p": _sha(plain)}
+    # not on disk → create; identical → leave
+    assert ba.classify("p", None, plain, manifest) == "create"
+    assert ba.classify("p", plain, plain, manifest) == "leave"
+    # expected, differs: manifest hash → overwrite; marker → overwrite; neither → refuse
+    assert ba.classify("p", plain, other, manifest) == "overwrite"
+    assert ba.classify("q", marked, other, manifest) == "overwrite"
+    assert ba.classify("q", plain, other, manifest) == "refuse"
+    # not expected: manifest hash → remove; marker → remove; neither → refuse
+    assert ba.classify("p", plain, None, manifest) == "remove"
+    assert ba.classify("q", marked, None, manifest) == "remove"
+    assert ba.classify("q", plain, None, manifest) == "refuse"
+    # bootstrap (no manifest): expected paths owned; orphans need the marker
+    assert ba.classify("q", plain, other, None) == "overwrite"
+    assert ba.classify("q", plain, None, None) == "refuse"
+    assert ba.classify("q", marked, None, None) == "remove"
+
+
+def test_provenance_marker_detection():
+    assert ba.has_provenance_marker(
+        b"---\nname: x\ngenerated_from: .claude/skills/x/SKILL.md\n---\nbody\n")
+    assert ba.has_provenance_marker(b"# generated-from: .claude/agents/x.md  sha256:abc\nname = \"x\"\n")
+    # the marker counts only in frontmatter / the TOML header, not in a body
+    assert not ba.has_provenance_marker(b"---\nname: x\n---\ngenerated_from: mentioned in body\n")
+    assert not ba.has_provenance_marker(b"plain reference copy\n")
+    assert not ba.has_provenance_marker(b"\x00\xff binary")
+
+
+def test_check_adapters_manifest_forms(fake_root):
+    assert _build() == 0
+    assert ba.check_adapters() == []
+    mrel = ba.MANIFEST_REL
+
+    # hand-edited generated file: disk differs from both expected and manifest
+    ref = fake_root / DEMO_REF
+    ref.write_text("hand-edited\n", encoding="utf-8")
+    problems = ba.check_adapters()
+    assert f"manifest: {DEMO_REF}" in problems
+    assert f"stale: {DEMO_REF}" not in problems
+    assert _build(force=True) == 0
+
+    # source-only change: disk still equals the last generated bytes → stale
+    (fake_root / ".claude" / "skills" / "demo" / "references" / "notes.md").write_text(
+        "third edition\n", encoding="utf-8")
+    problems = ba.check_adapters()
+    assert f"stale: {DEMO_REF}" in problems
+    assert f"manifest: {DEMO_REF}" not in problems
+    assert _build() == 0
+    assert ba.check_adapters() == []
+
+    # manifest value disagrees with the expected bytes → out of date
+    manifest = json.loads(ba.manifest_path().read_text(encoding="utf-8"))
+    tampered = dict(manifest)
+    tampered[DEMO_SKILL] = "0" * 64
+    ba.manifest_path().write_text(json.dumps(tampered, indent=2, sort_keys=True) + "\n")
+    assert f"manifest: {mrel} (out of date)" in ba.check_adapters()
+
+    # extra key → out of date
+    extra = dict(manifest)
+    extra[".agents/skills/gone/SKILL.md"] = "0" * 64
+    ba.manifest_path().write_text(json.dumps(extra, indent=2, sort_keys=True) + "\n")
+    assert f"manifest: {mrel} (out of date)" in ba.check_adapters()
+
+    # unreadable → named, never silently treated as absent
+    ba.manifest_path().write_text("<<<<<<< HEAD\n{}\n", encoding="utf-8")
+    assert any(p.startswith(f"manifest: {mrel} (unreadable") for p in ba.check_adapters())
+
+    # absent
+    ba.manifest_path().unlink()
+    assert "manifest: absent" in ba.check_adapters()
+
+
+def test_unreadable_manifest_fails_build_without_writing(fake_root, capsys):
+    assert _build() == 0
+    (fake_root / ".claude" / "skills" / "demo" / "SKILL.md").write_text(
+        SKILL_SRC.replace("Body of demo.", "Body of demo, v2."), encoding="utf-8")
+    ba.manifest_path().write_text("<<<<<<< HEAD\n{}\n", encoding="utf-8")
+    assert _build() == 1
+    assert "unreadable" in capsys.readouterr().err
+    assert b"Body of demo, v2." not in (fake_root / DEMO_SKILL).read_bytes()

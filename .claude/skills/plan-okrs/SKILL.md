@@ -64,6 +64,9 @@ Create 2-3 Objectives from the user's goals. Each Objective should:
 - Be qualitative and inspiring (not a metric)
 - Be achievable in the quarter
 - Align directly with the professional vision
+- Be stated as an **outcome**, with the approach on a separate `Means:` line
+
+**Outcome + means shape.** The Objective line names the state the quarter produces; the `Means:` line beneath it is one line naming how (a project, a channel, a habit) and carries no numbers of its own — those belong to the KRs. Litmus for the Objective line: *if the implementation changed, would this still be the goal? If not, it is a means* — move it to `Means:` and write the outcome it serves. "Launch the consulting site" is a means; "Consulting demand exists and reaches me" is the outcome. (RW-2026-09-11-11)
 
 For each Objective, create 3-4 Key Results that:
 - Are quantitative and measurable
@@ -79,6 +82,7 @@ Use this format for presentation:
 
 ```
 **O1: [Objective]**
+  Means: [approach — one line]
   KR1: [Key Result] — Baseline: [X] → Target: [Y]
   KR2: [Key Result] — Baseline: [X] → Target: [Y]
   KR3: [Key Result] — Baseline: [X] → Target: [Y]
@@ -99,6 +103,8 @@ After user confirmation, add or replace the OKR section in GOALS.md:
 *Last updated: YYYY-MM-DD*
 
 ### O1: [Objective]
+*Means: [approach — one line]*
+
 | Key Result | Baseline | Target | Current | Status |
 |-----------|----------|--------|---------|--------|
 | [KR1 description] | [X] | [Y] | [X] | Not started |
@@ -106,6 +112,8 @@ After user confirmation, add or replace the OKR section in GOALS.md:
 | [KR3 description] | [X] | [Y] | [X] | Not started |
 
 ### O2: [Objective]
+*Means: [approach — one line]*
+
 | Key Result | Baseline | Target | Current | Status |
 |-----------|----------|--------|---------|--------|
 | [KR1 description] | [X] | [Y] | [X] | Not started |
@@ -113,6 +121,8 @@ After user confirmation, add or replace the OKR section in GOALS.md:
 | [KR3 description] | [X] | [Y] | [X] | Not started |
 
 ### O3: [Objective]
+*Means: [approach — one line]*
+
 | Key Result | Baseline | Target | Current | Status |
 |-----------|----------|--------|---------|--------|
 | [KR1 description] | [X] | [Y] | [X] | Not started |
@@ -133,6 +143,7 @@ Present:
 
 Before saving, verify each OKR against:
 - [ ] Objectives are qualitative and inspiring, not metrics
+- [ ] Each Objective is an outcome with a separate `Means:` line — nothing on the Objective line would change if the approach changed
 - [ ] Key Results are quantitative with clear numbers
 - [ ] Each KR has a realistic baseline (not zero unless truly starting fresh)
 - [ ] Targets are ambitious but not impossible (~70% achievable)
@@ -147,16 +158,19 @@ Based on GOALS.md context:
 
 ```
 O1: Become a recognized product builder in my space
+  Means: ship in public — launched MVPs with write-ups
   KR1: Ship products from 0 to 3 launched MVPs
   KR2: Increase portfolio projects with live demos from 0 to 5
   KR3: Publish technical write-ups from 0 to 4 posts
 
 O2: Build a profitable consulting pipeline
+  Means: inbound from the write-ups plus targeted outreach
   KR1: Grow inbound leads from 0 to 10 qualified leads
   KR2: Acquire paying clients from 0 to 3
   KR3: Generate consulting revenue from $0 to $X
 
 O3: Develop deep product expertise
+  Means: run projects through the full evaluation pipeline
   KR1: Complete product projects from 0 to 5 end-to-end builds
   KR2: Evaluate project ideas through full pipeline from 0 to 15 evaluated
   KR3: Kill non-viable projects (decisive focus) from 0 to 5 killed

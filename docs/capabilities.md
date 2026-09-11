@@ -5,7 +5,7 @@ framework builds on, plus the external-vendor facts the adapter generator
 and watchers depend on. Every row was verified against a live source on the
 date below; nothing here is assumed from memory.
 
-- **Verified:** 2026-07-20 (owner CLI: Claude Code v2.1.215; Desktop app 1.22209.3 present)
+- **Verified:** 2026-09-11 (owner CLI: Claude Code v2.1.268; Desktop app 1.22209.3 present)
 - **Row schema (pinned — U14's degradation-coverage join keys on `id`):**
   `| id | capability | class | status | gates | evidence |`
   - `id` — stable per-capability identifier, kebab/dot, never renamed (append-only file).
@@ -27,33 +27,34 @@ date below; nothing here is assumed from memory.
 
 | id | capability | class | status | gates | evidence |
 |---|---|---|---|---|---|
-| models.roster | Current model IDs: `claude-fable-5`, `claude-opus-4-8`, `claude-sonnet-5`, `claude-haiku-4-5-20251001` — all Active | platform | verified | Fable 5 GA; Mythos 5 invite-only | platform.claude.com/docs/en/about-claude/models/model-ids-and-versions |
+| models.roster | Current model IDs: `claude-fable-5-1` (default Fable since v2.1.257), `claude-opus-5` (default Opus since v2.1.219, 1M context), `claude-fable-5`, `claude-opus-4-8`, `claude-sonnet-5`, `claude-haiku-4-5-20251001` — all Active | platform | verified | Fable 5.1/5 GA; Mythos invite-only | platform.claude.com/docs/en/about-claude/model-deprecations (Fable 5.1's ID renders only in that table, verified 2026-09-11) |
 | models.aliases | Frontmatter/CLI aliases: `haiku`, `sonnet`, `opus`, `fable`, `inherit` (+ `default`, `best`, `opusplan`, `sonnet[1m]`, `opus[1m]` in /model) | claude-native | verified | none | code.claude.com/docs/en/model-config |
-| models.retired | `-latest` aliases no longer exist; retired: all `claude-3-*`, `claude-opus-4-20250514`, `claude-sonnet-4-20250514`; deprecated `claude-opus-4-1-20250805` (retires 2026-08-05). Legacy-but-active: opus-4-5/4-6/4-7, sonnet-4-5/4-6 | platform | verified | none | platform.claude.com/docs/en/about-claude/model-deprecations |
+| models.retired | `-latest` aliases no longer exist; retired: all `claude-3-*`, `claude-opus-4-20250514`, `claude-sonnet-4-20250514`; `claude-opus-4-1-20250805` retired 2026-08-05 (replacement `claude-opus-4-8`). Legacy-but-active: opus-4-5/4-6/4-7, sonnet-4-5/4-6 | platform | verified | none | platform.claude.com/docs/en/about-claude/model-deprecations |
 | effort.levels | Effort vocabulary: `low`, `medium`, `high`, `xhigh`, `max` — complete set; default `high` | platform | verified | xhigh: Fable 5/Mythos 5/Opus 4.8/4.7/Sonnet 5 only | platform.claude.com/docs/en/build-with-claude/effort |
 | effort.skill-frontmatter | `effort:` in SKILL.md — "Overrides the session effort level" | claude-native | verified | none | code.claude.com/docs/en/skills |
 | effort.agent-frontmatter | `effort:` in agent .md — documented (GitHub issue #65598 "not planned" is stale; docs win) | claude-native | verified | none | code.claude.com/docs/en/sub-agents |
 | model.skill-frontmatter | `model:` in SKILL.md — same values as /model, or `inherit`; turn-scoped | claude-native | verified | none | code.claude.com/docs/en/skills |
 | model.agent-frontmatter | `model:` in agent .md — `sonnet`/`opus`/`haiku`/`fable`/full ID/`inherit` (default `inherit`) | claude-native | verified | `fable` alias needs v2.1.170+ | code.claude.com/docs/en/sub-agents |
-| fast-mode | `/fast` toggle; Opus 4.8 (4.7 removed 2026-07-24); flat premium pricing, usage credits on subscription plans | claude-native | verified | research preview; CLI only; Team/Ent owner opt-in | code.claude.com/docs/en/fast-mode |
+| fast-mode | `/fast` toggle; Opus 5 + Opus 4.8 (default Opus 5 since v2.1.219; Opus 4.7 removed 2026-07-24); flat premium pricing, usage credits on subscription plans | claude-native | verified | research preview; CLI only; Team/Ent owner opt-in | code.claude.com/docs/en/fast-mode |
 
 ## Orchestration
 
 | id | capability | class | status | gates | evidence |
 |---|---|---|---|---|---|
-| workflows.tool | `Workflow` model-callable tool: script-orchestrated subagent fan-out, background, resumable in-session | claude-native | verified | v2.1.154+; paid plans; Pro opt-in via /config | code.claude.com/docs/en/workflows |
+| workflows.tool | `Workflow` model-callable tool: script-orchestrated subagent fan-out, background, resumable in-session; `workflowSizeGuideline` setting, medium default of fewer than 15 agents | claude-native | verified | v2.1.154+; paid plans; Pro opt-in via /config | code.claude.com/docs/en/workflows |
 | workflows.primitives | Official script primitives: `agent()`, `pipeline()`; caps 16 concurrent / 1,000 per run | claude-native | verified | none | code.claude.com/docs/en/workflows |
 | workflows.parallel | `parallel()` barrier primitive + `budget` object + phase()/log() | claude-native | verified-in-product | v2.1.215 tool schema documents them; web docs do not — prefer agent()/pipeline() in durable scripts | in-product Workflow schema (2026-07-20) |
 | workflows.ultracode | Ultracode = `xhigh` effort + standing workflow permission, not an API effort level; `/effort ultracode` | claude-native | verified | `--effort ultracode` v2.1.203+ | platform.claude.com/docs/en/build-with-claude/effort |
 | workflows.keyword-human-only | `ultracode` keyword opt-in only in human-typed prompts — NOT `-p`, scheduled-task prompts, webhooks | claude-native | verified | hardened v2.1.210 | code.claude.com/docs/en/workflows |
 | goal.command | `/goal` session objective (prompt-based Stop-hook wrapper); user-typed only, no model-callable tool | claude-native | verified | v2.1.139+; trusted workspace; ≤4,000 chars | code.claude.com/docs/en/goal |
-| agents.subagents | Agent tool: per-invocation `model`, `isolation: "worktree"`, `run_in_background`, named continuation via SendMessage | claude-native | verified | background default v2.1.198+ | code.claude.com/docs/en/sub-agents |
+| agents.subagents | Agent tool: per-invocation `model`, `isolation: "worktree"`, `run_in_background`, named continuation via SendMessage; fork default and background-by-default for non-teammate spawns (v2.1.232); concurrent cap 20 via `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (v2.1.217); nesting depth 3 (v2.1.219); the 200-per-session spawn cap was removed (v2.1.224) | claude-native | verified | background default v2.1.198+ | code.claude.com/docs/en/sub-agents |
 | agents.teams | Agent teams: experimental, disabled by default (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`); TeamCreate/TeamDelete removed; SendMessage + Task* tools remain | claude-native | partial | experimental — document as opt-in, never in core paths | code.claude.com/docs/en/agent-teams |
 | workflows.budget-directive | "+Nk" token-budget prompt directives | claude-native | verified-in-product | in-product schema only; treat as unstable, never load-bearing | code.claude.com/docs/en/workflows (absent) |
 | checkpointing | Automatic per-prompt code snapshots; `/rewind` (not bash-command file changes) | claude-native | verified | none | code.claude.com/docs/en/checkpointing |
 | plugins | Plugin marketplaces bundling skills/agents/hooks/MCP/LSP | claude-native | verified | claude-plugins-official auto-available | code.claude.com/docs/en/discover-plugins |
 | skills.standard | Skills follow the Agent Skills open standard (agentskills.io); CC extends it (invocation control, `context: fork`, dynamic context) | portable | verified | none | code.claude.com/docs/en/skills |
 | skills.disable-model-invocation | `disable-model-invocation: true` blocks auto-load, subagent preload, and (v2.1.196+) scheduled-task firing — a schedulable skill must NOT set it | claude-native | verified | v2.1.196+ for the scheduled-task block | code.claude.com/docs/en/skills |
+| skills.frontmatter-hooks | Hooks declared in SKILL.md frontmatter register on invocation and persist for the session, including under `-p`; recorded, not adopted | claude-native | verified | none | code.claude.com/docs/en/hooks ("Hooks in skills and agents") |
 
 ## Scheduling and automation homes
 
@@ -62,10 +63,10 @@ date below; nothing here is assumed from memory.
 | sched.cron-insession | CronCreate/CronList/CronDelete: session-scoped prompts, 7-day expiry, ≤50/session, no disk persistence, fires between turns in the SAME session | claude-native | verified | none | code.claude.com/docs/en/scheduled-tasks |
 | sched.loop | `/loop` + ScheduleWakeup dynamic pacing; wakeups inherit the session's MCP + permission surface | claude-native | verified | 7-day expiry | code.claude.com/docs/en/scheduled-tasks |
 | sched.desktop | Desktop scheduled tasks: app-internal scheduler, fresh local session per fire, per-task working folder + permission mode + always-allow list, optional worktree; runs only while app open | claude-native | verified | Desktop app required | code.claude.com/docs/en/desktop-scheduled-tasks |
-| sched.cloud-routines | Cloud routines: schedule via `/schedule` CLI or web; fresh clone per run from default branch; ≥1-hour interval; no permission prompts during runs | platform | verified | research preview; Pro/Max/Team/Enterprise + Claude Code on web enabled | code.claude.com/docs/en/routines |
+| sched.cloud-routines | Cloud routines: schedule via `/schedule` CLI or web; fresh clone per run from default branch; ≥1-hour interval; no permission prompts during runs; the clone carries no local MCP servers (the watchers need none), the guard applies only where it is wired locally in that clone, and the run is stateless — reports never land locally, so the next `/repo-watch` sees only the delta since the tracked seed | platform | verified | research preview; Pro/Max/Team/Enterprise + Claude Code on web enabled | code.claude.com/docs/en/routines |
 | sched.cloud-writes | Routine pushes restricted to `claude/*` branches by default (per-repo unrestricted toggle); never local files; commits appear as the user's GitHub identity | platform | verified | none | code.claude.com/docs/en/routines |
 | sched.cloud-skills | Cloud sessions load project skills committed to the cloned repo's `.claude/skills/` (not `~/.claude/skills/`) | platform | verified | none | code.claude.com/docs/en/skills |
-| sched.headless | External scheduler → `claude -p` wrapper: full per-run enforcement via `--permission-mode dontAsk`, `--disallowedTools`, `--settings`, plus caller-set env; `--bare` would skip hooks/skills — do not use with the guard | claude-native | verified | none | code.claude.com/docs/en/headless, /cli-reference |
+| sched.headless | External scheduler → `claude -p` wrapper: full per-run enforcement via `--permission-mode dontAsk`, `--disallowedTools`, `--settings`, plus caller-set env; `--bare` would skip hooks/skills — do not use with the guard; `--permission-prompts none` (v2.1.259) denies anything that would prompt; `--restricted` (v2.1.248) removes WebFetch unless named in `--tools` and ignores project/local settings, so it is not usable for the watchers | claude-native | verified | none | code.claude.com/docs/en/headless, /cli-reference |
 
 ### Per-home enforcement (the KTD-5 containment question)
 
@@ -77,18 +78,18 @@ per-run, without touching interactive sessions?
 |---|---|---|---|---|
 | home.wrapper | External cron/launchd → `claude -p` + flags | yes — full profile by construction | yes — caller-set env (`CE_REPORT_ONLY=1`); hooks inherit parent env (documented) | the gold-standard local home; setup wires a launchd/cron wrapper. Direct-drive drill: put the marker on the guard process, `printf … \| CE_REPORT_ONLY=1 bash …guard.sh` (a pipeline `VAR=val cmd1` prefix binds only to `cmd1`) |
 | home.desktop | Desktop scheduled task | partial — per-task `dontAsk` mode denies anything outside allow rules; skill-level `disallowed-tools` applies; no per-run settings/env | no documented env marker; `permission_mode` field in hook stdin usable as a disclosed convention | offered with reduced-guarantee disclosure |
-| home.cloud | Cloud routine | partial-by-different-means — no tool permission system, but infra enforces: per-environment network allowlist (403 `host_not_allowed`), connector removal, `claude/*` branch scoping; cannot touch local files at all | yes — per-environment custom env vars (documented) + `CLAUDE_CODE_REMOTE=true` | cannot write a repo-visible report into the local checkout; reports surface via transcript or documented read-back |
+| home.cloud | Cloud routine | partial-by-different-means — no tool permission system, but infra enforces: per-environment network allowlist (403 `host_not_allowed`), connector removal, `claude/*` branch scoping; cannot touch local files at all | yes — per-environment custom env vars (documented) + `CLAUDE_CODE_REMOTE=true` | cannot write a repo-visible report into the local checkout; reports surface via transcript or documented read-back; the clone carries no local MCP servers (the watchers need none), the guard applies only where wired locally in that clone, and the clone is stateless — reports never land locally, so the next `/repo-watch` sees only the delta since the tracked seed |
 | home.insession | In-session cron / `/loop` | no — prompt into the same session; inherits full session tool surface; skill-level `disallowed-tools` is the only narrowing | no — no documented signal distinguishes a cron/wakeup turn | not offered as an enforced option; disclosed-degraded only |
 
 ## Hooks and enforcement primitives
 
 | id | capability | class | status | gates | evidence |
 |---|---|---|---|---|---|
-| hooks.lifecycle | 30 documented events incl. SessionStart/End, UserPromptSubmit, Pre/PostToolUse, PostToolUseFailure, PermissionRequest/Denied, SubagentStart/Stop, Setup, PreCompact, FileChanged, WorktreeCreate/Remove | claude-native | verified | none | code.claude.com/docs/en/hooks |
-| hooks.pretooluse | PreToolUse stdin JSON: session_id, transcript_path, cwd, permission_mode, tool_name, tool_input; exit 2 blocks (exit 1 does NOT); JSON `permissionDecision: allow/deny/ask` | claude-native | verified | none | code.claude.com/docs/en/hooks |
+| hooks.lifecycle | 32 documented events incl. SessionStart/End, UserPromptSubmit, Pre/PostToolUse, PostToolUseFailure, PermissionRequest/Denied, SubagentStart/Stop, Setup, PreCompact, FileChanged, WorktreeCreate/Remove, PreModelSwitch/PostModelSwitch (v2.1.251); the SessionStart resume payload carries staleness and re-cache cost since v2.1.251 | claude-native | verified | none | code.claude.com/docs/en/hooks |
+| hooks.pretooluse | PreToolUse stdin JSON: session_id, transcript_path, cwd, permission_mode, tool_name, tool_input; exit 2 blocks (exit 1 does NOT); JSON `permissionDecision: allow/deny/ask`; a command hook that reaches its timeout is cancelled and the tool call continues — fail-open; default 600 s; never rely on a stalled hook as a gate | claude-native | verified | none | code.claude.com/docs/en/hooks |
 | hooks.env-inheritance | "The hook process inherits the parent environment" — a caller-set env var is readable inside a hook subprocess | claude-native | verified | none | code.claude.com/docs/en/hooks |
 | hooks.disableable | `disableAllHooks` exists — a guard hook is never a sufficient sole layer; deny rules are not bypassable by hooks | claude-native | verified | none | code.claude.com/docs/en/hooks, /permissions |
-| perms.deny-syntax | Deny rules: bare tool name removes tool from context; `WebFetch(domain:x)` egress pinning; `mcp__server__tool` per-tool deny; `Read()`/`Edit()` path rules (gitignore globs); deny at any level wins; evaluated deny→ask→allow | claude-native | verified | Read-deny blocks Edit v2.1.208+ | code.claude.com/docs/en/permissions |
+| perms.deny-syntax | Deny rules: bare tool name removes tool from context; `WebFetch(domain:x)` egress pinning; `mcp__server__tool` per-tool deny; `Read()`/`Edit()` path rules (gitignore globs); deny at any level wins; evaluated deny→ask→allow; plain `WebFetch` rules no longer cover Artifact reads — use an `Artifact` rule (v2.1.268); parenthesized paths in rules fixed v2.1.260; `Skill(dir:name)` nested-skill deny form (v2.1.260) | claude-native | verified | Read-deny blocks Edit v2.1.208+ | code.claude.com/docs/en/permissions |
 | perms.bash-caveat | "If Bash is allowed, Claude can still use curl… to reach any URL" — deny Bash is a prerequisite for any fetch allowlist to be meaningful | claude-native | verified | none | code.claude.com/docs/en/permissions |
 | perms.dontask | `--permission-mode dontAsk` denies anything not in allow rules or the read-only set — deny-by-default for unattended runs | claude-native | verified | none | code.claude.com/docs/en/headless |
 | skills.disallowed-tools | SKILL.md `disallowed-tools:` removes tools while the skill is active — a portable, home-independent profile core | claude-native | verified | none | code.claude.com/docs/en/skills |
@@ -117,6 +118,8 @@ per-run, without touching interactive sessions?
 | absent.cron-durable | Durable / disk-persisted in-session cron | claude-native | absent | `durable:` flag is a no-op | in-product CronCreate schema + scheduled-tasks docs |
 | absent.insession-marker | Scheduled-origin signal for in-session cron//loop turns, observable from a PreToolUse hook | claude-native | absent | — | code.claude.com/docs/en/scheduled-tasks + /hooks (silent) |
 | unstable.teams | Agent teams for production reliance | claude-native | partial | experimental; /resume drops teammates | code.claude.com/docs/en/agent-teams |
+| absent.todo-tools | TaskCreate/TaskGet/TaskUpdate/TaskList and TodoWrite unavailable on Opus 4.8, Sonnet 5, Fable 5 and newer since v2.1.233 (restricted list tightened v2.1.268) | claude-native | absent | env opt-in exists | CHANGELOG.md (v2.1.233, v2.1.268) |
+| absent.ultraplan | The `/ultraplan` plan-refinement command | claude-native | absent | removed v2.1.222 | CHANGELOG.md (v2.1.222) |
 
 ## Standing notes
 
@@ -125,6 +128,9 @@ per-run, without touching interactive sessions?
   naming. `repo-watch` watches the six mined repos, not Codex or Cursor
   releases — vendor renames surface only when a consumer breaks or a manual
   re-verification runs. Recorded per the plan's System-Wide Impact.
+  `claude-opus-5` and `claude-fable-5-1` as Cursor `model:` values remain
+  unverified — cursor.com sits outside the watcher's fetch hosts — so the
+  Cursor `opus` map stays `claude-opus-4-8`.
 - **Cloud trust base:** cloud routines and ultrareview place the claude.ai
   account in the trust base; two-factor auth and a spend alert are stated
   prerequisites wherever setup offers them.

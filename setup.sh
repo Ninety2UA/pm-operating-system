@@ -483,7 +483,12 @@ fi
 #      infrastructure; transcripts retained; billed to the subscription;
 #      pushes limited to claude/* branches (keep that default); the GitHub
 #      grant stands until YOU revoke it; reports surface via the routine
-#      transcript or read-back — NOT as local repo files.
+#      transcript or read-back — NOT as local repo files. Also: no local
+#      MCP servers reach this run (the watchers need none); the
+#      report-only guard applies only if wired locally in that clone;
+#      the clone is stateless, so reports never land locally and a later
+#      "/repo-watch report-only" there sees only the delta since the
+#      tracked seed cursors.
 #   4) skip           — nothing scheduled anywhere. Enable later by
 #      re-running setup.
 # NOT offered as enforced homes: /loop and in-session cron (no per-run
@@ -528,6 +533,9 @@ PLIST
 
 print_header "Automation (optional — nothing runs unless you choose it)"
 
+echo "Posture: nothing is scheduled, wired, or granted until you answer the"
+echo "prompt below; a non-interactive run selects skip (option 4)."
+echo ""
 echo "The currency watchers (/cli-watch, /repo-watch) can run scheduled"
 echo "REPORT-ONLY cycles: they read their baseline, fetch only the delta,"
 echo "write a dated report, and stop. They never modify the repo; adopting"
@@ -540,7 +548,9 @@ echo "     enforcement: per-task dontAsk, no guard marker — disclosed)"
 echo "  3) cloud — claude.ai routine (runs on Anthropic infrastructure;"
 echo "     billed to your plan; GitHub grant until revoked; reports in the"
 echo "     routine transcript, NOT local files; needs GitHub push + 2FA +"
-echo "     a spend alert)"
+echo "     a spend alert; no local MCP servers reach it; no guard unless"
+echo "     wired locally in that clone; the clone is stateless, so its"
+echo "     /repo-watch sees only the delta since the tracked seed cursors)"
 echo "  4) skip — schedule nothing (enable later by re-running setup)"
 echo ""
 
@@ -599,6 +609,11 @@ case "$auto_choice" in
         echo "  - The GitHub grant stands until YOU revoke it (claude.ai settings)."
         echo "  - Reports surface in the routine transcript or by asking Claude to read"
         echo "    them back — they do NOT land as files in this local repo."
+        echo "  - No local MCP servers reach this run (the watchers need none)."
+        echo "  - No report-only guard applies unless you wire it locally in that clone."
+        echo "  - The clone is stateless: reports never land locally, and a later"
+        echo "    /repo-watch report-only there sees only the delta since the tracked"
+        echo "    seed cursors."
         echo "  Prerequisites: repo pushed to GitHub; claude.ai account with Claude Code"
         echo "  on the web (Pro/Max/Team/Enterprise); 2FA enabled; a spend alert set."
         print_info "Then, inside Claude Code, run /schedule with prompt exactly:"

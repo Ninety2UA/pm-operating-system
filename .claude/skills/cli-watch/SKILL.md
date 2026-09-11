@@ -52,16 +52,29 @@ implements marked adoptions and advances the baseline after the wave lands.
    - Absent, unreadable, or older schema → **rescan with notice**: seed
      from `docs/capabilities.md` (the U1 manifest is the first baseline)
      and treat the cursor as unset; never silently discard older data.
-   - Throttle: if the baseline's `rescan_throttle.until` is in the future,
-     write a report saying so and stop — a persistently broken state must
-     not force repeated heavy refetching on a schedule.
+   - Throttle: if the baseline already carries a `rescan_throttle.until`
+     in the future (set by a prior owner-run full pipeline), write a
+     report saying so and stop — a persistently broken state must not
+     force repeated heavy refetching on a schedule. Report-only itself
+     never writes `rescan_throttle` — it may write only to the lock and
+     today's report. When this run is the one that first detects the
+     "upstream history rewritten" anomaly (step 3), it instead `Glob`s
+     the newest completed report (`path: knowledge/currency/reports/cli`
+     — the guard denies a path-less or outside-project search) and checks
+     its Recovery notices for a prior `throttle needed (until <iso>)`
+     line: a still-live timestamp is carried into today's report
+     unchanged; otherwise it writes a fresh `throttle needed (until
+     <iso+24h>)` line so the next report-only run can derive the same
+     state, and flags it for the owner to enact in full mode.
 3. **Delta fetch.** Fetch the Claude Code changelog
    (`raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md`)
    and collect entries newer than `changelog_cursor`. For capability rows
    the manifest marks volatile (research previews: fast mode, ultrareview,
    routines), spot-check their doc anchors for status changes. Conditional
    freshness: prefer re-verification over memory — a cached impression is
-   not a check (ledger AS-06).
+   not a check (ledger AS-06). Retain the full URL of each fetch — purpose,
+   outcome, approximate size — in run memory as it happens, for the
+   receipts section (step 5).
 4. **Classify.** For each new item: `adopt-candidate` / `document` /
    `not-applicable`, a one-line authored rationale, and defanged
    provenance (version + short quote). Auto-tag `sensitive` any candidate
@@ -69,10 +82,21 @@ implements marked adoptions and advances the baseline after the wave lands.
    handlers, setup, or the enforcement code — these cannot be adopted from
    the summary alone (KTD-7).
 5. **Report.** Write `knowledge/currency/reports/cli/YYYY-MM-DD.md` from
-   `references/report-template.md`, directly under its final name; the
-   completion trailer is the LAST line written — a crashed run leaves no
-   trailer and is never surfaced as complete. Include the gap-honesty
-   section: what this run could not see (ledger GB-11).
+   `references/report-template.md`, directly under its final name — named
+   by the UTC date when the run can determine it, matching the guard's
+   allowed-write pattern; the completion trailer is the LAST line
+   written — a crashed run leaves no trailer and is never surfaced as
+   complete. Include the gap-honesty section: what this run could not see
+   (ledger GB-11). Render the retained fetch URLs into `## Egress receipts
+   (self-attested)`, one row per fetch, defanged, exactly once — the
+   table is written by this same run that fetched (self-attested). When
+   `knowledge/currency/guard.log` is readable, `Grep` it (`path:
+   knowledge/currency/guard.log` — same explicit-path rule) for `allow:
+   WebFetch <url>` lines whose bracketed timestamp is on or after the
+   `started` value this run wrote to `currency.lock`, and reconcile only
+   those against the retained full URLs, exactly; write any mismatch, or
+   `no enforcement log in this home` when the log is absent/unreadable, to
+   Gaps.
 6. **Stop.** Report-only ends here: the baseline is untouched. Release the
    lock: with Bash available, delete `knowledge/currency/currency.lock`;
    without Bash (restricted profile), overwrite its content with
@@ -83,13 +107,20 @@ implements marked adoptions and advances the baseline after the wave lands.
 
 1. Run the report-only pipeline (steps 1–5) to refresh the delta.
 2. **Consume marked lines.** Read the newest completed report (final name
-   + trailer) and collect lines the owner marked `[x] adopt`. A `sensitive`
-   line requires the heightened-review path: open the real upstream source
-   and the actual diff with the owner — never adopt it from the summary.
+   + trailer) and collect the lines the owner marked `[x] adopt`, plus any
+   `throttle needed` line in its Recovery notices. List everything about
+   to be consumed and confirm with the owner before implementing. A
+   `sensitive` line requires the heightened-review path: open the real
+   upstream source and the actual diff with the owner — never adopt it
+   from the summary.
 3. **Implement** the marked adoptions as a normal gated wave: matrix row →
    edits → `uv run core/scripts/validate.py` and
    `uv run core/scripts/build_adapters.py --check` green → tests green →
    commit. Update the adoption matrix and ledger with provenance links.
+   If the owner confirmed a `throttle needed` notice, set
+   `rescan_throttle.until` on the baseline to 24 h past the notice's
+   timestamp as part of this same wave — report-only itself never writes
+   this field.
 4. **Advance the baseline — only after the wave's commit lands:**
    `uv run --with pyyaml python3 -c "import sys; sys.path.insert(0,'core/scripts'); import currency; currency.write_baseline_atomic('knowledge/currency/cli-baseline.json', {...updated cursor...})"`
    (atomic temp-plus-rename; the helper carries the CE_FAULT_POINT drill
@@ -105,10 +136,11 @@ implements marked adoptions and advances the baseline after the wave lands.
 |---|---|
 | Baseline absent/corrupt | Full rescan seeded from `docs/capabilities.md`, noted in the report |
 | Older known schema | Migrate or rescan **with notice** — data never silently discarded |
-| Upstream history rewritten (cursor version vanished) | Flag as anomaly requiring owner attention; set `rescan_throttle` (24 h) so a schedule cannot loop heavy refetches |
+| Upstream history rewritten (cursor version vanished) | Report-only: flag as anomaly and write/carry a `throttle needed (until <iso>)` line in the report's Recovery notices, derived from the newest completed report — never written to the baseline (R8). Owner-run full mode reads the notice, confirms with the owner, and sets `rescan_throttle` on the baseline while implementing the wave |
 | Lock held < 2 h | Stop with notice |
 | Lock stale/garbled | Reclaim with notice; documented manual escape: delete `knowledge/currency/currency.lock` |
-| Repeated corruption on a schedule | Throttled by `rescan_throttle`; report says "manual attention needed" |
+| Repeated corruption on a schedule | Throttled by the derived `throttle needed` state; report says "manual attention needed" |
+| PR for a wave closed unmerged | Delete `knowledge/currency/cli-baseline.json`, and copy each `<date>.v2.md` snapshot back over its ticked `<date>.md` so the undecided count is honest again |
 
 ## Scheduling hygiene (for setup and the owner)
 

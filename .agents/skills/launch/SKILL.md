@@ -4,7 +4,7 @@ description: |-
   Run a specific project through the full evaluation pipeline — validate → lean canvas → GTM → competitive analysis → pre-mortem → spec → user stories — with a Go/No-Go gate after each evaluation stage and project-status updates as the project moves through idea → evaluating → ready → active. Use this skill whenever the user wants to evaluate, validate, or launch a specific project end-to-end, runs `/launch <project-name>`, or says anything like "run the pipeline on X," "full evaluation of Y," "is Z worth building," or "take this project through the evaluation flow." Starts from the first missing artifact unless `--from <stage>` is specified.
 argument-hint: "<project-name> [--from <stage>]"
 generated_from: .claude/skills/launch/SKILL.md
-source_sha256: c0b03ba59e9164ce96f67e8c9f69dbb74fcf6600decf554e8a189acfe2f30c5b
+source_sha256: af47885a8532ac93ab6b484a0352c6a8987d994492cd304124ef3240e1b04cbe
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -98,6 +98,16 @@ Use the `slack_send_message` tool (Slack MCP server) to `#os-progress`. If Slack
 ## Batch evaluation
 
 When the user asks to run several projects through evaluation at once, run them sequentially with the batch-evaluator instructions, one project at a time, then present the comparative ranking.
+
+## Rationalization guard
+
+Every evaluation stage produces its artifact by invoking its skill and ends at its Go/No-Go gate, and project status moves only as Step 4 lists — no exceptions. Common rationalizations, pre-answered:
+
+- *"The validation looks strong — I'll run the next two stages before asking."* The gate after each stage is where the owner kills a weak project for the price of one stage. Stop and ask after every one.
+- *"I know this market; I'll summarize instead of invoking the stage skill."* A stage without its artifact on disk did not run. Invoke the skill; a summary written here is not an artifact.
+- *"The pre-mortem passed, so mark the project active now."* Only Stage 7 moves a project to `active`. Status edits follow Step 4 exactly.
+- *"The owner skipped competitive analysis, so the pre-mortem can go too."* Only Stage 4 is optional. Every other stage runs, or the owner says No-Go and the project pauses or archives.
+- *"It's a batch, so the scheduled run can start it."* Batch evaluation is owner-triggered only; a scheduled run never starts it. Red flag: a `project_status` edit that matches no line in Step 4, or a stage reported done with no artifact under `projects/<name>/`. (RW-2026-09-11-16)
 
 ## Notes
 

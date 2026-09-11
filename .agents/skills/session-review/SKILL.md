@@ -4,7 +4,7 @@ description: |-
   Captures a structured review of the current Claude Code session — user prompts verbatim, tools used, workflow chains, what worked, missing capabilities — and saves it to knowledge/session-reviews/ for weekly pattern analysis. Use this skill whenever the user says "review this session", "save session learnings", "what did we do", "capture what we learned", "session review", at the end of long or significant sessions, when the session-end reflection rule in AGENTS.md fires, or after a substantial work session — even if the user doesn't use the word "review."
 argument-hint: "(no arguments — uses the current session)"
 generated_from: .claude/skills/session-review/SKILL.md
-source_sha256: cda06213b9e137c903cc418ca9d20eb20c5149a4db5a92e40b2978c3b7e2fcaa
+source_sha256: f54b3f293066e2a50c983d83f9e416ea51a35cf29fc7f86293537dafa0ae03e7
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -32,6 +32,7 @@ Review the full conversation context. Extract:
 6. **What didn't work** — friction points, retries, confusion, dead ends
 7. **Patterns noticed** — repeated questions, missing capabilities, workflow bottlenecks
 8. **Missing capabilities** — things the user asked for that required workarounds or manual steps. These are candidates for new commands, skills, or MCP tools.
+9. **Skill gaps** — any skill whose guidance was wrong, outdated, or missing for this session's context (it assumed a host, a project shape, or a tool that was not there): the skill's name, the excerpt that misled quoted from the skill, and what was done instead. These are rewrite candidates, distinct from missing capabilities.
 
 ### Step 2: Determine Session Type and Judgement
 
@@ -99,6 +100,10 @@ reviewed: false
 - [thing the user needed that doesn't exist as a command/skill/tool yet]
 - Suggested: [what command/skill could be created]
 
+## Skill gaps
+- Skill: [skill name] | Misled by: "[excerpt quoted from the skill]" | Did instead: [what actually worked] | Context: [why the guidance did not fit]
+- (none observed)
+
 ## Session Reflection
 [one-line takeaway]
 ```
@@ -124,6 +129,7 @@ Tell the user:
 - The `## User Prompts (Verbatim)` section is the highest-value part. Be thorough here.
 - Don't include trivial prompts like "yes", "ok", "continue". Capture the substantive requests.
 - `## Missing Capabilities` directly feeds the weekly pattern analysis that suggests new commands/skills.
+- `## Skill gaps` is input to `/weekly`: its before-measurement for rewrite proposals counts these entries per skill, so quote the misleading excerpt exactly and write `(none observed)` rather than omitting the section. (RW-2026-09-11-7)
 - Reviews are read by `/weekly` command for pattern analysis across the week's sessions.
 
 ## Attribution rule

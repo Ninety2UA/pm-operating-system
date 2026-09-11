@@ -51,6 +51,8 @@ project/
 
 > **Not shown:** `docs/`, `examples/`, `site/` — repo infrastructure, not user workspace.
 >
+> **Data handling:** `knowledge/people/`, `knowledge/meetings/`, and `knowledge/journals/` hold personal data and are gitignored by design; the PII tiers, retention limit, and deletion path are in [docs/data-handling.md](docs/data-handling.md).
+>
 > **Skill-as-command convention:** every skill under `.claude/skills/<name>/SKILL.md` is invokable both via the Skill tool and as the slash command `/<name>`. The `## Commands` section of `CLAUDE.md` highlights the primary daily-workflow commands; `## Skills` lists the full catalog.
 
 ### tasks/ vs projects/
@@ -209,7 +211,7 @@ When drafting communications, encourage bold asks:
 
 ## Working Conventions
 
-Adopted from the 2026-07 ecosystem mining pass (provenance in
+Adopted from the 2026-07 and 2026-09 ecosystem mining passes (provenance in
 `docs/ledger/adoption-matrix.md`); these bind every host.
 
 - **Skill-first.** If a task matches a skill in the catalog, invoke that skill — never simulate its steps from memory in the main conversation. Check the catalog before any workflow-shaped request. (AS-10)
@@ -218,6 +220,7 @@ Adopted from the 2026-07 ecosystem mining pass (provenance in
 - **Three failed fixes → question the architecture.** After three attempts at the same defect, stop patching and re-examine the design. (SP-16)
 - **The user (or a slash command) is the orchestrator.** Skills chain via explicit invocation; subagents do their own work and return — no persona invoking personas, no router agents, no fan-out whose merge doesn't fit back into the main context. (AS-09)
 - **Durable artifacts are not chat.** Links in knowledge artifacts are built from actual data, never composed from memory; no conversational filler in saved files; preserve the user's own phrasing in quotes — the language is the insight. (GB-05)
+- **Consumed output runs in the foreground.** A subagent whose output the caller consumes is dispatched in the foreground with a bounded wait — never assume a background dispatch completed. When the wait expires: stop it, reconcile any partial artifacts it wrote, record the gap in the deliverable, and continue. (RW-2026-09-11-43)
 
 ## Context Management
 
@@ -236,6 +239,8 @@ Context is your most valuable resource. If your host supports subagents or backg
 - Markdown writing/editing the user is reviewing live
 
 **Rule of thumb:** If a task will read >3 files or produce output the user doesn't need verbatim, delegate to a subagent and return a summary.
+
+**Budget levels:** start trimming at three-quarters of capacity, not at the limit — attention degrades before the window is full. Cut in this order: failed attempts, verbose tool output, conversational filler, superseded drafts. Protect in every trim: the task definition, the active error, the file currently being edited, and the hard constraints. Compress before deleting — a debugging detour becomes one sentence, not nothing.
 
 When your host supports them: use a broad-exploration subagent for codebase sweeps, the `deep-research` agent/skill for multi-source research, and `batch-evaluator` for parallel project evaluation. (In Claude Code these are the `Explore` subagent and the `deep-research`/`batch-evaluator` agents; on Codex/Cursor/Antigravity they run inline as the `/deep-research` and `/batch-evaluator` skills.)
 
@@ -287,6 +292,8 @@ When finishing a significant work session (backlog processing, project evaluatio
 2. If yes — save to your host's persistent memory if it has one (user preference, feedback, project context, or reference); the journal reflection in step 3 happens regardless
 3. If a daily journal exists for today (`knowledge/journals/YYYY/MM/DD.md`), append a one-line reflection under `## Session Reflections`
 4. Offer to run `/session-review` if the session involved substantial work
+
+Memory is written only on the owner's answer to the offer in step 1 — never by an unattended or scheduled run, and never inferred from the session without that answer. (RW-2026-09-11-34)
 
 Do not force this on short or trivial sessions. Use judgement.
 

@@ -33,6 +33,18 @@ built from actual data. No conversational filler.
 - [ ] adopt CLI-YYYY-MM-DD-1 — <item>   <!-- sensitive lines: heightened
   review required; cannot be adopted from this summary -->
 
+## Egress receipts (self-attested)
+
+| # | defanged URL | purpose | outcome | approx. size |
+|---|---|---|---|---|
+| 1 | `hxxps://<host>/<path>` | <why fetched> | <200 OK / non-200 / error> | <approx KB> |
+
+<one row per fetch this run made, in fetch order; no fetches → "No
+fetches this run." Self-attested: this table is written by the same run
+that fetched — the only independent trace is
+`knowledge/currency/guard.log`; any reconciliation mismatch, or its
+absence, is recorded in Gaps below, not here.>
+
 ## Gaps (what this run could not see)
 
 - <e.g. "release dates absent from CHANGELOG; taken from GitHub releases">

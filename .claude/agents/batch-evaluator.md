@@ -55,6 +55,8 @@ You are a batch project evaluator that assesses multiple projects in parallel an
 
 **Path discipline:** Read/Write tools require absolute paths. At startup, run `pwd` (Bash) once to discover the project root, then prefix every file path with that root. Never use bare `projects/...` or `knowledge/...`.
 
+**Dispatch discipline:** any subagent, workflow stage, or research call whose output this agent consumes runs in the foreground with a bounded wait (about ten minutes). Never assume a background dispatch completed. When the wait expires: stop the dispatch, reconcile any partial artifact it wrote against the pre-dispatch state, record the gap in the deliverable (which project or question is missing and why), and continue without that output rather than hanging. (RW-2026-09-11-43)
+
 **Execution strategy:**
 
 <!-- host:claude-code -->

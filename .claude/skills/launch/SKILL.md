@@ -102,6 +102,16 @@ When the user asks to run several projects through evaluation at once, do not lo
 When the user asks to run several projects through evaluation at once, run them sequentially with the batch-evaluator instructions, one project at a time, then present the comparative ranking.
 <!-- host:end -->
 
+## Rationalization guard
+
+Every evaluation stage produces its artifact by invoking its skill and ends at its Go/No-Go gate, and project status moves only as Step 4 lists — no exceptions. Common rationalizations, pre-answered:
+
+- *"The validation looks strong — I'll run the next two stages before asking."* The gate after each stage is where the owner kills a weak project for the price of one stage. Stop and ask after every one.
+- *"I know this market; I'll summarize instead of invoking the stage skill."* A stage without its artifact on disk did not run. Invoke the skill; a summary written here is not an artifact.
+- *"The pre-mortem passed, so mark the project active now."* Only Stage 7 moves a project to `active`. Status edits follow Step 4 exactly.
+- *"The owner skipped competitive analysis, so the pre-mortem can go too."* Only Stage 4 is optional. Every other stage runs, or the owner says No-Go and the project pauses or archives.
+- *"It's a batch, so the scheduled run can start it."* Batch evaluation is owner-triggered only; a scheduled run never starts it. Red flag: a `project_status` edit that matches no line in Step 4, or a stage reported done with no artifact under `projects/<name>/`. (RW-2026-09-11-16)
+
 ## Notes
 
 - Each stage takes 5–15 minutes depending on depth.
