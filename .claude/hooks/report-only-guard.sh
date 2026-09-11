@@ -18,9 +18,9 @@
 #     semantics, fail-closed: only an explicit allowlist of read/fetch
 #     tools passes; Write/Edit only to knowledge/currency/currency.lock or
 #     knowledge/currency/reports/<cli|repo>/<today>.md (a report-only run
-#     advances no state); Grep/Glob only on a path inside the project;
-#     WebFetch only to allowlisted domains; Bash and every MCP tool are
-#     denied.
+#     advances no state); Read/Grep/Glob only on a non-credential path
+#     inside the project; WebFetch only to allowlisted domains; Bash and
+#     every MCP tool are denied.
 #   - Exit 2 blocks the tool call (exit 1 would NOT block — hooks docs).
 #   - Stall budget (KTD6): a hook that reaches the host's timeout is
 #     cancelled and the tool call proceeds — fail-open. So every external
@@ -286,41 +286,50 @@ case "$tool" in
     # else a scheduled run could dump ~/.ssh, ~/.aws, *.env into a report.
     # Read uses file_path; Grep/Glob use path — check whichever is present.
     checkpath="${path:-$gpath}"
-    if credential_shaped "$checkpath" || credential_shaped "$gpath"; then
+    # The directory-shaped literals need a slash before the name (`*/.ssh`),
+    # so a relative spelling (`.ssh`, `.npmrc`) is checked as `./.ssh`; the
+    # original strings stay in the log and deny messages.
+    _cp="$checkpath"; case "$_cp" in ''|/*) : ;; *) _cp="./$_cp" ;; esac
+    _gp="$gpath";     case "$_gp" in ''|/*) : ;; *) _gp="./$_gp" ;; esac
+    if credential_shaped "$_cp" || credential_shaped "$_gp"; then
       deny "$tool of credential-shaped path blocked: ${checkpath:-$gpath}"
     fi
-    if [ "$tool" != Read ]; then
-      # R8: a path-less search (the whole cwd, or the home directory when
-      # the host runs elsewhere), a `..` segment, or a path outside the
-      # project are content-dump-by-pattern routes. A relative path without
-      # `..` counts as inside; an absolute path must string-prefix the
-      # project dir and, when both sides resolve, realpath-confirm it —
-      # mirroring the write fence. With the project dir unset, an absolute
-      # path cannot be placed and is denied.
-      [ -n "$gpath" ] || deny "$tool without a path (content dump by pattern): ${gpath:-<no path>}"
-      case "/$gpath/" in
-        */../*) deny "$tool with '..' path segment (traversal): $gpath" ;;
-      esac
-      case "$gpath" in
-        /*)
-          [ -n "$proj" ] || deny "$tool with an absolute path and no CLAUDE_PROJECT_DIR: $gpath"
-          case "$gpath" in
-            "$proj"|"$proj"/*) : ;;
-            *) deny "$tool outside the project directory: $gpath" ;;
+    # R8 project fence, for all three read primitives (Read carries
+    # file_path; Grep/Glob carry path): a path-less search (the whole cwd,
+    # or the home directory when the host runs elsewhere), a `..` segment,
+    # or a path outside the project are content-dump routes. A relative
+    # path without `..` counts as inside. An absolute path must BOTH
+    # string-prefix the project dir AND, when both sides resolve,
+    # realpath-confirm it — stricter than the write fence, which trusts the
+    # resolved form alone and falls back to the string form only when no
+    # resolver answers. With the project dir unset, an absolute path cannot
+    # be placed and is denied. A report-only run never needs a file outside
+    # CLAUDE_PROJECT_DIR (both watcher skills read only repo paths), so the
+    # fence costs the watchers nothing and closes the dotfile-exfil route.
+    fence="$checkpath"
+    [ -n "$fence" ] || deny "$tool without a path (content dump by pattern): <no path>"
+    case "/$fence/" in
+      */../*) deny "$tool with '..' path segment (traversal): $fence" ;;
+    esac
+    case "$fence" in
+      /*)
+        [ -n "$proj" ] || deny "$tool with an absolute path and no CLAUDE_PROJECT_DIR: $fence"
+        case "$fence" in
+          "$proj"|"$proj"/*) : ;;
+          *) deny "$tool outside the project directory: $fence" ;;
+        esac
+        rg=""; rp=""
+        bounded_line rg _resolve "$fence" || rg=""
+        bounded_line rp _resolve "$proj" || rp=""
+        if [ -n "$rg" ] && [ -n "$rp" ]; then
+          case "$rg" in
+            "$rp"|"$rp"/*) : ;;
+            *) deny "$tool resolves outside the project directory: $fence -> $rg" ;;
           esac
-          rg=""; rp=""
-          bounded_line rg _resolve "$gpath" || rg=""
-          bounded_line rp _resolve "$proj" || rp=""
-          if [ -n "$rg" ] && [ -n "$rp" ]; then
-            case "$rg" in
-              "$rp"|"$rp"/*) : ;;
-              *) deny "$tool resolves outside the project directory: $gpath -> $rg" ;;
-            esac
-          fi
-          ;;
-      esac
-    fi
-    allow "$tool ${checkpath:-<no path>}"
+        fi
+        ;;
+    esac
+    allow "$tool $checkpath"
     ;;
   WebFetch)
     # A real fetch URL carries a scheme; without '://' the host can't be

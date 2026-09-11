@@ -29,8 +29,8 @@ in the 2026-09-11 currency wave under R7–R9 and KTD6–KTD7.)
    reads (matched case-insensitively, so `.SSH/ID_RSA` is `.ssh/id_rsa` —
    the default macOS volume opens either), a tool field carrying a line
    break (the shape of a forged `guard.log` line), path-less or
-   out-of-project `Grep`/`Glob`, and any write that is not the lock or
-   today's report are denied with exit 2 (the blocking exit code; exit 1
+   out-of-project `Read`/`Grep`/`Glob`, and any write that is not the lock
+   or today's report are denied with exit 2 (the blocking exit code; exit 1
    would not block).
 3. **The owner's ledger gate — the real trust boundary.** Even a fully
    escaped report-only run yields only files the owner sees in
@@ -125,13 +125,18 @@ can't constrain, and delta runs fetch known doc/repo URLs rather than
 searching. Open search remains available in an interactive/full run (where
 the guard is inert).
 
-`Grep` and `Glob` pass the same credential-path check as `Read` **and** a
-path fence: a missing or empty `path`, a `..` segment, or a path that does
-not resolve inside `CLAUDE_PROJECT_DIR` is a content-dump-by-pattern route
-and is denied (a relative path without `..` counts as inside; an absolute
-path must string-prefix the project dir and, when both sides resolve,
-realpath-confirm; with the project dir unset an absolute path is denied).
-A project-relative, non-credential path is allowed.
+`Read`, `Grep` and `Glob` all pass the credential-path check (matched
+case-insensitively, and a relative spelling such as `.ssh` or `.npmrc` is
+checked as `./.ssh` so the directory-shaped literals match it) **and** the
+same project fence: a missing or empty path, a `..` segment, or a path that
+does not resolve inside `CLAUDE_PROJECT_DIR` is a content-dump route and is
+denied (a relative path without `..` counts as inside; an absolute path must
+string-prefix the project dir and, when both sides resolve, realpath-confirm;
+with the project dir unset an absolute path is denied). `Read` is fenced
+too because it was the one route that returned a whole file verbatim with
+only the credential list in its way — `~/.zshrc` or `~/.claude.json` are not
+credential-shaped, and neither watcher needs a file outside the project in
+report-only mode. A project-relative, non-credential path is allowed.
 
 ## The log
 

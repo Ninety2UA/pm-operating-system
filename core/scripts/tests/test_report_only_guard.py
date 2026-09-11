@@ -217,6 +217,19 @@ def denied_rows(proj):
         tool("Read", file_path=f"{p}/SERVER.KEY"),
         tool("Read", file_path=f"{p}/.ENV"),
         glob_(pattern="*", path=f"{p}/.SSH"),
+        # A relative spelling must not dodge the directory-shaped literals
+        # (`*/.ssh` needs a slash before the name): checked as `./.ssh`.
+        grep(pattern=".", path=".ssh", output_mode="content"),
+        glob_(pattern="*", path=".aws"),
+        grep(pattern="authToken", path=".npmrc", output_mode="content"),
+        tool("Read", file_path=".netrc"),
+        # R8 applies to Read too: a non-credential file outside the project
+        # (shell rc files, the host's own config) is not readable under the
+        # marker — the one content-read route the credential list never gated.
+        tool("Read", file_path="/Users/x/.zshrc"),
+        tool("Read", file_path=f"{home}/.claude.json"),
+        tool("Read", file_path="/etc/hosts"),
+        tool("Read", file_path=f"{p}-sibling/README.md"),
         # A line break in a tool field is the shape of a forged guard.log
         # line; the parser rejects it outright (CWE-117).
         grep(pattern="x", output_mode="content",

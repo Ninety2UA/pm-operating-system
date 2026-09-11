@@ -24,7 +24,7 @@ the PR description for explicit owner eyes; every downgrade (RW-9 and
 RW-26 to `document`, RW-34 and RW-40 to `adopt-partial`) carries its
 reason on its row here and on the dated ledger. The report snapshots,
 ticked decision lines, cli baseline, and cursor advance happen after the
-commit (U13) and are gitignored side effects the PR description lists.
+commit (U13) and are gitignored side effects the PR description lists. Exception recorded after review: three intermediate commits on the wave branch (`854a44b`, `61ded4e`, `9d7fa15`) carry a stale adapter manifest that `075fedd` caught up, so `build_adapters.py --check` is red inside the wave and green at its head; the branch is merged with a merge commit rather than squashed so every `Adopted-in` SHA in the dated ledger stays resolvable, and the "adapters regenerate in the same commit" rule holds from the next wave on (the standard now names this exception).
 
 **Row contract:** decision rows are markdown table rows keyed by a
 manifest `id` or ledger ID in the first cell. Columns: source | verdict |

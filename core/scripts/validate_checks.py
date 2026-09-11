@@ -505,9 +505,19 @@ def _prose_items(text: str):
     return items
 
 
+_NEGATABLE_VERBS = frozenset({"forget", "fail", "skip", "omit", "neglect", "hesitate"})
+
+
 def _negated(text: str, verb_start: int) -> bool:
-    tokens = text[:verb_start].split()[-_NEGATION_TOKENS:]
-    return any(_NEGATION_RE.match(t.strip("*_`\"'(),.;:!?")) for t in tokens)
+    """True when a negation word within the window cancels the read verb.
+    A negatable verb between the negation and the read verb ("do not
+    forget to read") means the negation binds to that verb instead, so
+    the read is still an instruction."""
+    tokens = [t.strip("*_`\"'(),.;:!?") for t in text[:verb_start].split()[-_NEGATION_TOKENS:]]
+    for i, tok in enumerate(tokens):
+        if _NEGATION_RE.match(tok):
+            return not any(u.lower() in _NEGATABLE_VERBS for u in tokens[i + 1:])
+    return False
 
 
 def _match_credential_near_verb(item: str, verbs) -> tuple[list[str], str | None]:

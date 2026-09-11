@@ -22,7 +22,12 @@ residual net, not by this file.
   Fail-class is reserved for defects that are green today and would break a
   clone. Warn-class covers lints and remote-coverage findings whose data is
   tracked. Anything that reads gitignored data runs only behind the local
-  report flag (`--staleness-report`), never in the default run.
+  report flag (`--staleness-report`), never in the default run — with one
+  carve-out: the hook-wiring checks (`check_guard_wiring`,
+  `check_guard_wiring_timeout`) read `.claude/settings.local.json` in the
+  default run, because a mis-wired guard is a defect of this install that
+  the owner must see on every run, and the check reports only the wiring
+  shape, never the file's contents.
 - **Every check ships two tests.** A synthetic fixture under `tmp_path` that
   produces the defect and asserts the message, and a `_green_on_real_repo` test
   that runs the check over `REPO_ROOT` (`from conftest import REPO_ROOT`) and
