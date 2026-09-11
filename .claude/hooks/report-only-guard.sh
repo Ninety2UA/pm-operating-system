@@ -70,6 +70,16 @@ _reap() {
 # non-zero when the read expired or produced nothing (bash 3.2 returns 1
 # for both; neither is trusted); the caller decides between a deny (the
 # fences) and a placeholder (the log timestamp).
+#
+# `$!` is the substitution's subshell, and bash 3.2 does not exec-optimize
+# it: a plain `<(date)` forks date under that subshell, and killing the
+# subshell orphans the stalled binary. So every CMD passed here is a
+# wrapper function whose last step `exec`s the real binary, which makes the
+# killed pid the binary itself. Those wrappers (`_date`, `_lower`,
+# `_resolve`) must only ever run inside this substitution — an `exec` in
+# the guard's own shell would replace the guard.
+_date() { exec date "$@"; }
+
 bounded_line() {
   _bl_var="$1"; shift
   _bl_out=""
@@ -84,10 +94,14 @@ bounded_line() {
 }
 
 log() {
-  bounded_line _stamp date -u +%FT%TZ || _stamp="unknown-time"
+  bounded_line _stamp _date -u +%FT%TZ || _stamp="unknown-time"
+  # One log line per decision: a line break inside the message (the parser
+  # already rejects them in tool fields; this is defense in depth for the
+  # guard's own text) is written as a literal \n or \r escape.
+  _m="$1"; _m="${_m//$'\n'/\\n}"; _m="${_m//$'\r'/\\r}"
   # stderr is silenced BEFORE the append is opened, so a missing log dir
   # (wrong or unset CLAUDE_PROJECT_DIR) degrades silently, as documented.
-  echo "[$_stamp] $1" 2>/dev/null \
+  echo "[$_stamp] $_m" 2>/dev/null \
     >> "${CLAUDE_PROJECT_DIR:-.}/knowledge/currency/guard.log" || true
 }
 
@@ -129,11 +143,12 @@ fi
 # and is decoded below by the printf builtin — no sed/base64 forks. The
 # parser reads the already-captured payload from a here-string (it never
 # touches host stdin) and is bounded like every other external step; if
-# python3 is missing, the payload doesn't parse, a field carries a NUL, or
-# the interpreter stalls, the read comes back empty and we fail closed.
+# python3 is missing, the payload doesn't parse, a field carries a NUL or a
+# line break, or the interpreter stalls, the read comes back empty and we
+# fail closed.
 _fields_ok=1
 tool_e=""; path_e=""; gpath_e=""; url_e=""
-exec 3< <(python3 -c '
+exec 3< <(exec python3 -c '
 import json, sys
 try:
     d = json.load(sys.stdin)
@@ -143,8 +158,10 @@ try:
         ti = {}
     def enc(v):
         s = v if isinstance(v, str) else ""
-        if "\x00" in s:
-            raise ValueError("NUL in field")
+        if "\x00" in s or "\n" in s or "\r" in s:
+            # No legitimate path or URL carries NUL or a line break; a
+            # newline in a path would let the run forge a guard.log line.
+            raise ValueError("control character in field")
         return "".join("\\0%o" % b for b in s.encode("utf-8"))
     out = [enc(d.get("tool_name")), enc(ti.get("file_path")),
            enc(ti.get("path")), enc(ti.get("url"))]
@@ -186,6 +203,10 @@ credential_shaped() {
   # (secret/token/password/credential/apikey) require a credential-ish
   # extension so a benign path like a `secret-scan` doc is not denied,
   # while the specific dotfiles/keys below match by location or name.
+  # Matched case-insensitively (builtin `nocasematch`, scoped to this
+  # function): the default macOS volume is case-insensitive, so `.SSH/ID_RSA`
+  # opens the real key and must be denied exactly like `.ssh/id_rsa`.
+  shopt -s nocasematch
   case "$1" in
     */.ssh|*/.ssh/*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|\
     */.aws|*/.aws/*|*/.config/gcloud|*/.config/gcloud/*|*/.config/gh|*/.config/gh/*|\
@@ -200,8 +221,9 @@ credential_shaped() {
     *secret*.json|*secret*.txt|*secret*.yaml|*secret*.yml|*secret*.env|\
     *token*.json|*token*.txt|*-token|*_token|\
     *password*.json|*password*.txt|*credential*.json|*apikey*|*api_key*)
-      return 0 ;;
+      shopt -u nocasematch; return 0 ;;
   esac
+  shopt -u nocasematch
   return 1
 }
 
@@ -210,11 +232,40 @@ credential_shaped() {
 # is a deny, not a hang.
 _resolve() {
   realpath -m "$1" 2>/dev/null || realpath "$1" 2>/dev/null \
-    || python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "$1" 2>/dev/null
+    || exec python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "$1" 2>/dev/null
 }
 
 # Lowercase via tr, behind the same bound (bash 3.2 has no ${var,,}).
-_lower() { printf '%s\n' "$1" | tr 'A-Z' 'a-z'; }
+_lower() { exec tr 'A-Z' 'a-z' <<< "$1"; }
+
+# _redact_kv VAR STRING: rewrite `k=v` pairs joined by `&` so the value of
+# every secret-shaped key becomes REDACTED. Keys match by case-insensitive
+# substring (token, key, signature, password, secret, credential, plus the
+# exact names sig and auth), so api_key, client_secret, refresh_token and
+# the X-Amz-* presigned parameters are covered; over-redacting a benign
+# `keyword=` in a local log is the accepted cost. Builtins only.
+_redact_kv() {
+  _rk_var="$1"; _rk_q="$2"; _rk_out=""; _rk_more=1
+  while [ "$_rk_more" = 1 ]; do
+    case "$_rk_q" in
+      *\&*) _rk_p="${_rk_q%%&*}"; _rk_q="${_rk_q#*&}" ;;
+      *)    _rk_p="$_rk_q"; _rk_more=0 ;;
+    esac
+    case "$_rk_p" in
+      *=*)
+        _rk_k="${_rk_p%%=*}"
+        shopt -s nocasematch
+        case "$_rk_k" in
+          *token*|*key*|sig|*signature*|auth|*password*|*secret*|*credential*)
+            _rk_p="$_rk_k=REDACTED" ;;
+        esac
+        shopt -u nocasematch ;;
+    esac
+    _rk_out="$_rk_out$_rk_p"
+    [ "$_rk_more" = 1 ] && _rk_out="$_rk_out&"
+  done
+  printf -v "$_rk_var" '%s' "$_rk_out"
+}
 
 proj="${CLAUDE_PROJECT_DIR:-}"
 
@@ -303,35 +354,19 @@ case "$tool" in
     esac
     # KTD7: log the FULL URL on an allowed fetch so receipts reconcile by
     # URL, not host — after dropping userinfo and replacing the values of
-    # secret-shaped query parameters (token, key, sig, signature, auth,
-    # password, secret, access_token; case-insensitive) with a placeholder.
-    # The log is local and gitignored, never copied into a tracked file.
+    # secret-shaped query (and fragment) parameters with a placeholder; see
+    # _redact_kv for the key rule. The log is local and gitignored, never
+    # copied into a tracked file.
     frag=""; query=""
     case "$tail" in *\#*) frag="#${tail#*\#}"; tail="${tail%%\#*}" ;; esac
     case "$tail" in *\?*) query="${tail#*\?}"; tail="${tail%%\?*}" ;; esac
     if [ -n "$query" ]; then
-      _q="$query"; _out=""; _more=1
-      while [ "$_more" = 1 ]; do
-        case "$_q" in
-          *\&*) _p="${_q%%&*}"; _q="${_q#*&}" ;;
-          *)    _p="$_q"; _more=0 ;;
-        esac
-        case "$_p" in
-          *=*)
-            _k="${_p%%=*}"
-            case "$_k" in
-              [Tt][Oo][Kk][Ee][Nn]|[Kk][Ee][Yy]|[Ss][Ii][Gg]|\
-              [Ss][Ii][Gg][Nn][Aa][Tt][Uu][Rr][Ee]|[Aa][Uu][Tt][Hh]|\
-              [Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]|[Ss][Ee][Cc][Rr][Ee][Tt]|\
-              [Aa][Cc][Cc][Ee][Ss][Ss]_[Tt][Oo][Kk][Ee][Nn])
-                _p="$_k=REDACTED" ;;
-            esac ;;
-        esac
-        _out="$_out$_p"
-        [ "$_more" = 1 ] && _out="$_out&"
-      done
-      query="?$_out"
+      _redact_kv query "$query"
+      query="?$query"
     fi
+    case "$frag" in
+      *=*) _redact_kv _rf "${frag#\#}"; frag="#$_rf" ;;
+    esac
     logurl="$scheme://$hostport$tail$query$frag"
     logurl="${logurl//$'\n'/%0A}"; logurl="${logurl//$'\r'/%0D}"
     for a in $FETCH_ALLOW; do
@@ -404,9 +439,9 @@ case "$tool" in
         ;;
       reports)
         today_local=""; today_utc=""
-        bounded_line today_local date +%F \
+        bounded_line today_local _date +%F \
           || deny "$tool: today's date could not be established (stalled date, fail-closed): $path"
-        bounded_line today_utc date -u +%F \
+        bounded_line today_utc _date -u +%F \
           || deny "$tool: today's date could not be established (stalled date, fail-closed): $path"
         if [ "$base" = "$today_local.md" ] || [ "$base" = "$today_utc.md" ]; then
           allow "$tool $path"

@@ -415,6 +415,32 @@ def test_deleted_source_skill_is_removed_via_manifest(fake_root, capsys):
     assert ba.check_adapters() == []
 
 
+def test_manifest_is_written_temp_plus_rename(fake_root, monkeypatch):
+    """Temp-plus-rename (CODING_STANDARDS.md §Writes): the manifest another
+    run reads to prove ownership is never truncated in place. A build whose
+    rename is interrupted leaves the previous manifest intact, and a
+    completed write leaves no temp sibling behind."""
+    assert _build() == 0
+    before = ba.manifest_path().read_bytes()
+    # Change a source so the next build must rewrite the manifest.
+    (fake_root / ".claude" / "skills" / "demo" / "SKILL.md").write_text(
+        SKILL_SRC + "\nOne more line.\n", encoding="utf-8")
+
+    def refuse_replace(src, dst):
+        raise OSError("simulated crash between write and rename")
+    monkeypatch.setattr(ba.os, "replace", refuse_replace)
+    with pytest.raises(OSError):
+        _build()
+    assert ba.manifest_path().read_bytes() == before  # old content, whole
+    monkeypatch.undo()
+
+    assert _build() == 0
+    after = ba.manifest_path().read_bytes()
+    assert after != before
+    leftovers = [p.name for p in ba.manifest_path().parent.iterdir() if ".tmp" in p.name]
+    assert leftovers == [], leftovers
+
+
 def test_two_builds_produce_identical_deterministic_manifest(fake_root):
     assert _build() == 0
     first = ba.manifest_path().read_bytes()

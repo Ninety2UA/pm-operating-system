@@ -26,9 +26,12 @@ in the 2026-09-11 currency wave under R7–R9 and KTD6–KTD7.)
    cannot brick normal editing. Marked runs are fail-closed: unparseable or
    stalled payloads, a stalled parser / resolver / `date`, a mid-run
    signal, unknown tools, off-allowlist fetch hosts, credential-shaped
-   reads, path-less or out-of-project `Grep`/`Glob`, and any write that is
-   not the lock or today's report are denied with exit 2 (the blocking exit
-   code; exit 1 would not block).
+   reads (matched case-insensitively, so `.SSH/ID_RSA` is `.ssh/id_rsa` —
+   the default macOS volume opens either), a tool field carrying a line
+   break (the shape of a forged `guard.log` line), path-less or
+   out-of-project `Grep`/`Glob`, and any write that is not the lock or
+   today's report are denied with exit 2 (the blocking exit code; exit 1
+   would not block).
 3. **The owner's ledger gate — the real trust boundary.** Even a fully
    escaped report-only run yields only files the owner sees in
    `git status`; adoption happens only through owner-marked ledger lines.
@@ -69,7 +72,10 @@ A guard that hangs is a guard that is skipped. Every external step — the
 JSON parser (`python3`), `realpath`, `date`, `tr` — runs behind a process
 substitution with stdin and stderr on `/dev/null` and is read with a 10 s
 bounded builtin `read -t`; an expired or empty read kills the child and
-takes the deny path (exit 2). The host payload is read by a bounded
+takes the deny path (exit 2). Each step is a wrapper function whose last
+action `exec`s the real binary, so the pid the guard kills is the binary
+itself — bash 3.2 does not exec-optimize a process substitution, and
+killing only its subshell would orphan the stalled command. The host payload is read by a bounded
 builtin loop, never `cat`; a host that spends the budget on its final
 write, or never closes stdin, is a stall and is denied. `TERM`, `HUP` and
 `INT` are trapped into the same deny path, because an untrapped signal
@@ -133,9 +139,12 @@ A project-relative, non-credential path is allowed.
 `knowledge/currency/` tree is) and is never copied into a tracked file. An
 allowed `WebFetch` logs the **full URL** (KTD7: receipts reconcile by URL,
 not by host) after dropping any userinfo and replacing the values of
-secret-shaped query parameters — `token`, `key`, `sig`, `signature`,
-`auth`, `password`, `secret`, `access_token`, matched case-insensitively —
-with `REDACTED`. Every deny appends a `DENY:` line; the drill asserts that
+secret-shaped query and fragment parameters — any key containing `token`,
+`key`, `signature`, `password`, `secret`, or `credential`, plus the exact
+names `sig` and `auth`, matched case-insensitively, so `api_key`,
+`client_secret`, `refresh_token`, a `#access_token=` fragment, and the
+`X-Amz-*` presigned parameters are covered (a benign `keyword=` is
+over-redacted; the log is local) — with `REDACTED`. Every deny appends a `DENY:` line; the drill asserts that
 side effect against a temporary project, so the repo's real log is never
 written by tests.
 

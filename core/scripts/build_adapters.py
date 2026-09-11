@@ -546,11 +546,18 @@ def render_manifest(entries: dict[str, bytes]) -> str:
 
 
 def write_manifest(entries: dict[str, bytes]) -> None:
+    """Write the manifest temp-plus-rename (same directory, then os.replace),
+    the pattern write_baseline_atomic uses for the currency files: another
+    run reads this file to prove ownership, so it must never be observable
+    half-written. A byte-identical manifest is left untouched."""
     p = manifest_path()
     p.parent.mkdir(parents=True, exist_ok=True)
     data = render_manifest(entries).encode("utf-8")
-    if not p.exists() or p.read_bytes() != data:
-        p.write_bytes(data)
+    if p.exists() and p.read_bytes() == data:
+        return
+    tmp = p.with_name(p.name + f".tmp{os.getpid()}")
+    tmp.write_bytes(data)
+    os.replace(tmp, p)
 
 
 def has_provenance_marker(data: bytes) -> bool:
