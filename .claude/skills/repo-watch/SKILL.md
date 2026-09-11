@@ -24,11 +24,17 @@ boundary, lock, report, and transaction conventions as `/cli-watch`.
 - **Validate at run start** (schema shape in `references/registry.md`; the
   `currency.validate_registry` helper implements it): malformed → stop
   with the named errors, never a crash or a guess.
-- **First-run seeding** (no live registry): for each seed repo, resolve the
-  current reachable HEAD from its `commits.atom` feed and write that as the
-  cursor; use the frozen `seed_sha` only as provenance fallback while it is
-  still in upstream history. A months-late clone therefore does NOT flag
-  all six repos as anomalies on its first run.
+- **First-run seeding is an owner-run `full`-mode write** (no live
+  registry): for each seed repo, resolve the current reachable HEAD from
+  its `commits.atom` feed and write that as the cursor; use the frozen
+  `seed_sha` only as a provenance fallback while it is still in upstream
+  history. Report-only cannot make this write — it may write only to the
+  lock and today's report. When the live registry is absent, report-only
+  instead computes this run's per-repo delta against the frozen
+  `seed_sha` and writes a `seed needed` line into `## Anomalies and
+  throttles` for every affected repo, so a months-late clone is flagged
+  rather than silently treated as zero-delta, until an owner runs `full`
+  once to convert that delta into a real atom-resolved cursor.
 - **add <owner/repo>:** register in the live registry (`watch: true`, no
   cursor — next run seeds it); registering never analyzes immediately.
 - **retire <owner/repo>:** set `watch: false` + `retired_at_sha` = current
@@ -73,29 +79,54 @@ Per watched repo, in order:
 4. Any egress token, if one is ever needed, is supplied to the fetch tool
    as an egress credential — never placed on a repo-readable path (the
    profile blocks credential-shaped reads).
+5. Retain the full URL of every fetch made in steps 1–3 (atom poll,
+   compare call, diff/VERSION fallback) in run memory as it happens, for
+   the receipts section (report-only pipeline step 5).
 
 ## Report-only pipeline
 
 1. Lock (`knowledge/currency/currency.lock`) — shared with `/cli-watch`,
    same acquire/reclaim/release rules.
 2. Registry: load seed + live, validate, build the effective watchlist.
+   For any repo without a live cursor, use the seeding fallback above
+   (frozen `seed_sha`, `seed needed` noted) instead of writing one.
 3. Delta per repo (engine above). Upstream force-push (cursor SHA gone
-   from history): flag that repo as an anomaly requiring owner attention,
-   throttle its rescan (24 h), continue with the others.
+   from history): flag that repo as an anomaly requiring owner attention.
+   Report-only cannot write a per-repo rescan throttle: `Glob` the newest
+   completed report (`path: knowledge/currency/reports/repo` — the guard
+   denies a path-less or outside-project search) and check its
+   `## Anomalies and throttles` for a prior `throttle needed for
+   <owner/repo> (until <iso>)` line — a still-live timestamp is carried
+   into today's report unchanged, otherwise write a fresh one so the next
+   report-only run can derive the same state — and continue with the
+   other repos.
 4. Classify each changed repo's delta into candidate lines — same six
    fields and sensitive-surface auto-tags as the mining ledger
    (`docs/ledger/2026-07-20-ecosystem-mining.md`), same respectful
    authoring guideline. Zero-import deltas close with an updated pin line.
-5. Write ONE consolidated report:
-   `knowledge/currency/reports/repo/YYYY-MM-DD.md` per
+5. Write ONE consolidated report, named by the UTC date when the run can
+   determine it: `knowledge/currency/reports/repo/YYYY-MM-DD.md` per
    `references/report-template.md` — final name from the start, completion
-   trailer last, gap-honesty section included. Stop. Cursors untouched.
+   trailer last, gap-honesty section included. Render the retained fetch
+   URLs into `## Egress receipts (self-attested)`, one row per fetch,
+   defanged, exactly once — the table is written by this same run that
+   fetched (self-attested). When `knowledge/currency/guard.log` is
+   readable, `Grep` it (`path: knowledge/currency/guard.log`, same
+   explicit-path rule) for `allow: WebFetch <url>` lines whose bracketed
+   timestamp is on or after the `started` value this run wrote to
+   `currency.lock`, and reconcile only those against the retained full
+   URLs, exactly; write any mismatch, or `no enforcement log in this
+   home` when the log is absent/unreadable, to Gaps. Stop. Cursors and
+   the live registry are untouched.
 
 ## Full pipeline (owner-run, interactive)
 
 1. Refresh via the report-only pipeline.
 2. Consume owner-marked `[x] adopt` lines from the newest completed
-   report; sensitive lines require reading the real upstream + diff.
+   report, plus any `seed needed` / `throttle needed` lines in its
+   `## Anomalies and throttles`. List everything about to be consumed and
+   confirm with the owner before implementing. Sensitive lines require
+   reading the real upstream + diff.
 3. Implement marked adoptions as a gated wave (re-implemented in this
    repo's conventions with ledger provenance; validator + adapter checks +
    tests green; commit).
@@ -105,16 +136,26 @@ Per watched repo, in order:
    `currency.write_baseline_atomic` (it is a baseline like any other; the
    ledger is authoritative on any disagreement — a lost registry is
    rebuilt by rescan and reconciled against the ledger, never the
-   reverse).
+   reverse). Enact any confirmed `seed needed` line by writing that
+   repo's atom-resolved cursor (Registry above) and any confirmed
+   `throttle needed` line by setting that repo's rescan throttle (24 h
+   from the notice's timestamp), in the same write — report-only itself
+   never writes either.
 5. Retention: `currency.prune_reports('knowledge/currency/reports/repo', 90)`.
 6. Release the lock.
 
 ## Recovery
 
-Same table as `/cli-watch` plus: malformed live registry → named
-validation errors, stop; lost/corrupt live registry → rebuild by rescan
-(first-run seeding path) and reconcile against the ledger; per-repo
-anomaly (force-push) → that repo flagged + throttled, others unaffected.
+Same table as `/cli-watch` (including the derived-not-written throttle
+row) plus:
+
+| State | Behavior |
+|---|---|
+| Malformed live registry | Named validation errors, stop |
+| Lost/corrupt live registry | Rebuild by rescan (first-run seeding path) and reconcile against the ledger |
+| Per-repo anomaly (force-push) | That repo flagged; report-only records a `throttle needed` notice (see Report-only pipeline step 3) instead of writing the throttle; others unaffected |
+| PR for a wave closed unmerged | Restore cursors from `core/watchers/registry.seed.json`, and copy each `<date>.v2.md` snapshot back over its ticked `<date>.md` so the undecided count is honest again |
+| Compare truncated at 250 commits | Cursor advances to the newest returned commit; the unseen oldest window is recorded in `notes` by boundary SHAs and is pageable later |
 
 ## Scheduling hygiene
 
