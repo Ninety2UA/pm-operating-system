@@ -694,7 +694,7 @@ if (ROOT / ".agents" / "skills").exists():
 else:
     warn("adapter-parity", "adapters not generated — run: uv run core/scripts/build_adapters.py")
 
-# ─── 39-46. Modernized-bar enforcement (U14) ─────────────────────
+# ─── 39-50. Modernized-bar enforcement (U14) ─────────────────────
 # Extracted to validate_checks.py so each is fixture-testable in isolation
 # (core/scripts/tests/test_validate_checks.py). Fail-class first, then warns.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -721,6 +721,12 @@ try:
     for msg in vc.check_guard_wiring(ROOT):
         fail("guard-wiring", msg)
 
+    for msg in vc.check_guard_wiring_timeout(ROOT):
+        warn("guard-wiring", msg)
+    for msg in vc.check_secret_bypass_instructions(ROOT):
+        warn("secret-bypass", msg)
+    for msg in vc.check_backup_coverage(ROOT):
+        warn("backup-coverage", msg)
     for msg in vc.check_currency_lock_ignored(ROOT):
         warn("lock-hygiene", msg)
     for msg in vc.check_ledger_links(ROOT):
@@ -730,19 +736,18 @@ try:
 except Exception as e:
     fail("u14-checks", f"enforcement checks errored: {e}")
 
-# --staleness-report: a local-only warn mode listing project specs with
-# retired model IDs (projects/ is gitignored, CI-invisible by design; R17).
+# --staleness-report: a local-only warn mode over gitignored data (KTD5):
+# project specs with retired model IDs (R17), watcher reports older than
+# 14 days, and projects whose Progress Log never records their status.
 if "--staleness-report" in sys.argv:
     try:
-        flags = vc.staleness_report(ROOT)
-        print("\n── Staleness report (project specs, warn-only) ──")
-        if flags:
+        print("\n── Staleness report (local-only, warn-only) ──")
+        for title, flags in vc.staleness_sections(ROOT):
+            print(f"\n  {title}: {len(flags) or 'none'}")
             for f in flags:
-                print(f"  · {f}")
-            print(f"  {len(flags)} retired model-ID reference(s) — rewriting is "
-                  f"out of scope for the framework (flag only).")
-        else:
-            print("  No retired model IDs in project specs.")
+                print(f"    · {f}")
+        print("\n  Flags only — rewriting projects/ and reports/ is out of "
+              "scope for the framework.")
     except Exception as e:
         print(f"  staleness report errored: {e}")
 

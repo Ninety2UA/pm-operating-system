@@ -570,7 +570,7 @@ uv run core/scripts/validate.py
 
 Inline `# /// script` metadata auto-installs `pyyaml`, so no venv setup is needed.
 
-**46 deterministic checks** span the entire framework:
+**50 deterministic checks** span the entire framework:
 
 | Category | What it catches |
 |---|---|
@@ -621,7 +621,7 @@ The unattended path is wrapped in five independent layers — a restricted tool 
 - **Fail-closed guard.** The `PreToolUse` guard parses tool calls with a real JSON parser and denies on any doubt — schemeless URLs, path traversal, credential-store reads, unexpected exits — rather than allowing on error.
 - **Defang on ingestion.** Web content fetched by the watchers is neutralized before it lands in a report: links, autolinks, code-fence info strings, reference definitions, and HTML blocks are all defused so a malicious changelog can't smuggle instructions to the next session that reads the report.
 - **Adversarially reviewed.** The guard and defang layers went through nine rounds of adversarial review — each round attempting fresh bypasses (GFM tables, block interrupters, balanced-bracket links, control-character escapes) until a full round produced no new findings.
-- **Validator-enforced.** Checks 39–46 keep the roster tiered, the guard wired, the secret scan green, and the degradation rules present — the hardening can't silently rot.
+- **Validator-enforced.** Checks 39–50 keep the roster tiered, the guard wired, the secret scan green, the degradation rules present, the catalog free of secret-bypass instructions, and the remote a full backup — the hardening can't silently rot.
 
 ---
 
