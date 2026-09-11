@@ -634,7 +634,7 @@ Contributions are welcome. Please:
 - Follow the existing patterns for skills, commands, and agents
 - Include documentation for new features
 - Test that `setup.sh` still works after your changes
-- **Run `uv run core/scripts/validate.py` and ensure `✓ ALL CHECKS PASS`** before opening a PR
+- **Run `uv run core/scripts/validate.py` and ensure `✓ ALL CHECKS PASS`** before opening a PR (the full gate list, and the intent-paragraph plus screenshot rule for `docs/`-facing PRs, is in [CONTRIBUTING.md](CONTRIBUTING.md))
 
 ---
 
