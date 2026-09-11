@@ -703,6 +703,8 @@ try:
 
     for msg in vc.check_model_roster(ROOT):
         fail("model-roster", msg)
+    for msg in vc.check_bom(ROOT):
+        fail("bom", msg)
     for msg in vc.check_tiering_presence(ROOT):
         fail("tiering", msg)
 

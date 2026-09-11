@@ -33,6 +33,43 @@ def test_roster_passes_current_ids_and_aliases(tmp_path):
 def test_roster_declared_once():
     assert "claude-fable-5" in vc.CURRENT_MODEL_IDS
     assert "claude-opus-4-8" in vc.CURRENT_MODEL_IDS
+    # 2026-09 defaults (CLI-2026-09-11-22 / -103)
+    assert "claude-fable-5-1" in vc.CURRENT_MODEL_IDS
+    assert "claude-opus-5" in vc.CURRENT_MODEL_IDS
+
+
+def test_roster_passes_2026_09_default_ids(tmp_path):
+    sk = tmp_path / ".claude" / "skills" / "ok"
+    sk.mkdir(parents=True)
+    (sk / "SKILL.md").write_text(
+        "---\nname: ok\nmodel: opus\n---\nPins claude-opus-5 and claude-fable-5-1.\n",
+        encoding="utf-8")
+    assert vc.check_model_roster(tmp_path) == []
+
+
+# ── BOM (fail) — CLI-2026-09-11-60 ────────────────────────────────────────────
+
+def test_bom_flags_frontmatter_file_starting_with_bom(tmp_path):
+    sk = tmp_path / ".claude" / "skills" / "bomd"
+    sk.mkdir(parents=True)
+    (sk / "SKILL.md").write_bytes(
+        b"\xef\xbb\xbf---\nname: bomd\nmodel: sonnet\n---\nbody\n")
+    fails = vc.check_bom(tmp_path)
+    assert len(fails) == 1 and "bomd" in fails[0] and "BOM" in fails[0]
+
+
+def test_bom_ignores_clean_file_and_covers_agents_md(tmp_path):
+    sk = tmp_path / ".claude" / "skills" / "clean"
+    sk.mkdir(parents=True)
+    (sk / "SKILL.md").write_text("---\nname: clean\n---\nbody\n", encoding="utf-8")
+    (tmp_path / "AGENTS.md").write_bytes(b"\xef\xbb\xbf# Agents\n")
+    fails = vc.check_bom(tmp_path)
+    assert [f for f in fails if "clean" in f] == []
+    assert any(f.startswith("AGENTS.md") for f in fails)
+
+
+def test_bom_green_on_real_repo():
+    assert vc.check_bom(REPO_ROOT) == []
 
 
 def test_roster_green_on_real_repo():

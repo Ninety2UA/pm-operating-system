@@ -27,15 +27,15 @@ date below; nothing here is assumed from memory.
 
 | id | capability | class | status | gates | evidence |
 |---|---|---|---|---|---|
-| models.roster | Current model IDs: `claude-fable-5`, `claude-opus-4-8`, `claude-sonnet-5`, `claude-haiku-4-5-20251001` — all Active | platform | verified | Fable 5 GA; Mythos 5 invite-only | platform.claude.com/docs/en/about-claude/models/model-ids-and-versions |
+| models.roster | Current model IDs: `claude-fable-5-1` (default Fable since v2.1.257), `claude-opus-5` (default Opus since v2.1.219, 1M context), `claude-fable-5`, `claude-opus-4-8`, `claude-sonnet-5`, `claude-haiku-4-5-20251001` — all Active | platform | verified | Fable 5.1/5 GA; Mythos invite-only | platform.claude.com/docs/en/about-claude/model-deprecations (Fable 5.1's ID renders only in that table, verified 2026-09-11) |
 | models.aliases | Frontmatter/CLI aliases: `haiku`, `sonnet`, `opus`, `fable`, `inherit` (+ `default`, `best`, `opusplan`, `sonnet[1m]`, `opus[1m]` in /model) | claude-native | verified | none | code.claude.com/docs/en/model-config |
-| models.retired | `-latest` aliases no longer exist; retired: all `claude-3-*`, `claude-opus-4-20250514`, `claude-sonnet-4-20250514`; deprecated `claude-opus-4-1-20250805` (retires 2026-08-05). Legacy-but-active: opus-4-5/4-6/4-7, sonnet-4-5/4-6 | platform | verified | none | platform.claude.com/docs/en/about-claude/model-deprecations |
+| models.retired | `-latest` aliases no longer exist; retired: all `claude-3-*`, `claude-opus-4-20250514`, `claude-sonnet-4-20250514`; `claude-opus-4-1-20250805` retired 2026-08-05 (replacement `claude-opus-4-8`). Legacy-but-active: opus-4-5/4-6/4-7, sonnet-4-5/4-6 | platform | verified | none | platform.claude.com/docs/en/about-claude/model-deprecations |
 | effort.levels | Effort vocabulary: `low`, `medium`, `high`, `xhigh`, `max` — complete set; default `high` | platform | verified | xhigh: Fable 5/Mythos 5/Opus 4.8/4.7/Sonnet 5 only | platform.claude.com/docs/en/build-with-claude/effort |
 | effort.skill-frontmatter | `effort:` in SKILL.md — "Overrides the session effort level" | claude-native | verified | none | code.claude.com/docs/en/skills |
 | effort.agent-frontmatter | `effort:` in agent .md — documented (GitHub issue #65598 "not planned" is stale; docs win) | claude-native | verified | none | code.claude.com/docs/en/sub-agents |
 | model.skill-frontmatter | `model:` in SKILL.md — same values as /model, or `inherit`; turn-scoped | claude-native | verified | none | code.claude.com/docs/en/skills |
 | model.agent-frontmatter | `model:` in agent .md — `sonnet`/`opus`/`haiku`/`fable`/full ID/`inherit` (default `inherit`) | claude-native | verified | `fable` alias needs v2.1.170+ | code.claude.com/docs/en/sub-agents |
-| fast-mode | `/fast` toggle; Opus 4.8 (4.7 removed 2026-07-24); flat premium pricing, usage credits on subscription plans | claude-native | verified | research preview; CLI only; Team/Ent owner opt-in | code.claude.com/docs/en/fast-mode |
+| fast-mode | `/fast` toggle; Opus 5 + Opus 4.8 (default Opus 5 since v2.1.219; Opus 4.7 removed 2026-07-24); flat premium pricing, usage credits on subscription plans | claude-native | verified | research preview; CLI only; Team/Ent owner opt-in | code.claude.com/docs/en/fast-mode |
 
 ## Orchestration
 

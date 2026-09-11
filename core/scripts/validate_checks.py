@@ -19,6 +19,10 @@ CURRENT_MODEL_ALIASES = {
     "default", "best", "opusplan", "sonnet[1m]", "opus[1m]",
 }
 CURRENT_MODEL_IDS = {
+    # current defaults (verified 2026-09-11 against the deprecations table):
+    # Fable 5.1 and Opus 5 are the default Fable/Opus models; Fable 5 and
+    # Opus 4.8 remain Active
+    "claude-fable-5-1", "claude-opus-5",
     "claude-fable-5", "claude-sonnet-5", "claude-opus-4-8",
     "claude-haiku-4-5-20251001",
     # legacy-but-Active per the deprecations table (docs/capabilities.md)
@@ -61,6 +65,31 @@ def _content_md(root: Path):
             if f not in seen:
                 seen.add(f)
                 yield f
+
+
+# ── BOM check (fail): Claude Code silently ignores a skill/agent/command file
+# whose .md starts with a UTF-8 byte-order mark (fixed upstream in v2.1.239
+# as a diagnosis; the file still loads wrong on older builds). Check 1 already
+# hard-fails such a file as "no frontmatter fence"; this names the cause.
+_BOM = b"\xef\xbb\xbf"
+_BOM_EXTRA = ("AGENTS.md", "CLAUDE.md", "docs/*.md")
+
+
+def check_bom(root: Path | str) -> list[str]:
+    root = Path(root)
+    files = list(_frontmatter_md(root))
+    for g in _BOM_EXTRA:
+        files.extend(root.glob(g))
+    out = []
+    for f in sorted(set(files)):
+        try:
+            head = f.read_bytes()[:3]
+        except OSError:
+            continue
+        if head == _BOM:
+            out.append(f"{f.relative_to(root)}: starts with a UTF-8 BOM "
+                       "(Claude Code ignores such files)")
+    return out
 
 
 def check_model_roster(root: Path | str) -> list[str]:

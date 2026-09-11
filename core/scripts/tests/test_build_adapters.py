@@ -285,7 +285,8 @@ def test_cursor_renderer_verified_set_only():
 
 def test_leak_net_catches_raw_model_ids():
     for raw in ("claude-fable-5", "claude-3-5-sonnet-latest",
-                "claude-haiku-4-5-20251001", "claude-opus-4-8"):
+                "claude-haiku-4-5-20251001", "claude-opus-4-8",
+                "claude-opus-5", "claude-fable-5-1"):
         hits = ba.scan_residual({"x.md": f"pin {raw} here".encode("utf-8")})
         assert hits, raw
 
