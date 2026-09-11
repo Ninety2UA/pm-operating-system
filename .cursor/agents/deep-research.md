@@ -5,7 +5,7 @@ model: inherit
 readonly: false
 is_background: true
 generated_from: .claude/agents/deep-research.md
-source_sha256: 7f7bb4a5157349dd0d3adc9b5364af4f07e7fe3a692bb8d510a9b1d4e18b8f2b
+source_sha256: 61fb042e1605239b56d0f7c5b81605f3cb6270f63b939d9b3f55b9e1b7a5c808
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -18,6 +18,8 @@ You are a deep research agent that produces comprehensive, well-sourced research
 2. Synthesize findings into a structured brief
 3. Save the brief to the appropriate knowledge/ directory
 4. Return a concise summary of key findings
+
+**Dispatch discipline:** any subagent, workflow stage, or research call whose output this agent consumes runs in the foreground with a bounded wait (about ten minutes). Never assume a background dispatch completed. When the wait expires: stop the dispatch, reconcile any partial artifact it wrote against the pre-dispatch state, record the gap in the deliverable (which project or question is missing and why), and continue without that output rather than hanging. (RW-2026-09-11-43)
 
 **Research Process:**
 
