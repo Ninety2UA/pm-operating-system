@@ -23,7 +23,8 @@ description: >
   Runs non-interactively by default (safe for automated batch calls from /launch);
   pass `--ask` for guided clarification + live tool/skill discovery + diagram
   rendering via AskUserQuestion. If spec.md already exists, pass `--deepen` to
-  extend or `--rebuild` to replace (old version auto-archived).
+  extend or `--rebuild` to replace (old version auto-archived; an in-progress spec
+  is refused unless `--ask` confirms).
 allowed-tools: Read Write Edit Glob Bash mcp__perplexity__* mcp__manager-ai__get_project_artifacts mcp__excalidraw__* AskUserQuestion
 argument-hint: "<project-name> [--ask] [--deepen|--rebuild]"
 ---
@@ -48,7 +49,7 @@ Batches up to 4 clarifying questions (pre-filled from PRD + idea.md), MAY run li
 
 **Update existing spec:**
 - `/spec <name> --deepen` — extends sparse sections, preserves decisions, bumps `revision`.
-- `/spec <name> --rebuild` — archives prior spec to `spec.archived-YYYY-MM-DD.md`, drafts fresh.
+- `/spec <name> --rebuild` — archives prior spec to `spec.archived-YYYY-MM-DD.md` (`-rN` suffix on a same-day collision), drafts fresh; refuses softly when the spec is in progress unless `--ask` confirms (Step 3).
 
 For a complete example, read `.claude/skills/spec/references/example-spec.md`.
 
@@ -69,10 +70,13 @@ Then read, skipping silently if absent: `prd.md` (required — primary), `idea.m
 ### Step 3: Handle Existing spec.md (resume / deepen / rebuild)
 
 If `projects/<project-name>/spec.md` exists:
-- **`--rebuild`**: copy to `spec.archived-YYYY-MM-DD.md`, draft fresh, set frontmatter `supersedes:`.
+- **`--rebuild`**: first decide whether the existing spec is **in progress**. It is when any one of these holds: a ticked `- [x] T###` line in its §20 WBS; a `tasks/*.md` whose `resource_refs` points under `projects/<project-name>/` and whose body cites one of this spec's T-IDs (T-IDs restart at `T001` per spec, so only tasks referencing this project's folder count); or `project_status: active` in `idea.md`. A freshly generated spec (no ticks, no consuming tasks, project not active) is never in progress.
+  - **Not in progress:** copy to `spec.archived-YYYY-MM-DD.md` — on a same-day collision use `spec.archived-YYYY-MM-DD-rN.md`, where N is the archived spec's `revision` — draft fresh, set frontmatter `supersedes:`.
+  - **In progress + no `--ask`:** refuse softly and stop: `"spec.md exists (revision N) and is in progress (<signal>). Pass --deepen, or pass --ask to confirm --rebuild."` Never archive an in-progress spec non-interactively.
+  - **In progress + `--ask`:** confirm via the structured question (`AskUserQuestion`, one call): `Archive and rebuild (consuming tasks keep citing archived T-IDs) / Deepen instead / Skip`. Archive only on the first choice.
 - **`--deepen`**: read existing, extend only sparse sections (< 5 lines or containing `[INFERRED]`), preserve decisions, bump `revision`, add a §27 Changelog row.
-- **Default + `--ask`**: ask once `Deepen / Rebuild / Skip`.
-- **Default + no `--ask`**: skip with soft flag: `"spec.md exists (revision N). Pass --deepen or --rebuild."` **Never clobber silently.**
+- **Default + `--ask`**: ask once `Deepen / Rebuild / Skip`; a `Rebuild` answer on an in-progress spec goes through the same confirmation as `--rebuild --ask` above.
+- **Default + no `--ask`**: skip with soft flag: `"spec.md exists (revision N). Pass --deepen or --rebuild."` **Never clobber silently.** (RW-2026-09-11-3)
 
 ### Step 4: Clarifying Inputs (default non-interactive; `--ask` opt-in)
 
@@ -104,6 +108,15 @@ Derive the build capability list from prd.md §5 + the inferred §7 architecture
 
 ### Step 7: Think Before Writing
 
+**Phase 0 — Capability map (multi-capability PRDs only; → §6, §20).** Before the file tree (item 3) and the build order (item 6), test whether `prd.md` §5 bundles several independently testable capabilities: distinct consumers or data, acceptance criteria that cluster into groups, or one capability that could be cut without rewriting the others. If it does, head §6 with a capability map and derive the file tree and the §20 phases from it:
+
+| Module id | Owns (FRs) | Depends on | Build order |
+|---|---|---|---|
+| `csv-ingest` | FR-1 | — | 1 |
+| `anomaly-detect` | FR-2, FR-3 | `csv-ingest` | 2 |
+
+Module ids are stable kebab-case, assigned once and never renamed (`--deepen` appends rows, it never reorders); dependencies are one-way with no cycles — when two modules need each other, split the shared piece into a third module; each §20 task's trailing note names its module id. On the default path emit the map flagged `[INFERRED]` and never block; on `--ask`, confirm it with one structured question (`Approve / Merge two modules / Split a module / Reorder`) before drafting §6. A single-capability PRD skips Phase 0 entirely — do not emit a one-row map. (RW-2026-09-11-2)
+
 Decide, in order:
 1. **System shape** — routes the whole spec.
 2. **Tech stack + manifest** — name specific libraries with **pinned majors** (§5); for each major, name 2 rejected alternatives.
@@ -116,6 +129,8 @@ Decide, in order:
 9. **AI surface detection** — grep `idea.md` + `prd.md` (case-insensitive) for: `LLM`, `Claude`, `GPT`, `OpenAI`, `Anthropic`, `prompt`, `AI-assisted`, `model call`, `embedding`, `chat completion`, `system prompt`. If any match → `ai_surface: true` → §18.A filled with 5 Good / 5 Bad / 6 Reject + cost/latency budget. If no match → §18.A renders `N/A — no model-call surface in MVP`. Never omit.
 
 No `TBD`, `TK`, or `…`. If you can't decide, write `[INFERRED — low confidence, rerun with --ask]` with the best guess so a human can still build against it.
+
+**Minimum-solution check (§20, run while writing the WBS):** for every implementation task, prefer the first option in this order that satisfies the FR: (1) existing project behavior or pattern, (2) the standard library, (3) a native platform capability, (4) an already-installed dependency (one in the §5 manifest), (5) new code. A task that lands on a later option when an earlier one suffices is **over-scoped**: keep the task, append `_(over-scope: prefer <option>)_` to its line, and list it in the Step 9.5 review and the Step 10 summary. This check never reduces requested scope, never overrides a locked decision (a §23 ADR, a Step 4 answer, or a PRD FR), and never drops required security, validation, error-handling, or verification tasks. (RW-2026-09-11-30)
 
 ### Step 8: Write the Spec
 
@@ -145,11 +160,14 @@ After saving, run these checks and print a structured review. **Do not block the
 
 **(4) Anti-patterns scan:** the 18-item check from `references/anti-patterns.md`.
 
+**(5) Over-scope scan:** list every §20 task carrying an `over-scope` tag with its preferred option (Step 7 minimum-solution check). The scan reports; it never edits scope.
+
 ```
 Spec Review: <project-name>
 
 Coverage: N/M PRD FRs traced to component+task+test  (P0: X/Y)
 Completeness: X/29 sections populated (N/A-with-justification counts as populated)
+Over-scoped: K tasks (T### → prefer <option>, …) | none
 Issues (K):
   1. [#N <name>] <one-line description>. Fix: <specific suggestion>.
 Strengths:
@@ -166,7 +184,7 @@ If 0 issues, render `Issues: none`. Always emit ≥1 Strength.
 
 ### Step 10: Present Summary
 
-Print: one-line project description · system shape (§0) · primary stack one-liner (frontmatter `primary_stack`) · P0 components (§10) · WBS task count + first milestone · INFERRED count + top 3 inferred slots · **Coverage + Readiness verdict (Step 9.5)** · any quality flags · suggested next step:
+Print: one-line project description · system shape (§0) · primary stack one-liner (frontmatter `primary_stack`) · P0 components (§10) · WBS task count + first milestone · INFERRED count + top 3 inferred slots · **Coverage + Readiness verdict (Step 9.5)** · any quality flags · over-scoped task count (Step 9.5) · suggested next step:
 - `project_status == ready`/`active` → `"Run /user-stories <name> --tasks — it will consume this spec's WBS T-IDs."`
 - 3+ INFERRED → `"Consider /spec <name> --ask to firm up the inferred choices (and run live skill/MCP discovery)."`
 - stories exist → `"Run /sprint-plan to pick this week's slice from the spec's WBS."`
@@ -188,17 +206,19 @@ Before saving, verify:
 
 - [ ] Parsed `--ask` / `--deepen` / `--rebuild` correctly
 - [ ] `idea.md` + `prd.md` present; refused gracefully if `prd.md` missing
-- [ ] Handled existing `spec.md` (archived rebuild / revision-bumped deepen / preserved with soft flag)
+- [ ] Handled existing `spec.md` (archived rebuild, `-rN` suffix on a same-day collision / in-progress rebuild refused without `--ask`, confirmed with it / revision-bumped deepen / preserved with soft flag)
 - [ ] All 29 sections present (filled or `N/A — justification`); stage-scaled per `project_status`
 - [ ] Frontmatter has every required field incl. `upstream_prd`, `build_agent`, `ui_pipeline`, `primary_stack`, `confidence`, `inferred_count`, `system_shape`
 - [ ] §2 Build Delta references prd.md FRs WITHOUT restating them; §2.1 maps every P0 FR → module + task + test
 - [ ] §3 product goals are a one-line back-reference; engineering Non-Goals are non-empty
 - [ ] §5 every dependency pinned (major) with a manifest excerpt; no libraries-in-prose
 - [ ] §6 file tree has ≥6 real paths; every §20 task path resolves to a node
+- [ ] Phase 0 capability map heads §6 for a multi-capability PRD (stable kebab-case ids, one-way deps, no cycles, build order) — skipped entirely for a single capability
 - [ ] §7 C4 (Context + Container min) with protocol-labeled edges (or `N/A — single binary`)
 - [ ] §1 Build Constitution present; every deviation has a §1.1 row + §23 ADR
 - [ ] §19 Test List: every P0 acceptance criterion → ≥1 named test ordered before its impl task
 - [ ] §20 WBS ≥12 tasks (active stage) with stable T-IDs, file path + FR back-ref + paired test per impl task, `[P]` markers, per-milestone Checkpoints, dependency graph
+- [ ] §20 minimum-solution check run: over-scoped tasks tagged and reported; requested scope and locked decisions untouched
 - [ ] §21 Build Toolkit gate met (agent + in-repo skills + MCP `Server: tool` + find-skills pointers, all traceable)
 - [ ] §22 Design pipeline present (or justified `N/A` for headless); generated-code review lane exists if a generator is named
 - [ ] §18.A AI Behavior Contract filled (5/5/6 + budget) if AI surface detected, else `N/A — no model-call surface`

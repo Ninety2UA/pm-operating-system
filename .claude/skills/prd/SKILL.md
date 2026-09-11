@@ -43,7 +43,8 @@ flags low-confidence inferences inline, prints a summary, and returns without bl
 **Opt-in interactive:**
 `/prd ad-spend-anomaly-detector --ask`
 Calls `AskUserQuestion` once with up to 4 batched questions (pre-filled from idea.md
-and GOALS.md so you confirm rather than retype), then drafts the PRD with your answers.
+and GOALS.md so you confirm rather than retype), adds one constraints call only when
+stack detection leaves a hard constraint open, then drafts the PRD with your answers.
 
 For a complete example, read `.claude/skills/prd/references/example-prd.md`.
 
@@ -74,6 +75,29 @@ scratch. Tell the user to run `/process-backlog` or describe the project in a ne
 
 The skill needs 5 slots filled before drafting: Hypothesis, Primary goal/OKR, Scope,
 Primary user segment, Riskiest assumption.
+
+**Constraints first (before the Scope slot is filled):** scope set against an unstated
+quality bar is scope nobody agreed to, so gather hard constraints first, on both paths.
+
+1. **Detect before asking.** Read what is on disk — manifest and config files such as
+   `package.json` / `pyproject.toml`, lint and test configuration, CI config, and a
+   sibling project's `spec.md` §1 when one exists — to establish the stack and the
+   quality bar already in force. Never infer these from memory.
+2. **At most four constraint questions, each with a usable default.** Ask only what
+   detection left open (target platform, non-negotiable integrations, hard budget or
+   latency ceilings, compliance or data-handling limits). On the default path take
+   every default and flag it `[INFERRED — default constraint, rerun with --ask to
+   confirm]`; on `--ask`, batch the open ones into one extra `AskUserQuestion` call
+   with the default option marked `(Default)`.
+3. **Split rules into a floor and ratchets.** The **floor** is always enforced and
+   never negotiated per feature: no new lint or type-check suppressions, no
+   unimplemented stubs, no skipped tests, no lowered thresholds. A **ratchet** records
+   today's measured value (test coverage, p95 latency, bundle size, error rate) and
+   requires it not fall — never invent a target the project has not yet reached.
+4. **Record them where the PRD already has a home:** the floor under §5.5 Technical
+   Considerations; each ratchet as a §7c Guardrail row whose threshold is today's
+   measured value. The speclet carries them as bullets under "What we'd need to
+   believe" only when a constraint would kill the idea. (RW-2026-09-11-1)
 
 **Default path (no flag — used by `/process-backlog` and other batch callers):**
 Auto-infer each slot from `idea.md` + `GOALS.md`. Never block on user input.
@@ -166,6 +190,15 @@ pipeline stage per the Step 6 rubric.
 Before writing, read both `.claude/skills/prd/references/anti-patterns.md` (avoid each
 of the 12 patterns) and `.claude/skills/prd/references/good-vs-bad.md` (match the
 "good" column for each section).
+
+**Objective shape (§3, evaluating+):** open §3 with two lines — `**Objective:**` states
+the outcome the project exists to produce, in the user's or the business's terms, and
+`**Means:**` is one line naming the approach that produces it and pointing at §5 for
+the mechanism (never restate §5 here). Litmus for the Objective line: *if the
+implementation changed, would this still be the goal? If not, it is a means* — move it
+to the `Means:` line and write the outcome it serves. The same litmus applies to the
+speclet's §2 goal link at the idea stage. Key Results stay under the Objective, as
+before. (RW-2026-09-11-11)
 
 Write for clarity — short sentences, no jargon. Write so a non-technical reader can
 follow along. If a sentence requires domain knowledge to parse, rewrite it.
@@ -289,6 +322,8 @@ Present a concise summary:
   heading form), each with a Frequency column. 7c names counter-metrics that must not
   degrade (latency, error rate, cost) with a threshold instead of a target.
 - **Open Questions each carry an `[Owner: eng / user-research / data / self]` prefix.**
+- **§3 Objective is an outcome; the approach lives on a separate `Means:` line** —
+  "ship X" is a means, not a goal.
 - Keep the total PRD within the stage band per Step 6.
 
 ## Checklist
@@ -302,6 +337,11 @@ Before saving the PRD, verify:
       (evaluating+) below are N/A for a speclet.
 - [ ] Section 1 contains a `**Hypothesis:**` line at the top
 - [ ] Section 2 cites the primary Goal/OKR as a bullet (`GOALS.md › ... › KR#`)
+- [ ] Constraints gathered before the Scope slot (Step 2): stack + quality bar detected
+      from disk, floor + ratchets recorded (§5.5 / §7c), open constraints defaulted and
+      flagged
+- [ ] (evaluating+) §3 opens with `**Objective:**` (outcome) and a separate
+      `**Means:**` line — the litmus holds for the Objective
 - [ ] (evaluating+) Key Results are measurable with targets and timeframes
 - [ ] (evaluating+) User stories are small, specific, with verifiable acceptance
       criteria, each carrying a `**Tied to FR:**` line
@@ -342,4 +382,6 @@ The PRD Rule (every prd.md is generated by this skill, never written manually) h
 
 - *"It's a tiny project — a manual PRD is faster."* Speed is not the point; consistency of structure is what makes 100+ PRDs comparable and pipeline-scorable.
 - *"The user described it fully; I'll just transcribe."* Transcription skips the sections that force product thinking (guardrail metrics, adversarial review). Run the skill.
+- *"Constraints are an engineering detail — the spec will catch them."* The spec pins a stack; it cannot recover a quality bar the PRD never wrote down. Detect the floor and ratchets before the Scope slot is filled, or scope is set against a bar nobody agreed to.
+- *"The objective is obviously 'ship X'."* "Ship X" is a means. If a different implementation would still satisfy the goal, write the outcome as the Objective and put X on the `Means:` line.
 - *"I'll write it now and backfill with the skill later."* Later never comes, and a manual file poisons duplicate detection. Red flag: an Edit/Write call targeting `prd.md` outside this skill is a violation, not a shortcut.
