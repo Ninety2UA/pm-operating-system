@@ -571,7 +571,7 @@ def test_provenance_marker_detection():
 def test_check_adapters_manifest_forms(fake_root):
     assert _build() == 0
     assert ba.check_adapters() == []
-    mrel = ".agents/skills.lock.json"
+    mrel = ba.MANIFEST_REL
 
     # hand-edited generated file: disk differs from both expected and manifest
     ref = fake_root / DEMO_REF

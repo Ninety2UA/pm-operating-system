@@ -84,6 +84,10 @@ MANAGED_BASES = (".agents/skills", ".codex/agents", ".cursor/agents")
 # Generated-file manifest, kept OUTSIDE every managed base (repo-relative).
 MANIFEST_REL = ".agents/skills.lock.json"
 
+
+def _sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
 # Per-agent traits for native subagent emission (Codex/Cursor). Any agent not
 # listed gets the safe default (read/write, foreground).
 AGENT_TRAITS = {
@@ -438,7 +442,7 @@ def build_outputs() -> dict[str, bytes]:
             fm["argument-hint"] = transform_body(str(fm["argument-hint"]))
 
         generated_from = str(src.relative_to(ROOT))
-        sha = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+        sha = _sha256(raw.encode("utf-8"))
 
         new_body = transform_body(body).lstrip("\n")
         if name == "system-health":
@@ -532,7 +536,7 @@ def read_manifest() -> dict[str, str] | None:
 
 
 def manifest_hashes(entries: dict[str, bytes]) -> dict[str, str]:
-    return {rel: hashlib.sha256(data).hexdigest() for rel, data in sorted(entries.items())}
+    return {rel: _sha256(data) for rel, data in entries.items()}
 
 
 def render_manifest(entries: dict[str, bytes]) -> str:
@@ -585,7 +589,7 @@ def classify(rel: str, on_disk: bytes | None, expected: bytes | None,
     if manifest is None:
         owned = expected is not None or has_provenance_marker(on_disk)
     else:
-        owned = (manifest.get(rel) == hashlib.sha256(on_disk).hexdigest()
+        owned = (manifest.get(rel) == _sha256(on_disk)
                  or has_provenance_marker(on_disk))
     if not owned:
         return "refuse"
@@ -635,7 +639,7 @@ def check_adapters() -> list[str]:
         disk = (ROOT / r).read_bytes()
         if disk == outputs[r]:
             continue
-        if manifest is None or manifest.get(r) == hashlib.sha256(disk).hexdigest():
+        if manifest is None or manifest.get(r) == _sha256(disk):
             problems.append(f"stale: {r}")
         else:
             problems.append(f"manifest: {r}")

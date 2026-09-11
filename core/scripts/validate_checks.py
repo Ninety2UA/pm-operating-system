@@ -73,7 +73,8 @@ def _content_md(root: Path):
 # as a diagnosis; the file still loads wrong on older builds). Check 1 already
 # hard-fails such a file as "no frontmatter fence"; this names the cause.
 _BOM = b"\xef\xbb\xbf"
-_BOM_EXTRA = ("AGENTS.md", "CLAUDE.md", "docs/*.md")
+_ROOT_DOC_FILES = ("AGENTS.md", "CLAUDE.md")
+_BOM_EXTRA = _ROOT_DOC_FILES + ("docs/*.md",)
 
 
 def check_bom(root: Path | str) -> list[str]:
@@ -84,7 +85,8 @@ def check_bom(root: Path | str) -> list[str]:
     out = []
     for f in sorted(set(files)):
         try:
-            head = f.read_bytes()[:3]
+            with f.open("rb") as fh:
+                head = fh.read(3)
         except OSError:
             continue
         if head == _BOM:
@@ -259,47 +261,27 @@ def check_guard_wiring(root: Path | str) -> list[str]:
     skip-adopter with no guard at all) always passes. But when
     settings.local.json wires any command hook, that hook must resolve to an
     existing, executable script, whatever it points at."""
-    root = Path(root)
-    local = root / ".claude" / "settings.local.json"
-    if not local.exists():
-        return []  # committed-and-unwired: the shipped state, always green
-    try:
-        settings = json.loads(local.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return []  # malformed local settings is a separate concern, not ours
-    if not isinstance(settings, dict):
-        return []
     import os
+    root = Path(root)
     fails = []
-    hooks = settings.get("hooks")
-    if not isinstance(hooks, dict):
-        return []
     # Any command hook wired locally must resolve to an existing, executable
     # script — this subsumes the guard and never requires it to be wired.
-    for _event, configs in hooks.items():
-        if not isinstance(configs, list):
+    for hk in _local_command_hooks(root):
+        cmd = hk.get("command", "")
+        if not isinstance(cmd, str):
             continue
-        for cfg in configs:
-            if not isinstance(cfg, dict):
-                continue
-            for hk in cfg.get("hooks", []) or []:
-                if not isinstance(hk, dict) or hk.get("type") != "command":
-                    continue
-                cmd = hk.get("command", "")
-                if not isinstance(cmd, str):
-                    continue
-                m = re.search(r"\$CLAUDE_PROJECT_DIR/(\S+)", cmd)
-                if not m:
-                    continue
-                # Strip surrounding quotes the command may carry around the
-                # path (the style Claude Code's own docs use).
-                rel = m.group(1).strip('"\'')
-                target = root / rel
-                if not target.exists():
-                    fails.append(f"hook wired in settings.local.json to a "
-                                 f"missing path: {cmd}")
-                elif not os.access(target, os.X_OK):
-                    fails.append(f"hook wired but not executable: {target.name}")
+        m = re.search(r"\$CLAUDE_PROJECT_DIR/(\S+)", cmd)
+        if not m:
+            continue
+        # Strip surrounding quotes the command may carry around the
+        # path (the style Claude Code's own docs use).
+        rel = m.group(1).strip('"\'')
+        target = root / rel
+        if not target.exists():
+            fails.append(f"hook wired in settings.local.json to a "
+                         f"missing path: {cmd}")
+        elif not os.access(target, os.X_OK):
+            fails.append(f"hook wired but not executable: {target.name}")
     return fails
 
 
@@ -340,9 +322,7 @@ def check_live_registry(root: Path | str) -> list[str]:
     reg = root / "knowledge" / "currency" / "repo-registry.json"
     if not reg.exists():
         return []
-    import sys
-    sys.path.insert(0, str(root / "core" / "scripts"))
-    import currency
+    currency = _currency_module()
     try:
         data = json.loads(reg.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError) as e:
@@ -480,7 +460,7 @@ _READ_WINDOW = 60        # max chars between the verb's end and the path
 _NEGATION_TOKENS = 3     # tokens immediately before the verb that can negate it
 _BYPASS_SCAN_GLOBS = (".claude/skills/**/*.md", ".claude/agents/*.md",
                       ".claude/commands/*.md")
-_BYPASS_SCAN_FILES = ("AGENTS.md", "CLAUDE.md")
+_BYPASS_SCAN_FILES = _ROOT_DOC_FILES
 _LIST_ITEM_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+")
 _HEADING_RE = re.compile(r"^\s*#{1,6}\s")
 _RULE_RE = re.compile(r"^\s*(?:---|\*\*\*|___)\s*$")
@@ -530,6 +510,22 @@ def _negated(text: str, verb_start: int) -> bool:
     return any(_NEGATION_RE.match(t.strip("*_`\"'(),.;:!?")) for t in tokens)
 
 
+def _match_credential_near_verb(item: str, verbs) -> tuple[list[str], str | None]:
+    """Labels of every credential pattern that appears within _READ_WINDOW
+    chars after an (un-negated) read verb in `item`, plus the first such
+    verb; ([], None) when nothing is in range."""
+    labels, verb = [], None
+    for label, pat in CREDENTIAL_PATH_PATTERNS.items():
+        for pm in pat.finditer(item):
+            hit = next((v for v in verbs if v.end() <= pm.start()
+                        and pm.start() - v.end() <= _READ_WINDOW), None)
+            if hit:
+                labels.append(label)
+                verb = verb or hit.group(1).lower()
+                break
+    return labels, verb
+
+
 def check_secret_bypass_instructions(root: Path | str) -> list[str]:
     """Warn on catalog prose that tells an agent to read a credential-shaped
     path — the report-only guard denies exactly these reads at marker time,
@@ -558,15 +554,7 @@ def check_secret_bypass_instructions(root: Path | str) -> list[str]:
                      if not _negated(item, m.start())]
             if not verbs:
                 continue
-            labels, verb = [], None
-            for label, pat in CREDENTIAL_PATH_PATTERNS.items():
-                for pm in pat.finditer(item):
-                    hit = next((v for v in verbs if v.end() <= pm.start()
-                                and pm.start() - v.end() <= _READ_WINDOW), None)
-                    if hit:
-                        labels.append(label)
-                        verb = verb or hit.group(1).lower()
-                        break
+            labels, verb = _match_credential_near_verb(item, verbs)
             if labels:
                 warns.append(f"{f.relative_to(root)}:{line_no}: instructs "
                              f"`{verb}` on a credential-shaped path "
