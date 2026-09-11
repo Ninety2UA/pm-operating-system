@@ -18,12 +18,42 @@ Sources (all mapped identically to a skill):
 The body is lightly neutralized — the SKILL.md format and the `mcp__server__tool`
 MCP naming are shared standards, so this removes only genuinely Claude-specific
 tokens (the Slack *plugin* name, `$ARGUMENTS`, `$CLAUDE_PROJECT_DIR`,
-`AskUserQuestion`, `.claude/skills/...` reference paths).
+`AskUserQuestion`, `.claude/skills/...` reference paths, and the Claude-only
+pointers `.claude/hooks|agents|commands/`, `run_in_background`, `/skill-doctor`,
+`claude plugin validate`).
+
+Ownership (KTD4 of the 2026-09 wave). Every non-dry build writes a manifest,
+`.agents/skills.lock.json`: a sorted `{path: sha256-of-generated-bytes}` map,
+one entry per line, no timestamps, covering all three managed bases. It sits
+outside the managed bases, so drift accounting never sees it. Before a file
+under a managed base is overwritten or removed, the build proves the generator
+wrote it: its bytes hash to the manifest's value, or it carries the provenance
+marker (`generated_from:` in frontmatter, `# generated-from:` in a Codex
+header). Anything else is refused: every non-conflicting output is written
+first, the refused paths are listed on stderr, and the build exits 1 unless
+`--force` is passed. Unmanaged files are therefore never touched. With no
+manifest on disk (bootstrap, the July contract) every expected path counts
+as owned; an orphan still needs the marker or `--force`. The manifest is
+written after the write phase even when the build exits 1 — refused paths are
+simply omitted — so a refusal can never deadlock the next build. No backup
+directory: every generated file is git-tracked.
+
+After a refusal, `--check` (and validator check 38) stays red — `orphan:` for
+a foreign file, `manifest: <path>` for a hand-edited generated one — until
+either the file is moved out of the managed trees or the build is rerun with
+`--force`. `--check` also reports `manifest: <path> (out of date)` when the
+manifest disagrees with the expected bytes or carries extra keys, and
+`manifest: absent` when it is missing.
+
+Merge conflicts: the manifest is a lockfile-shaped conflict surface. Check out
+one side for the manifest and the three managed bases together, then rebuild;
+never hand-merge the manifest (an unreadable manifest fails the build).
 
 Usage:
-  uv run core/scripts/build_adapters.py            # generate + write .agents/skills
+  uv run core/scripts/build_adapters.py            # generate + write the three trees + manifest
   uv run core/scripts/build_adapters.py --check     # verify no drift / no leftover Claude-isms (exit 1 on issue)
-  uv run core/scripts/build_adapters.py --dry-run   # show what would change, write nothing
+  uv run core/scripts/build_adapters.py --dry-run   # show what would change, write nothing (not even the manifest)
+  uv run core/scripts/build_adapters.py --force     # also overwrite/remove files the manifest/marker cannot prove we wrote
   uv run core/scripts/build_adapters.py --verbose
 """
 
@@ -31,6 +61,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 import re
 import sys
@@ -45,9 +76,13 @@ SRC_SKILLS = ROOT / ".claude" / "skills"
 SRC_AGENTS = ROOT / ".claude" / "agents"
 SRC_COMMANDS = ROOT / ".claude" / "commands"
 
-# Generated trees this script owns (repo-relative). Stale-file pruning is scoped
-# to these, so unmanaged files are never touched.
+# Generated trees this script owns (repo-relative). Overwrites and pruning are
+# scoped to these, and within them to files the manifest or the provenance
+# marker proves we wrote (KTD4), so unmanaged files are never touched.
 MANAGED_BASES = (".agents/skills", ".codex/agents", ".cursor/agents")
+
+# Generated-file manifest, kept OUTSIDE every managed base (repo-relative).
+MANIFEST_REL = ".agents/skills.lock.json"
 
 # Per-agent traits for native subagent emission (Codex/Cursor). Any agent not
 # listed gets the safe default (read/write, foreground).
@@ -95,12 +130,19 @@ CURSOR_MODEL_MAP = {
 # (`sonnet`) and non-model tokens (`claude-code`, `claude-plugins-official`)
 # alone — a raw ID in generated output means a pin leaked past the mapping.
 MODEL_ID_PATTERN = r"claude-(?:[a-z]+-)*\d[a-z0-9.\-]*"
+# Claude-only pointers (KTD11) are detection-only: a skill body that needs one
+# wraps it in a host fence with a fallback. `Monitor` is deliberately absent —
+# it occurs as an ordinary word in a copied reference file.
 RESIDUAL_TOKENS = (
     r"mcp__",
     r"\$ARGUMENTS",
     r"\$CLAUDE_PROJECT_DIR",
     r"AskUserQuestion",
     r"\.claude/skills/",
+    r"\.claude/(?:hooks|agents|commands)/",
+    r"run_in_background",
+    r"/skill-doctor",
+    r"claude plugin validate",
     MODEL_ID_PATTERN,
 )
 
@@ -447,8 +489,9 @@ def scan_residual(outputs: dict[str, bytes]) -> list[str]:
         for i, line in enumerate(lines, 1):
             if i > 1 and in_frontmatter and line.strip() == "---":
                 in_frontmatter = False
-            # `generated_from:` is intentional provenance pointing at the source.
-            if line.lstrip().startswith("generated_from:"):
+            # `generated_from:` (YAML) and `# generated-from:` (Codex TOML
+            # header) are intentional provenance pointing at the source.
+            if line.lstrip().startswith(("generated_from:", "# generated-from:")):
                 continue
             # A Cursor agent's frontmatter `model:` line is the mapping's
             # deliberate, U1-verified output — the one place a model ID
@@ -459,6 +502,94 @@ def scan_residual(outputs: dict[str, bytes]) -> list[str]:
             for hit in pattern.findall(line):
                 problems.append(f"{rel}:{i}: leftover `{hit}` → {line.strip()[:100]}")
     return problems
+
+
+# ── Manifest + ownership (KTD4) ────────────────────────────────────────────────
+class ManifestError(ValueError):
+    """The manifest exists but is not a `{path: sha256}` JSON map (e.g. it
+    still carries merge-conflict markers). Never treated as absent: absence
+    triggers the bootstrap rule, which is a deliberate owner action."""
+
+
+def manifest_path() -> Path:
+    """Derived from ROOT at call time so tests can relocate it."""
+    return ROOT / MANIFEST_REL
+
+
+def read_manifest() -> dict[str, str] | None:
+    """Return the committed `{path: sha256}` map, None when absent."""
+    p = manifest_path()
+    if not p.is_file():
+        return None
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        raise ManifestError(f"{MANIFEST_REL} (unreadable: {e})") from e
+    if not isinstance(data, dict) or not all(
+            isinstance(k, str) and isinstance(v, str) for k, v in data.items()):
+        raise ManifestError(f"{MANIFEST_REL} (unreadable: not a {{path: sha256}} map)")
+    return data
+
+
+def manifest_hashes(entries: dict[str, bytes]) -> dict[str, str]:
+    return {rel: hashlib.sha256(data).hexdigest() for rel, data in sorted(entries.items())}
+
+
+def render_manifest(entries: dict[str, bytes]) -> str:
+    """Sorted `{path: sha256}`, one entry per line, no timestamps or source
+    hashes — deterministic, so two builds of one tree are byte-identical."""
+    return json.dumps(manifest_hashes(entries), indent=2, sort_keys=True) + "\n"
+
+
+def write_manifest(entries: dict[str, bytes]) -> None:
+    p = manifest_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    data = render_manifest(entries).encode("utf-8")
+    if not p.exists() or p.read_bytes() != data:
+        p.write_bytes(data)
+
+
+def has_provenance_marker(data: bytes) -> bool:
+    """True when the file carries the generator's provenance: a
+    `generated_from:` line inside YAML frontmatter, or the `# generated-from:`
+    first line of a Codex TOML file. A mention in a body does not count."""
+    if not is_text(data):
+        return False
+    lines = data.decode("utf-8").splitlines()
+    if not lines:
+        return False
+    if lines[0].startswith("# generated-from:"):
+        return True
+    if lines[0].strip() != "---":
+        return False
+    for line in lines[1:]:
+        if line.strip() == "---":
+            return False
+        if line.startswith("generated_from:"):
+            return True
+    return False
+
+
+def classify(rel: str, on_disk: bytes | None, expected: bytes | None,
+             manifest: dict[str, str] | None) -> str:
+    """The write decision for one path under a managed base (KTD4 diagram):
+    create | leave | overwrite | remove | refuse.
+
+    Owned = bytes hash to the manifest's value OR the file carries the
+    provenance marker. Bootstrap (no manifest): every expected path is owned,
+    orphans still need the marker."""
+    if on_disk is None:
+        return "create"
+    if expected is not None and on_disk == expected:
+        return "leave"
+    if manifest is None:
+        owned = expected is not None or has_provenance_marker(on_disk)
+    else:
+        owned = (manifest.get(rel) == hashlib.sha256(on_disk).hexdigest()
+                 or has_provenance_marker(on_disk))
+    if not owned:
+        return "refuse"
+    return "overwrite" if expected is not None else "remove"
 
 
 # ── Commands ───────────────────────────────────────────────────────────────────
@@ -473,8 +604,15 @@ def disk_files() -> set[str]:
 
 
 def check_adapters() -> list[str]:
-    """Pure check: return problem strings (missing / orphan / stale / leftover).
-    No printing, no exit — safe to import and call from validate.py."""
+    """Pure check: return problem strings (missing / orphan / stale / manifest /
+    leftover). No printing, no exit — safe to import and call from validate.py,
+    which fails every line returned.
+
+    `stale:` is a source-changed file (disk still equals the last generated
+    bytes); `manifest: <path>` is a hand-edited generated file (disk differs
+    from both the expected bytes and the manifest); `manifest: <path> (out of
+    date)` means the manifest disagrees with the expected bytes or carries
+    extra keys; `manifest: absent` / `(unreadable: …)` name the file itself."""
     try:
         outputs = build_outputs()
     except (Exception, SystemExit) as e:
@@ -485,52 +623,89 @@ def check_adapters() -> list[str]:
         return [f"generator error: {e}"]
     expected = set(outputs)
     on_disk = disk_files()
+    try:
+        manifest = read_manifest()
+        manifest_problem = None if manifest is not None else "manifest: absent"
+    except ManifestError as e:
+        manifest, manifest_problem = None, f"manifest: {e}"
     problems: list[str] = []
     problems += [f"missing: {r}" for r in sorted(expected - on_disk)]
     problems += [f"orphan: {r}" for r in sorted(on_disk - expected)]
-    problems += [
-        f"stale: {r}" for r in sorted(expected & on_disk)
-        if (ROOT / r).read_bytes() != outputs[r]
-    ]
+    for r in sorted(expected & on_disk):
+        disk = (ROOT / r).read_bytes()
+        if disk == outputs[r]:
+            continue
+        if manifest is None or manifest.get(r) == hashlib.sha256(disk).hexdigest():
+            problems.append(f"stale: {r}")
+        else:
+            problems.append(f"manifest: {r}")
+    if manifest_problem:
+        problems.append(manifest_problem)
+    elif manifest != manifest_hashes(outputs):
+        problems.append(f"manifest: {MANIFEST_REL} (out of date)")
     problems += [f"leftover: {p}" for p in scan_residual(outputs)]
     return problems
 
 
-def cmd_build(dry_run: bool, verbose: bool) -> int:
+def cmd_build(dry_run: bool, verbose: bool, force: bool = False) -> int:
     outputs = build_outputs()
     expected = set(outputs)
     on_disk = disk_files()
 
-    created = sorted(r for r in expected if r not in on_disk)
-    removed = sorted(r for r in on_disk if r not in expected)
-    updated = sorted(
-        r for r in expected
-        if r in on_disk and (ROOT / r).read_bytes() != outputs[r]
-    )
-
     residual = scan_residual(outputs)
     if residual:
+        # Aborts before the write phase: nothing is written, manifest included.
         print("✗ leftover Claude-isms in generated output (fix transforms):", file=sys.stderr)
         for p in residual:
             print(f"   {p}", file=sys.stderr)
         return 1
 
+    try:
+        manifest = read_manifest()
+    except ManifestError as e:
+        # Fail closed: an unreadable manifest is its own state, never "absent".
+        print(f"✗ manifest: {e}", file=sys.stderr)
+        print("   check out one side for the manifest and the three managed bases "
+              "together, then rebuild (delete the manifest only to bootstrap deliberately)",
+              file=sys.stderr)
+        return 1
+
+    # Classify every path under the managed bases (KTD4 diagram).
+    actions: dict[str, str] = {}
+    for rel in sorted(expected | on_disk):
+        disk = (ROOT / rel).read_bytes() if rel in on_disk else None
+        actions[rel] = classify(rel, disk, outputs.get(rel), manifest)
+    created = [r for r, a in actions.items() if a == "create"]
+    updated = [r for r, a in actions.items() if a == "overwrite"]
+    removed = [r for r, a in actions.items() if a == "remove"]
+    refused = [r for r, a in actions.items() if a == "refuse"]
+    if force:
+        # --force turns each refusal into the action ownership would have allowed.
+        for r in refused:
+            (updated if r in expected else removed).append(r)
+        refused = []
+    updated.sort()
+    removed.sort()
+
     if dry_run:
-        print(f"[dry-run] would create {len(created)}, update {len(updated)}, remove {len(removed)}")
+        print(f"[dry-run] would create {len(created)}, update {len(updated)}, "
+              f"remove {len(removed)}, refuse {len(refused)}")
         for r in created:
             print(f"   + {r}")
         for r in updated:
             print(f"   ~ {r}")
         for r in removed:
             print(f"   - {r}")
+        for r in refused:
+            print(f"   ! {r} (not proven generated; --force would "
+                  f"{'overwrite' if r in expected else 'remove'} it)")
         return 0
 
-    for rel, data in outputs.items():
+    # Write phase: every non-conflicting output first.
+    for rel in created + updated:
         dest = ROOT / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
-        if not dest.exists() or dest.read_bytes() != data:
-            dest.write_bytes(data)
-
+        dest.write_bytes(outputs[rel])
     for rel in removed:
         (ROOT / rel).unlink()
     # Prune now-empty directories within each managed base (bottom-up).
@@ -541,11 +716,17 @@ def cmd_build(dry_run: bool, verbose: bool) -> int:
                 if not any(d.iterdir()):
                     d.rmdir()
 
+    # The manifest records what this build actually left in place: refused
+    # paths are omitted, so the next build cannot deadlock on them.
+    write_manifest({r: d for r, d in outputs.items() if r not in refused})
+
     skills = sum(1 for r in expected if r.endswith("/SKILL.md"))
     subagents = sum(1 for r in expected if r.startswith((".codex/agents/", ".cursor/agents/")))
-    print(f"✓ generated {skills} skills + {subagents} native subagent files "
+    mark = "✗" if refused else "✓"
+    tail = f" — {len(refused)} refused" if refused else ""
+    print(f"{mark} generated {skills} skills + {subagents} native subagent files "
           f"({len(created)} new, {len(updated)} updated, {len(removed)} removed, "
-          f"{len(expected)} files total)")
+          f"{len(expected)} files total){tail}")
     if verbose:
         for r in created:
             print(f"   + {r}")
@@ -553,6 +734,15 @@ def cmd_build(dry_run: bool, verbose: bool) -> int:
             print(f"   ~ {r}")
         for r in removed:
             print(f"   - {r}")
+    if refused:
+        print(f"✗ refused {len(refused)} file(s) under the managed trees — not proven "
+              "generated (no manifest match, no provenance marker), left untouched:",
+              file=sys.stderr)
+        for r in refused:
+            print(f"   ! {r}", file=sys.stderr)
+        print("   move each file out of " + ", ".join(MANAGED_BASES)
+              + ", or rerun with --force to overwrite/remove it", file=sys.stderr)
+        return 1
     return 0
 
 
@@ -571,6 +761,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Generate .agents/skills from .claude source")
     ap.add_argument("--check", action="store_true", help="verify no drift; exit 1 on issue")
     ap.add_argument("--dry-run", action="store_true", help="show changes without writing")
+    ap.add_argument("--force", action="store_true",
+                    help="also overwrite/remove files under the managed trees that "
+                         "neither the manifest nor the provenance marker proves were generated")
     ap.add_argument("--verbose", "-v", action="store_true", help="list every changed file")
     args = ap.parse_args()
 
@@ -580,7 +773,7 @@ def main() -> int:
 
     if args.check:
         return cmd_check(args.verbose)
-    return cmd_build(args.dry_run, args.verbose)
+    return cmd_build(args.dry_run, args.verbose, args.force)
 
 
 if __name__ == "__main__":
