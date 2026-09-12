@@ -68,15 +68,16 @@ What needs to be done and why.
 
 | Tool | Description |
 |------|-------------|
-| `list_tasks` | Filter and view tasks |
+| `list_tasks` | Filter and view tasks — flags clipped bodies, lists files it could not parse |
 | `get_task_summary` | Priority/category/status counts + time estimates |
 | `check_priority_limits` | Alerts if P0 > 3 or P1 > 7 |
-| `prune_completed_tasks` | Archive done tasks older than 30 days |
-| `list_projects` | Filter and view projects |
+| `prune_completed_tasks` | Preview the done tasks older than 30 days that would be archived; moves them only on an explicit `confirm: true` |
+| `list_projects` | Filter and view projects — flags clipped bodies, lists files it could not parse |
 | `get_pipeline_status` | Count of projects at each pipeline stage |
 | `get_project_artifacts` | Check which artifacts exist for a project |
 | `get_project_summary` | Aggregate project stats |
 | `get_system_status` | Full dashboard |
+| `get_watcher_status` | Currency watcher status — last report, days since, undecided candidates |
 | `process_backlog_with_dedup` | Duplicate detection across tasks/ AND projects/ |
 
 ## Configuration

@@ -971,11 +971,11 @@
     <table class="tools-table reveal">
       <thead><tr><th>Tool</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td>list_tasks</td><td>Query tasks with filters (priority, status, category)</td></tr>
+        <tr><td>list_tasks</td><td>Query tasks with filters (priority, status, category) — flags clipped bodies, lists files it could not parse</td></tr>
         <tr><td>get_task_summary</td><td>Priority/category/status counts with time estimates</td></tr>
         <tr><td>check_priority_limits</td><td>Alerts if P0 > 3 or P1 > 7</td></tr>
-        <tr><td>prune_completed_tasks</td><td>Archive done tasks older than 30 days to tasks/archive/</td></tr>
-        <tr><td>list_projects</td><td>Query projects with filters (status, priority, category)</td></tr>
+        <tr><td>prune_completed_tasks</td><td>Preview the done tasks older than 30 days that would move to tasks/archive/; moves them only on an explicit confirm</td></tr>
+        <tr><td>list_projects</td><td>Query projects with filters (status, priority, category) — flags clipped bodies, lists files it could not parse</td></tr>
         <tr><td>get_pipeline_status</td><td>Count of projects at each pipeline stage</td></tr>
         <tr><td>get_project_artifacts</td><td>Check which evaluation artifacts exist for a project</td></tr>
         <tr><td>get_project_summary</td><td>Aggregate project stats and artifact coverage</td></tr>

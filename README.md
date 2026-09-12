@@ -401,11 +401,11 @@ The manager-ai MCP server provides 11 tools for task and project management. It 
 
 | Tool | Description |
 |------|-------------|
-| `list_tasks` | Query tasks with filters (priority, status, category) |
+| `list_tasks` | Query tasks with filters (priority, status, category) — flags clipped bodies, lists files it could not parse |
 | `get_task_summary` | Priority/category/status counts with time estimates |
 | `check_priority_limits` | Alerts if P0 > 3 or P1 > 7 |
-| `prune_completed_tasks` | Archive done tasks older than 30 days |
-| `list_projects` | Query projects with filters (status, priority, category) |
+| `prune_completed_tasks` | Preview the done tasks older than 30 days that would be archived; moves them only on an explicit `confirm: true` |
+| `list_projects` | Query projects with filters (status, priority, category) — flags clipped bodies, lists files it could not parse |
 | `get_pipeline_status` | Count of projects at each pipeline stage |
 | `get_project_artifacts` | Check which evaluation artifacts exist |
 | `get_project_summary` | Aggregate project stats and artifact coverage |

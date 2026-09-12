@@ -251,11 +251,11 @@ When your host supports them: use a broad-exploration subagent for codebase swee
 > Tool invocation names vary by host — Claude Code, Codex, and Cursor expose these as `mcp__manager-ai__list_tasks`; other hosts resolve them from their own MCP registry. Refer to a tool by its logical `server: tool` name (e.g. `manager-ai: list_tasks`) and let your host resolve the wire name. MCP wiring per tool lives in `docs/portability.md`.
 
 **manager-ai** (local Python server, source in `core/mcp/`):
-- `list_tasks` — query tasks with filters (priority, status, category)
+- `list_tasks` — query tasks with filters (priority, status, category); each row says whether its body was clipped, and `unreadable` names every file that exists but could not be parsed (RW-2026-09-12-1, RW-2026-09-12-2)
 - `get_task_summary` — priority/category/status counts + time estimates
 - `check_priority_limits` — alerts if P0 > 3 or P1 > 7
-- `prune_completed_tasks` — archive done tasks older than 30 days to tasks/archive/
-- `list_projects` — query projects with filters (status, priority, category)
+- `prune_completed_tasks` — preview the done tasks older than 30 days that would move to tasks/archive/; it moves nothing until it is called again with `confirm: true` after the owner has seen that preview (RW-2026-09-12-3, RW-2026-09-12-4)
+- `list_projects` — query projects with filters (status, priority, category); same clipped-body flag and `unreadable` list as `list_tasks`
 - `get_pipeline_status` — count of projects at each pipeline stage
 - `get_project_artifacts` — check which artifacts exist, determine next skill
 - `get_project_summary` — aggregate project stats and artifact coverage
