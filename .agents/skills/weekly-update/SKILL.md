@@ -4,7 +4,7 @@ description: |-
   Generate an outbound, stakeholder-facing weekly update memo (TL;DR, status, progress, blockers, asks, decisions needed) and save it to `knowledge/updates/YYYY-WXX[-audience].md`. This is OUTBOUND communication — different from `/weekly` which is an inward retro saved to journals. Use this skill whenever the user says "draft my weekly update", "stakeholder update", "status memo", "weekly status to leadership", "send weekly update", "exec update", "investor update", or needs to communicate progress to someone other than themselves. Push toward this any Friday when active projects have external stakeholders (advisors, clients, partners, leadership).
 argument-hint: "[--audience <name>] [--project <name>] [--last-week]"
 generated_from: .claude/skills/weekly-update/SKILL.md
-source_sha256: 62e586c71f8c3951c0116da83a54c6e2d920209e14c925f3723a434a912b28f6
+source_sha256: 64c4f5cfe8233945a7dff4a46ad7e99a6eacc2675e07fbfe420c987631265013
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -98,6 +98,8 @@ Show the memo to the user for review. Then offer (via structured questions):
 **Never auto-send.** Always confirm before posting/sending.
 
 If the user picks Slack, format with Slack markdown (bold with `*asterisks*`, bullets with `•`).
+
+The Slack rendering keeps the decision lines: the status with its reason, each blocker paired with the unblocking action and who owns it, and every ask with its date. Slack is shorter than the memo because the narrative goes, never because what the recipient has to decide goes. (RW-2026-09-12-18)
 
 ### Step 8: Cross-Link
 

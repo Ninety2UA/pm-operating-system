@@ -4,7 +4,7 @@ This system is authored for Claude Code, but it is built on three open standards
 
 - **`AGENTS.md`** — the operating manual. Read natively by Codex, Cursor, and Antigravity. (In Claude Code, `CLAUDE.md` imports it via `@AGENTS.md`.)
 - **`.agents/skills/<name>/SKILL.md`** — the "Agent Skills" standard. Generated from the `.claude/` source by `core/scripts/build_adapters.py` and **committed** to the repo, so conformant tools auto-discover all skills (plus the 3 agents and the `analyze` command) with zero install step.
-- **MCP** — the `manager-ai` server (`core/mcp/server.py`) provides the 10 task/project tools. Wire it into each tool's MCP config (below).
+- **MCP** — the `manager-ai` server (`core/mcp/server.py`) provides the 11 task/project tools. Wire it into each tool's MCP config (below).
 
 ## Capability matrix
 
@@ -64,7 +64,7 @@ Codex reads `AGENTS.md` from the repo root automatically and discovers skills fr
 }
 ```
 
-Cursor reads `AGENTS.md` and loads skills from `.agents/skills/`. Note Cursor's ~40-active-tool ceiling across all MCP servers combined — `manager-ai` uses 10.
+Cursor reads `AGENTS.md` and loads skills from `.agents/skills/`. Note Cursor's ~40-active-tool ceiling across all MCP servers combined — `manager-ai` uses 11.
 
 ### Google Antigravity — `~/.gemini/config/mcp_config.json`
 

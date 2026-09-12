@@ -75,6 +75,12 @@ Personal to the owner; mentions of other people follow the tiers above.
 - **Answer a request.** If someone asks what the workspace holds about them,
   search `knowledge/` for their name and email, export or delete as asked, and
   note the date it was done in the journal.
+- **Installing a skill is a data-access decision.** A third-party skill,
+  agent, or command is prose the session's model follows with the session's
+  read access, so it can reach every directory above; nothing scans it for
+  what it instructs. Read it before installing it, and see
+  [SECURITY.md](../SECURITY.md) for the trust model and the controls that
+  stand in place of a scanner. (RW-2026-09-12-28)
 - **Sharing asks first.** Posting to a channel or sending to an external
   service is an explicit per-message decision (the assistant instructions
   already require confirmation before any post). Personal-tier content needs
@@ -91,5 +97,7 @@ these entries, never copy their content into a tracked file, and never link a
 tracked document into them (the validator's link check fails on a clone, where
 the target does not exist).
 
-Related: [CONTRIBUTING.md](../CONTRIBUTING.md) (no personal data in commits)
-and [portability](portability.md) (which hosts read which directories).
+Related: [CONTRIBUTING.md](../CONTRIBUTING.md) (no personal data in commits),
+[SECURITY.md](../SECURITY.md) (what the automated checks cover, and the
+instruction-surface trust model), and [portability](portability.md) (which
+hosts read which directories).

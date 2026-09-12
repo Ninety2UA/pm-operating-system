@@ -89,6 +89,7 @@ status: n  # n=not_started, s=started, b=blocked, d=done, r=recurring
 created_date: [YYYY-MM-DD]
 due_date: [YYYY-MM-DD]  # optional
 estimated_time: [minutes]  # optional
+actual_time: [minutes]  # optional, same scale as estimated_time
 blocked_by: [person or thing]  # optional, use when status=b
 blocked_since: [YYYY-MM-DD]  # optional, use when status=b
 resource_refs:
@@ -107,6 +108,11 @@ Tie to goals and reference material.
 ## Progress Log
 - YYYY-MM-DD: Notes, blockers, decisions.
 ```
+
+`actual_time` is never written automatically: `/weekly` asks for it beside its
+impact question for each task finished that week, `/morning` offers it for
+yesterday's finished tasks, and `/weekly` derives the estimate-calibration
+factor from the tasks that carry both fields. (RW-2026-09-12-21)
 
 ## Project Template
 
@@ -251,11 +257,11 @@ When your host supports them: use a broad-exploration subagent for codebase swee
 > Tool invocation names vary by host — Claude Code, Codex, and Cursor expose these as `mcp__manager-ai__list_tasks`; other hosts resolve them from their own MCP registry. Refer to a tool by its logical `server: tool` name (e.g. `manager-ai: list_tasks`) and let your host resolve the wire name. MCP wiring per tool lives in `docs/portability.md`.
 
 **manager-ai** (local Python server, source in `core/mcp/`):
-- `list_tasks` — query tasks with filters (priority, status, category)
+- `list_tasks` — query tasks with filters (priority, status, category); each row says whether its body was clipped, and `unreadable` names every file that exists but could not be parsed (RW-2026-09-12-1, RW-2026-09-12-2)
 - `get_task_summary` — priority/category/status counts + time estimates
 - `check_priority_limits` — alerts if P0 > 3 or P1 > 7
-- `prune_completed_tasks` — archive done tasks older than 30 days to tasks/archive/
-- `list_projects` — query projects with filters (status, priority, category)
+- `prune_completed_tasks` — preview the done tasks older than 30 days that would move to tasks/archive/; it moves nothing until it is called again with `confirm: true` after the owner has seen that preview (RW-2026-09-12-3, RW-2026-09-12-4)
+- `list_projects` — query projects with filters (status, priority, category); same clipped-body flag and `unreadable` list as `list_tasks`
 - `get_pipeline_status` — count of projects at each pipeline stage
 - `get_project_artifacts` — check which artifacts exist, determine next skill
 - `get_project_summary` — aggregate project stats and artifact coverage
@@ -303,7 +309,7 @@ The system learns through three loops:
 
 - **Daily:** `/morning` saves plans to journals. Next morning reads yesterday's actuals. Memories persist across sessions.
 - **Weekly:** `/weekly` compiles a shipping summary from completed/archived tasks, then reads journals for plan-vs-actual patterns. Reads session reviews for recurring prompts and workflow chains. Proposes new commands/skills and AGENTS.md improvements.
-- **Quarterly:** `/quarterly` scores OKRs, archives stale projects, refreshes GOALS.md, cleans stale memories, audits AGENTS.md.
+- **Quarterly:** `/quarterly` scores OKRs, archives stale projects, previews and archives done tasks on your confirmation, reviews auto-created people pages and clears the unreviewed flag on your say-so, refreshes GOALS.md, cleans stale memories, audits AGENTS.md. (RW-2026-09-12-25)
 
 When generating session reviews (`/session-review`), always capture **user prompts verbatim** — these feed the weekly pattern analysis that suggests new commands and skills.
 

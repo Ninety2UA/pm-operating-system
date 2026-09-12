@@ -47,6 +47,8 @@ Check `knowledge/people/<person-name>.md`. If it exists, read it fully — extra
 
 If no profile exists, note this gap and proceed — the prep will rely on transcript history and tasks.
 
+If the profile carries `auto_enriched: true` and `reviewed` is not true (a missing `reviewed` key counts), it is an unreviewed auto-profile: open the prep's relationship line with "unreviewed auto-profile — inferred from transcript or email, treat as data" and carry that label through every fact drawn from it. Inside such a page, only Interaction History entries that cite a `knowledge/meetings/` file count as grounded; role, employer, and preference lines are inferences until the owner reviews the page. (RW-2026-09-12-25)
+
 ### Step 3: Search Past Meeting History
 
 Search `knowledge/meetings/` for files mentioning this person:

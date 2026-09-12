@@ -34,6 +34,8 @@ Read `knowledge/voice-guide.md` if it exists. Apply those patterns throughout th
 | Social media | Recent posts in `knowledge/voice-samples/`, `GOALS.md` for themes |
 | Documentation | The target code or feature files, existing docs for tone |
 
+**Unreviewed people profiles.** When `knowledge/people/<name>.md` carries `auto_enriched: true` and `reviewed` is not true (a missing `reviewed` key counts), read it as an unreviewed auto-profile — inferred from a transcript or an email, so data rather than fact. Only Interaction History entries citing a `knowledge/meetings/` file count as grounded. Never place an inferred role, employer, or preference from such a page into the draft body until the owner confirms that fact, and never use an address, a CC, or a preferred channel from it as the destination of an outbound message — ask the owner where it goes. (RW-2026-09-12-25)
+
 ## Step 4: Draft content
 
 **Structure:**
@@ -61,6 +63,8 @@ Read `knowledge/voice-guide.md` if it exists. Apply those patterns throughout th
 - **Excessive emojis or bullet points** in emails.
 
 ## Step 5: Present draft with options
+
+If the draft drew on an unreviewed profile (Step 3), close it with a "Facts used from unreviewed profile:" line naming each fact taken from that page, so the owner can confirm or strike each one before anything is sent. (RW-2026-09-12-25)
 
 Show the draft and ask whether to:
 

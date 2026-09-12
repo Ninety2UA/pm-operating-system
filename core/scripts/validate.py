@@ -49,6 +49,16 @@ else:
     encoded = str(ROOT).replace("/", "-")
     MEMORY = Path.home() / ".claude/projects" / encoded / "memory"
 
+# ── Subprocess budgets ────────────────────────────────────────────────
+# Every subprocess this script spawns is time-bounded and catches its own
+# timeout (R8): a hung binary must surface as a named failure carrying the
+# binary and a remedy — never as a hang, a traceback, or a silently emptied
+# result that reads as a clean sweep. (RW-2026-09-12-8)
+SUBPROCESS_TIMEOUT = 10
+# `uv run` may resolve and download dependencies on a cold cache, so the
+# server-import probe (check 27) gets its own, larger budget.
+MCP_IMPORT_TIMEOUT = 30
+
 # ── Reporting ─────────────────────────────────────────────────────────
 issues = []        # fail() — non-zero exit
 warnings_list = [] # warn() — reported but exit 0
@@ -336,8 +346,18 @@ if mcp_path.exists():
         for name, cfg in mcp.get("mcpServers", {}).items():
             cmd = cfg.get("command")
             if cmd and cmd not in ("npx",) and "/" not in cmd:
-                # Check binary on PATH
-                r = subprocess.run(["which", cmd], capture_output=True, text=True)
+                # Check binary on PATH. The timeout is caught here, ahead of
+                # the generic handler below, so a stalled PATH lookup is not
+                # relabelled as a malformed manifest.
+                try:
+                    r = subprocess.run(["which", cmd], capture_output=True,
+                                       text=True, timeout=SUBPROCESS_TIMEOUT)
+                except subprocess.TimeoutExpired:
+                    fail("mcp", f"{name}: `which {cmd}` timed out after "
+                                f"{SUBPROCESS_TIMEOUT}s — the PATH lookup hung, "
+                                f"so availability is unknown; re-run, or fix "
+                                f"the shell environment that stalls `which`")
+                    continue
                 if r.returncode != 0:
                     fail("mcp", f"{name}: command '{cmd}' not on PATH")
     except Exception as e:
@@ -362,7 +382,15 @@ for t in DOCUMENTED_MCP_TOOLS:
 # ─── 15. Setup.sh / init-workspace.sh syntax ──────────────────────
 for script in [ROOT / "setup.sh", ROOT / ".claude/hooks/init-workspace.sh"]:
     if script.exists():
-        r = subprocess.run(["bash", "-n", str(script)], capture_output=True, text=True)
+        try:
+            r = subprocess.run(["bash", "-n", str(script)], capture_output=True,
+                               text=True, timeout=SUBPROCESS_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            fail("shell-syntax", f"{script.relative_to(ROOT)}: `bash -n` timed "
+                                 f"out after {SUBPROCESS_TIMEOUT}s — the syntax "
+                                 f"check did not run; re-run, or check for a "
+                                 f"stalled `bash`")
+            continue
         if r.returncode != 0:
             fail("shell-syntax", f"{script.relative_to(ROOT)}: {r.stderr.strip()}")
 
@@ -375,26 +403,49 @@ for sub in ["library/prompts", "library/systems", "library/skills", "library/age
         fail("empty-dir", f"{sub}/ is empty and has no .gitkeep")
 
 # ─── 17. Broken markdown links in tracked docs ────────────────────
-tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "*.md"],
-                         capture_output=True, text=True).stdout.splitlines()
-for rel in tracked:
-    fpath = ROOT / rel
-    if not fpath.exists(): continue
-    content = fpath.read_text()
-    # Strip fenced code blocks — links inside them are template/example, not real refs
-    stripped = re.sub(r"```.*?```", "", content, flags=re.S)
-    stripped = re.sub(r"`[^`\n]+`", "", stripped)  # inline code too
-    for m in re.finditer(r"\[([^\]]+)\]\(([^)]+)\)", stripped):
-        link = m.group(2)
-        if link.startswith(("http://", "https://", "mailto:", "#")): continue
-        if link.startswith("/"): continue
-        if any(c in link for c in "[]<>{}"): continue
-        if link in ("URL", "url", "path", "filename"): continue
-        target_path = link.split("#", 1)[0]
-        if not target_path: continue
-        target = (fpath.parent / target_path).resolve()
-        if not target.exists():
-            fail("md-link", f"{rel}: broken link '{link}'")
+# The listing feeds checks 17-19. A timeout leaves it unknown, not empty:
+# iterating zero files would report three clean sweeps that never happened.
+tracked = None
+try:
+    _ls = subprocess.run(["git", "-C", str(ROOT), "ls-files", "*.md"],
+                         capture_output=True, text=True,
+                         timeout=SUBPROCESS_TIMEOUT)
+except subprocess.TimeoutExpired:
+    fail("md-link", f"`git ls-files` timed out after {SUBPROCESS_TIMEOUT}s — "
+                    f"the markdown-link, TODO-marker and tracked-noise scans "
+                    f"(checks 17-19) did not run; re-run, or check for a "
+                    f"stalled `git`")
+except OSError as exc:
+    fail("md-link", f"`git ls-files` could not run ({type(exc).__name__}) — "
+                    f"checks 17-19 did not run; is `git` installed?")
+else:
+    if _ls.returncode != 0:
+        fail("md-link", f"`git ls-files` exited {_ls.returncode} — checks 17-19 "
+                        f"did not run; is the repository root a git checkout?")
+    else:
+        tracked = _ls.stdout.splitlines()
+
+if tracked is None:
+    tracked = []  # checks 18-19 have no input either; the failure above says so
+else:
+    for rel in tracked:
+        fpath = ROOT / rel
+        if not fpath.exists(): continue
+        content = fpath.read_text()
+        # Strip fenced code blocks — links inside them are template/example, not real refs
+        stripped = re.sub(r"```.*?```", "", content, flags=re.S)
+        stripped = re.sub(r"`[^`\n]+`", "", stripped)  # inline code too
+        for m in re.finditer(r"\[([^\]]+)\]\(([^)]+)\)", stripped):
+            link = m.group(2)
+            if link.startswith(("http://", "https://", "mailto:", "#")): continue
+            if link.startswith("/"): continue
+            if any(c in link for c in "[]<>{}"): continue
+            if link in ("URL", "url", "path", "filename"): continue
+            target_path = link.split("#", 1)[0]
+            if not target_path: continue
+            target = (fpath.parent / target_path).resolve()
+            if not target.exists():
+                fail("md-link", f"{rel}: broken link '{link}'")
 
 # ─── 18. TODO / NEEDS UPDATE / FIXME markers in tracked docs ──────
 # Only match standalone markers, not documentation that mentions them.
@@ -518,13 +569,19 @@ except Exception:
 
 # ─── 27. MCP server actually starts ──────────────────────────────
 # Run a quick import test, not a full boot (boot would hang waiting for stdin)
-r = subprocess.run(
-    ["uv", "run", "python3", "-c", "import sys; sys.path.insert(0, '.'); import server; print('ok')"],
-    cwd=str(ROOT / "core/mcp"),
-    capture_output=True, text=True, timeout=30,
-)
-if r.returncode != 0 or "ok" not in r.stdout:
-    fail("mcp-boot", f"core/mcp/server.py import failed: {r.stderr[:200]}")
+try:
+    r = subprocess.run(
+        ["uv", "run", "python3", "-c", "import sys; sys.path.insert(0, '.'); import server; print('ok')"],
+        cwd=str(ROOT / "core/mcp"),
+        capture_output=True, text=True, timeout=MCP_IMPORT_TIMEOUT,
+    )
+    if r.returncode != 0 or "ok" not in r.stdout:
+        fail("mcp-boot", f"core/mcp/server.py import failed: {r.stderr[:200]}")
+except subprocess.TimeoutExpired:
+    fail("mcp-boot", f"core/mcp/server.py import timed out after "
+                     f"{MCP_IMPORT_TIMEOUT}s — `uv run` did not finish, so the "
+                     f"server was never imported; re-run (a cold `uv` cache "
+                     f"resolves dependencies on first use)")
 
 # ─── 28. Bidirectional registry parity (CRIT-03) ─────────────────
 # Every SKILL.md on disk must appear in CLAUDE.md (under `## Skills` or as a
@@ -600,7 +657,14 @@ for skill, deps in SKILL_EXTERNAL_DEPS.items():
         if not (ROOT / ".claude/commands" / f"{skill}.md").exists():
             continue
     for dep in deps:
-        r = subprocess.run(["which", dep], capture_output=True, text=True)
+        try:
+            r = subprocess.run(["which", dep], capture_output=True, text=True,
+                               timeout=SUBPROCESS_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            warn("external-dep", f"/{skill} depends on '{dep}' — `which {dep}` "
+                                 f"timed out after {SUBPROCESS_TIMEOUT}s, so "
+                                 f"availability is unknown; re-run")
+            continue
         if r.returncode != 0:
             warn("external-dep", f"/{skill} depends on '{dep}' — not on PATH")
 
@@ -694,7 +758,7 @@ if (ROOT / ".agents" / "skills").exists():
 else:
     warn("adapter-parity", "adapters not generated — run: uv run core/scripts/build_adapters.py")
 
-# ─── 39-50. Modernized-bar enforcement (U14) ─────────────────────
+# ─── 39-52. Modernized-bar enforcement (U14) ─────────────────────
 # Extracted to validate_checks.py so each is fixture-testable in isolation
 # (core/scripts/tests/test_validate_checks.py). Fail-class first, then warns.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -733,12 +797,20 @@ try:
         warn("ledger-link", msg)
     for msg in vc.check_live_registry(ROOT):
         warn("live-registry", msg)
+    # Both read the git index — tracked data, so warn-class in the default
+    # run rather than a --staleness-report section (KTD7).
+    for msg in vc.check_privacy_placement(ROOT):
+        warn("privacy-placement", msg)
+    for msg in vc.check_tracked_tree_hygiene(ROOT):
+        warn("tree-hygiene", msg)
 except Exception as e:
     fail("u14-checks", f"enforcement checks errored: {e}")
 
-# --staleness-report: a local-only warn mode over gitignored data (KTD5):
-# project specs with retired model IDs (R17), watcher reports older than
-# 14 days, and projects whose Progress Log never records their status.
+# --staleness-report: a local-only warn mode over gitignored data (KTD5),
+# five sections: project specs with retired model IDs (R17), watcher reports
+# older than 14 days, projects whose Progress Log never records their status,
+# unfilled template tokens under projects/ and tasks/, and synthesized
+# artifacts whose `sources:` pointer is missing or dangling.
 if "--staleness-report" in sys.argv:
     try:
         print("\n── Staleness report (local-only, warn-only) ──")

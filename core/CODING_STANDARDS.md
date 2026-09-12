@@ -38,6 +38,16 @@ residual net, not by this file.
   reports the path and the instructing sentence's location, not file contents.
 - **No user paths.** Check 37 fails the validator if it hardcodes a home
   directory; derive every path from `ROOT`.
+- **Bounded subprocesses.** Every synchronous `subprocess` call in
+  `core/scripts/*.py` and `core/mcp/*.py` passes an explicit `timeout` above
+  zero and no higher than 600 s and catches its own `TimeoutExpired`, so a
+  hung binary surfaces as a named failure carrying the binary and the remedy,
+  never as a hang or an emptied result that reads as a clean sweep. The spawn
+  lint in `core/scripts/tests/test_source_lints.py` parses the tracked sources
+  as an AST and fails on a missing timeout and on one that is `None`, zero,
+  negative, or over the ceiling; a non-literal value is trusted and `Popen` is
+  a documented gap, because there the bound lives on the pipe handling.
+  (RW-2026-09-12-8)
 
 ## Writes
 
@@ -100,6 +110,27 @@ residual net, not by this file.
 - **Fixtures under `tmp_path`, tests under `core/scripts/tests/`.** The global
   `.gitignore` drops `test_*.py` everywhere else, so a test elsewhere is
   silently untracked.
+- **The suite never touches the live account.** `conftest.py` moves `HOME` and
+  `XDG_CONFIG_HOME` into a throwaway directory in `pytest_sessionstart` —
+  before collection, because a module can bind `Path.home()` at import time —
+  and forwards only the `uv` cache, the `uv` python directory, and the memory
+  directory so the run neither re-downloads nor loses validator coverage. A
+  function-scoped watch snapshots the four live config files and every file
+  under the memory directory by existence, size, and content digest, and fails
+  the offending test by name in `~/...` form. A subprocess launched with an
+  explicit `env=` dict never sees the sandbox and resolves the real home
+  through the password database: pass `{**os.environ, ...}` unless isolation is
+  the point. No test ever writes to a watched file to prove the watch — a drill
+  injects its own home under `tmp_path` and the watch over the real one stays
+  enforcement only. (RW-2026-09-12-11, RW-2026-09-12-12)
+- **A test that greps a committed artifact needs an allow-list entry.** The
+  source-grep lint in `core/scripts/tests/test_source_lints.py` fails any test
+  function that reads a skill, agent, command, hook, or script as text and then
+  searches that text; the exemptions are `(file, function, reason)` triples
+  whose length must equal a ceiling constant, so adding one is a visible diff
+  line and the PR that raises the ceiling states why the test cannot be made
+  behavioural. An entry whose function no longer greps is reported stale and is
+  removed rather than kept. (RW-2026-09-12-13)
 - **Hook events are a closed set.** `VALID_HOOK_EVENTS` in `validate.py` is
   the nine-event set the platform documents; extend it from the hooks
   reference, never from a skill's example.

@@ -243,7 +243,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 |---------|-------------|-------|
 | `/morning` | Daily standup with meeting sync, top tasks, pipeline, OKRs, and journal save | `/morning` or `/morning quick` |
 | `/weekly` | Weekly review with plan-vs-actual analysis, session patterns, and learning extraction | `/weekly` or `/weekly quick` |
-| `/quarterly` | Quarterly review: OKR scoring, project purge, goals refresh, system audit | `/quarterly` or `/quarterly quick` |
+| `/quarterly` | Quarterly review: OKR scoring, project purge, done-task archive (previewed, applied on your confirmation), people-page review, goals refresh, system audit | `/quarterly` or `/quarterly quick` |
 | `/process-backlog` | Process BACKLOG.md with duplicate detection against existing tasks and projects | `/process-backlog` |
 | `/launch` | Full evaluation pipeline with Go/No-Go gates at each stage | `/launch my-project` or `/launch my-project --from gtm-plan` |
 | `/write` | Generate content (blog posts, emails, social) in your authentic voice | `/write blog-post AI trends` |
@@ -401,11 +401,11 @@ The manager-ai MCP server provides 11 tools for task and project management. It 
 
 | Tool | Description |
 |------|-------------|
-| `list_tasks` | Query tasks with filters (priority, status, category) |
+| `list_tasks` | Query tasks with filters (priority, status, category) — flags clipped bodies, lists files it could not parse |
 | `get_task_summary` | Priority/category/status counts with time estimates |
 | `check_priority_limits` | Alerts if P0 > 3 or P1 > 7 |
-| `prune_completed_tasks` | Archive done tasks older than 30 days |
-| `list_projects` | Query projects with filters (status, priority, category) |
+| `prune_completed_tasks` | Preview the done tasks older than 30 days that would be archived; moves them only on an explicit `confirm: true` |
+| `list_projects` | Query projects with filters (status, priority, category) — flags clipped bodies, lists files it could not parse |
 | `get_pipeline_status` | Count of projects at each pipeline stage |
 | `get_project_artifacts` | Check which evaluation artifacts exist |
 | `get_project_summary` | Aggregate project stats and artifact coverage |
@@ -573,7 +573,7 @@ uv run core/scripts/validate.py
 
 Inline `# /// script` metadata auto-installs `pyyaml`, so no venv setup is needed.
 
-**50 deterministic checks** span the entire framework:
+**52 deterministic checks** span the entire framework:
 
 | Category | What it catches |
 |---|---|
@@ -585,6 +585,7 @@ Inline `# /// script` metadata auto-installs `pyyaml`, so no venv setup is neede
 | **Pipeline conformance** | Projects at `evaluating`/`ready`/`active` have the expected artifacts (validation brief, pre-mortem, PRD, user stories) — reported as warnings, not failures |
 | **External deps** | Skills that need `npm`, `gh`, `gws`, etc. flag missing CLIs as warnings |
 | **Hygiene** | Tracked `.DS_Store` / `node_modules`, `TODO`/`FIXME` markers in shipped docs, stale lock files outside `.gitignore`, a UTF-8 BOM at the top of any framework markdown or doc file (Claude Code silently ignores such files), hardcoded user paths in the validator itself |
+| **Tracked-tree hygiene** | Files the repository's own ignore rules cover but git still tracks — an ignore rule has no effect on a file already in the index, so the rule reads as enforced while the file ships to every clone — plus tracked symlinks and pairs of tracked paths that collide under case folding. Both checks read the git index rather than the filesystem, and both evaluate only the repository's own rules, never the user's global exclude file, so the answer is the same on every machine |
 | **Model currency** | No framework file references a retired model ID; every skill, agent, and command carries a deliberate `model:` assignment (a pin or explicit `inherit`) |
 | **Degradation coverage** | Every adopted Claude-native capability that lands in a generated body ships a degradation rule (a fenced fallback or a renderer mapping), so the portable `.agents/skills/` tree stays free of Claude-only tokens |
 | **Secret hygiene** | Blocking scan of tracked, portfolio-public artifacts (`docs/ledger/`, `docs/capabilities.md`, `core/watchers/`) for credential-shaped strings, plus a warn-class lint over the skill, agent, and command catalog for prose that tells an agent to read a credential-shaped path — a read the report-only guard would deny — both with an inline `# secret-scan: allow` escape |
@@ -593,7 +594,7 @@ Inline `# /// script` metadata auto-installs `pyyaml`, so no venv setup is neede
 | **Backup coverage** | Warns when the framework cannot be recreated from its remote — no `origin`, or `main` ahead of its upstream — so a local-only copy never passes as backed up |
 | **Adapter manifest** | Generated `.agents/skills/`, `.codex/agents/`, and `.cursor/agents/` trees match the `.claude/` source, and `.agents/skills.lock.json` matches the generated bytes — reported as `missing`, `orphan`, `stale`, `leftover`, or `manifest` verdicts |
 
-**Exit codes:** `0` clean, `1` findings, `2` missing `pyyaml` (should not happen thanks to inline deps). Warnings (non-blocking) are reported separately and never affect the exit code. The documented warn classes are `pipeline-artifact`, `external-dep`, `lock-hygiene`, `ledger-link`, `live-registry`, `secret-bypass`, `backup-coverage`, and the `guard-wiring` timeout notice — green means zero failures with warnings only in those classes; a warning in any other class is drift to fix. Pass `--staleness-report` for a local-only, warn-only pass over gitignored data: project specs that name retired model IDs, watcher reports older than 14 days, and projects whose Progress Log never records their status.
+**Exit codes:** `0` clean, `1` findings, `2` missing `pyyaml` (should not happen thanks to inline deps). Warnings (non-blocking) are reported separately and never affect the exit code. The documented warn classes are `pipeline-artifact`, `external-dep`, `lock-hygiene`, `ledger-link`, `live-registry`, `secret-bypass`, `backup-coverage`, `privacy-placement`, `tree-hygiene`, and the `guard-wiring` timeout notice — green means zero failures with warnings only in those classes; a warning in any other class is drift to fix. Pass `--staleness-report` for a local-only, warn-only pass over gitignored data, in five sections: project specs that name retired model IDs, watcher reports older than 14 days, projects whose Progress Log never records their status, unfilled template placeholders under `projects/` and `tasks/` (code spans and fenced blocks are masked first, so a template shown as an example is not a finding), and synthesized artifacts — session reviews, weekly and quarterly summaries — whose `sources:` pointer is missing or names a file that no longer exists.
 
 Run it before any PR. The validator is also the canonical answer to "is my framework healthy?" — drift accumulates, and the earlier you catch it the cheaper it is to fix.
 
@@ -628,7 +629,7 @@ The unattended path is wrapped in five independent layers — a restricted tool 
 - **Fail-closed guard.** The `PreToolUse` guard parses tool calls with a real JSON parser and denies on any doubt — schemeless URLs, path traversal, credential-store reads (matched case-insensitively), a tool field carrying a line break, path-less or out-of-project `Read`/`Grep`/`Glob`, any write that is not the run lock or today's report, unexpected exits — rather than allowing on error. Every external step runs under a 10-second stall budget and `TERM`/`HUP`/`INT` are trapped into the same deny path, so a hung or killed guard blocks the call instead of being skipped. Allowed fetches are logged by full URL with secret-shaped query and fragment parameters redacted.
 - **Defang on ingestion.** Web content fetched by the watchers is neutralized before it lands in a report: links, autolinks, code-fence info strings, reference definitions, and HTML blocks are all defused so a malicious changelog can't smuggle instructions to the next session that reads the report.
 - **Adversarially reviewed.** The guard and defang layers went through nine rounds of adversarial review — each round attempting fresh bypasses (GFM tables, block interrupters, balanced-bracket links, control-character escapes) until a full round produced no new findings.
-- **Validator-enforced.** Checks 39–50 keep the roster current and tiered, every framework file BOM-free, the guard wired without a fail-open timeout, the secret scan green, the degradation rules present, the catalog free of secret-bypass instructions, and the remote a full backup — the hardening can't silently rot.
+- **Validator-enforced.** Checks 39–52 keep the roster current and tiered, every framework file BOM-free, the guard wired without a fail-open timeout, the secret scan green, the degradation rules present, the catalog free of secret-bypass instructions, the tracked tree free of ignored files, symlinks and case collisions, and the remote a full backup — the hardening can't silently rot. Every subprocess the validator spawns is time-bounded and reports its own timeout by name, so a hung binary can never read as a check that passed.
 
 ---
 
@@ -642,6 +643,7 @@ Contributions are welcome. Please:
 - After editing anything under `.claude/skills`, `.claude/agents`, or `.claude/commands`, run `uv run core/scripts/build_adapters.py` and commit the regenerated `.agents/`, `.codex/`, `.cursor/` trees and `.agents/skills.lock.json` in the same commit
 - Include documentation for new features
 - Test that `setup.sh` still works after your changes
+- Give every PR its two disclosure lines — whether the change touches a security-relevant surface, and whether an AI agent wrote any of it (named as the identity the agent can actually report). Report a vulnerability privately through the Security tab instead of a public issue; the reporting path, the checks that run, and the trust model behind installed skills are in [SECURITY.md](SECURITY.md)
 - **Run all three gates before opening a PR:** `uv run core/scripts/validate.py` must end `✓ ALL CHECKS PASS`, `uv run core/scripts/build_adapters.py --check` must exit 0, and `uv run --with pytest --with pyyaml pytest core/scripts/tests/ -q` must pass — quote their output in the PR. The full gate list, and the intent-paragraph plus screenshot rule for `docs/`-facing PRs, is in [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---

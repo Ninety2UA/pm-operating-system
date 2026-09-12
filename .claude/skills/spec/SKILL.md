@@ -140,6 +140,10 @@ Read the template at `.claude/skills/spec/references/spec-template.md` and fill 
 
 **Stage-scaling (key off PRD depth, not the status label):** emit the **full** spec — pinned manifest, file tree, Test List, ≥12-task WBS, full toolkit/design tables — whenever `prd.md` is a full PRD (has a §5.4 Functional Requirements section, or is more than ~100 lines). Emit the **thin skeleton** (§0–§4 + §7 Context-level + §25 one-liners; render §5/§6/§19/§20/§21/§22 as `N/A — populated once the PRD is built out`) ONLY when `prd.md` is an idea-stage *speclet* (the 4-slot version with no FRs). Rationale: projects often sit at `project_status: idea` while carrying a full PRD + artifacts — scale off what the PRD actually contains so a rich PRD always yields a rich spec.
 
+**One-way doors (§23 → §25):** every §23 ADR carries `**Reversibility:** easy | hard | irreversible — <rationale>`, and the rationale names the migration, contract, or dependent system that makes the undo expensive — "hard to change" is not a rationale, and unsure rates `easy`, because a spec that rates everything irreversible gates nothing. (RW-2026-09-12-15) The rating is on the decision the task implements, not on how hard the work is. For an `irreversible` rating the ADR's `**Confirmation:**` field names the gate that must clear before the dependent task starts, and the §25 milestone holding that task gains the acceptance line `one-way door ADR-n confirmed`. This skill records and places the door and never stops for one; the confirmation beat fires in `/launch`, where a human is present.
+
+**Failing direction (§19 → §25):** every automated §19 Test List row states in its `fails when` column the observable signal that shows the check did its work — a non-zero exit, a named string in the output, a missing line. (RW-2026-09-12-16) The authoring test is: if this command were silently doing nothing, what in its output would tell me? With no answer, fix the command instead of inventing a signal. Manual-lane rows carry `manual` instead, which is this system's own escape and never a licence to leave an automated row bare. Reject whole-value placeholders (`TBD`, `TODO`, `N/A`, `none`, `unknown`, `?`, `-`, any case) and bare restatements that carry no information (`the command fails`, `it errors`). Each §25 Acceptance & Verification command carries the same signal as `→ fails when: <signal>`, or is marked `manual:`.
+
 Sections render `N/A — <justification>` when inapplicable (e.g., `§22: N/A — no user-facing UI; interface contracts in §11`). Never omit sections. Write for clarity — JSON blocks for payloads, Markdown tables for data, Mermaid for diagrams. Opinionated over vague.
 
 **Diagrams (§7/§8):** Mermaid by default (batch-safe). On the `--ask` path, OFFER to render the C4 + runtime diagrams as editable Excalidraw artifacts via `/excalidraw` into `projects/<project-name>/diagrams/` (requires the canvas server on :3000 — if it's not up, note that and keep Mermaid). Link any rendered artifacts in §28.
@@ -160,16 +164,22 @@ After saving, run these checks and print a structured review. **Do not block the
 
 **(4) Anti-patterns scan:** the 18-item check from `references/anti-patterns.md`.
 
-**(5) Over-scope scan:** list every §20 task carrying an `over-scope` tag with its preferred option (Step 7 minimum-solution check). The scan reports; it never edits scope.
+**(5) Over-scope scan:** list every §20 task carrying an `over-scope` tag with its preferred option (Step 7 minimum-solution check). The scan reports; it never edits scope. Render each entry as `T### (task title)` so the line reads without a lookup. (RW-2026-09-12-17)
+
+**(6) One-way door placement:** flag every §23 ADR rated `irreversible` whose `**Confirmation:**` names no gate, or whose named gate has no matching acceptance line in the §25 milestone holding the dependent task. (RW-2026-09-12-15) Report the gap; never rewrite the rating.
+
+**(7) Failing-direction coverage:** count the automated §19 rows and §25 commands that state a failing direction, list the ids that state none, and flag any value that is a placeholder or a restatement. (RW-2026-09-12-16) Quote the row as written — never author the signal on the spec's behalf, because a prescribed one is copied verbatim and carries no information.
 
 ```
 Spec Review: <project-name>
 
 Coverage: N/M PRD FRs traced to component+task+test  (P0: X/Y)
 Completeness: X/29 sections populated (N/A-with-justification counts as populated)
-Over-scoped: K tasks (T### → prefer <option>, …) | none
+Over-scoped: K tasks (T### (task title) → prefer <option>, …) | none
+One-way doors: K irreversible ADRs (ADR-n (title) → confirmed at <gate>, …) | none
+Failing direction stated: N of M automated rows
 Issues (K):
-  1. [#N <name>] <one-line description>. Fix: <specific suggestion>.
+  1. [#N <name>] <what it costs if this ships unchanged — no bare identifier>. Fix: <one sentence of intent>. Basis: <at most two sentences>.
 Strengths:
   ✅ <at least one — what the spec does well>
 Readiness: Ready for review | Minor gaps | Major gaps
@@ -180,11 +190,13 @@ Second-opinion trigger: No | Yes (<reason>)
 
 **Second-opinion trigger = Yes** if `Major gaps`, OR P0 Coverage <100%, OR the spec describes an AI/LLM surface but §18.A is absent / ships <5 Good / <5 Bad / <6 Reject, OR §21/§22 names a code generator without a §19 generated-code-review lane + §18 SAST control.
 
+Each Issues line is decision-first: the opening sentence is the cost of leaving the finding as it stands and carries no bare identifier, the Fix is one sentence of intent, and the Basis is at most two sentences with the full trace available on request. (RW-2026-09-12-18) Gloss every document identifier at its first mention in a line — `ADR-3 (SQLite over Postgres)`, `T012 (parse CSV header)`, `FR-2 (anomaly severity)` — and leave later mentions in that line bare; when the title has fallen out of context, re-read the section rather than print a bare id. (RW-2026-09-12-17)
+
 If 0 issues, render `Issues: none`. Always emit ≥1 Strength.
 
 ### Step 10: Present Summary
 
-Print: one-line project description · system shape (§0) · primary stack one-liner (frontmatter `primary_stack`) · P0 components (§10) · WBS task count + first milestone · INFERRED count + top 3 inferred slots · **Coverage + Readiness verdict (Step 9.5)** · any quality flags · over-scoped task count (Step 9.5) · suggested next step:
+Print: one-line project description · system shape (§0) · primary stack one-liner (frontmatter `primary_stack`) · P0 components (§10) · WBS task count + first milestone · INFERRED count + top 3 inferred slots · **Coverage + Readiness verdict (Step 9.5)** · any quality flags · over-scoped task count (Step 9.5) · the one-way doors: each irreversible §23 ADR as `ADR-n (title)` with the gate that confirms it, or `none` · failing-direction coverage (Step 9.5) · suggested next step:
 - `project_status == ready`/`active` → `"Run /user-stories <name> --tasks — it will consume this spec's WBS T-IDs."`
 - 3+ INFERRED → `"Consider /spec <name> --ask to firm up the inferred choices (and run live skill/MCP discovery)."`
 - stories exist → `"Run /sprint-plan to pick this week's slice from the spec's WBS."`
@@ -217,12 +229,14 @@ Before saving, verify:
 - [ ] §7 C4 (Context + Container min) with protocol-labeled edges (or `N/A — single binary`)
 - [ ] §1 Build Constitution present; every deviation has a §1.1 row + §23 ADR
 - [ ] §19 Test List: every P0 acceptance criterion → ≥1 named test ordered before its impl task
+- [ ] §19 every automated row and §25 command states its failing direction or is marked manual
 - [ ] §20 WBS ≥12 tasks (active stage) with stable T-IDs, file path + FR back-ref + paired test per impl task, `[P]` markers, per-milestone Checkpoints, dependency graph
 - [ ] §20 minimum-solution check run: over-scoped tasks tagged and reported; requested scope and locked decisions untouched
 - [ ] §21 Build Toolkit gate met (agent + in-repo skills + MCP `Server: tool` + find-skills pointers, all traceable)
 - [ ] §22 Design pipeline present (or justified `N/A` for headless); generated-code review lane exists if a generator is named
 - [ ] §18.A AI Behavior Contract filled (5/5/6 + budget) if AI surface detected, else `N/A — no model-call surface`
 - [ ] §23 MADR ≥3 records with Confirmation/revisit-when; substantial ones emitted to `knowledge/decisions/`
+- [ ] §23 every ADR rated easy/hard/irreversible with a rationale naming the migration, contract, or dependent system; every irreversible one names its gate and has the matching §25 acceptance line
 - [ ] §25 every milestone ends in an executable Acceptance & Verification command
 - [ ] Saved to `projects/<project-name>/spec.md`; `idea.md` `resource_refs` updated; `project_status` NOT changed
 - [ ] Step 9.5 Coverage + soft flags printed

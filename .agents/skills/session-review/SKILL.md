@@ -4,7 +4,7 @@ description: |-
   Captures a structured review of the current Claude Code session — user prompts verbatim, tools used, workflow chains, what worked, missing capabilities — and saves it to knowledge/session-reviews/ for weekly pattern analysis. Use this skill whenever the user says "review this session", "save session learnings", "what did we do", "capture what we learned", "session review", at the end of long or significant sessions, when the session-end reflection rule in AGENTS.md fires, or after a substantial work session — even if the user doesn't use the word "review."
 argument-hint: "(no arguments — uses the current session)"
 generated_from: .claude/skills/session-review/SKILL.md
-source_sha256: f54b3f293066e2a50c983d83f9e416ea51a35cf29fc7f86293537dafa0ae03e7
+source_sha256: ca920a8c531a6490af86112bd556c419adaf06eae811fd1ec07dfaf6c91dde70
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -70,9 +70,13 @@ judgement: [suggested judgement]
 commands_used: [list]
 skills_used: [list]
 tools_used: [list of MCP tools]
+sources: [today's journal path, plus each knowledge/ file this session read]
 reviewed: false
 ---
 # Session Review: [Brief Description]
+
+## Summary
+[2-3 sentences someone who never saw this session can act on: what the session was, what came out of it, and the one thing to carry forward. No transcript references, no bare identifiers.]
 
 ## User Prompts (Verbatim)
 - "[exact prompt 1]"
@@ -130,6 +134,8 @@ Tell the user:
 - Don't include trivial prompts like "yes", "ok", "continue". Capture the substantive requests.
 - `## Missing Capabilities` directly feeds the weekly pattern analysis that suggests new commands/skills.
 - `## Skill gaps` is input to `/weekly`: its before-measurement for rewrite proposals counts these entries per skill, so quote the misleading excerpt exactly and write `(none observed)` rather than omitting the section. (RW-2026-09-11-7)
+- `## Summary` comes before the verbatim prompts and stands on its own. `/weekly` triages a week of reviews from these paragraphs, so write it for a reader who has no access to the transcript and gloss any identifier the session coined. (RW-2026-09-12-19)
+- `sources:` lists the journal and the `knowledge/` files this review was built from, as repo-relative paths. A synthesized artifact that names no raw source cannot be checked against one later, and the local staleness report flags both the missing pointer and a pointer to a file that no longer exists. (RW-2026-09-12-10)
 - Reviews are read by `/weekly` command for pattern analysis across the week's sessions.
 
 ## Attribution rule

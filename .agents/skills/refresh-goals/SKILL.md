@@ -4,7 +4,7 @@ description: |-
   Reviews and fills gaps in GOALS.md through conversational questions, refreshing quarterly focus, top 3 priorities, and 12-month success criteria. Use this skill whenever the user says "refresh goals", "my goals are stale", "update GOALS.md", "I need to rethink my goals", "quarterly goal refresh", "fill in my north star", when GOALS.md has empty sections, at the start of a new quarter, or when the user expresses uncertainty about direction — even if they don't explicitly ask to refresh goals.
 argument-hint: "[--section <section-name>]"
 generated_from: .claude/skills/refresh-goals/SKILL.md
-source_sha256: 7e2dc3f7b274b986b84b76a8091e5f17d6fb5da3bbe7d7a0afd42f84a64c09c7
+source_sha256: ab24afef967e7691601b057d5ca5ba3a858f8fa7580ec6dc9a51b07dffab6bc3
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -75,6 +75,10 @@ For each empty section, ask a focused question. Batch related questions together
 ### Step 4: Update GOALS.md
 
 After getting answers, update GOALS.md with the user's responses. Keep their voice and phrasing — don't rewrite into corporate speak.
+
+Prefer a targeted edit over a whole-file write: change the section that moved and leave the rest of the file as it stands.
+
+Before replacing `GOALS.md` wholesale, compare line counts — the current file's and the replacement's, never bytes. If the current file has 40 or more lines and the replacement has fewer than 40% of them, stop, show both counts, and ask before writing. The rule is advisory prose, not an enforced gate: it judges one write at a time, so erosion spread across several smaller rewrites goes unseen, and nothing but this step stands between a confident rewrite and a collapsed file. (RW-2026-09-12-20)
 
 Update the "Last updated" date at the top.
 

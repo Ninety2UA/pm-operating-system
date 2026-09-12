@@ -4,7 +4,7 @@ description: |-
   Syncs new Granola meetings into knowledge/meetings/ organized by date, enriches knowledge/people/ with interaction history, and cross-references action items to tasks. Use this skill whenever the user says "sync my meetings", "pull in new Granola meetings", "update my meeting notes", "check for new meetings", "sync Granola", or mentions recent meetings that haven't been captured — even if they don't explicitly request a sync.
 argument-hint: "[--all | --skip | --since YYYY-MM-DD]"
 generated_from: .claude/skills/meeting-sync/SKILL.md
-source_sha256: 53e96a4026f09747e8a8206213576e2b9873411cb8e4b5e476a34afb2598c7dc
+source_sha256: 16880b79bd66a81a0857094ab0606d526c14cfd925bf378aed9a796b34515df7
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -141,7 +141,9 @@ For "Create tasks" / "Both": create files in `tasks/` using the standard task te
 
 ### Step 7: Update People Profiles
 
-For each attendee, enrich `knowledge/people/<firstname-lastname>.md` following the procedure at `references/people-enrichment.md`. The reference covers the People template structure, gws email enrichment, and group dynamics.
+For each attendee, enrich `knowledge/people/<firstname-lastname>.md` following the procedure at `references/people-enrichment.md`. The reference covers the People template structure, gws email enrichment, group dynamics, the attribution gate, and the unreviewed-page keys.
+
+Close the step by returning the count of pages this run left unreviewed — created, filled with inferred sections, or enriched from email, so carrying `auto_enriched: true` with `reviewed` not true — as "N people pages unreviewed", so `/morning` can surface it without opening a profile. Zero is still reported. (RW-2026-09-12-25)
 
 ### Step 8: Continue
 

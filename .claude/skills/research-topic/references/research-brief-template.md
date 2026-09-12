@@ -23,9 +23,20 @@ project_ref: projects/<name>/idea.md  # only for /validate
 [2-3 paragraph executive summary of findings]
 
 ## Key Findings
-- Finding 1 [source citation number]
-- Finding 2 [source citation number]
-- Finding 3 [source citation number]
+
+Every claim carries exactly one disposition. Supported and Refuted each need a structured-citation
+number whose source is on that claim's subject; anything else is Insufficient evidence. Omit a
+subsection with no claims. If every claim landed in Insufficient evidence, say so in one line — that
+is itself the finding. (RW-2026-09-12-23)
+
+### Supported
+- Claim as the sources support it [n]
+
+### Refuted
+- Claim, then what the source corrects [n]
+
+### Insufficient evidence
+- Claim — reason: no citation | off-subject source | sources conflict | guardrail fired | untagged
 
 ## Competitors / Market Landscape
 [For /validate: direct competitors, positioning, pricing signals]

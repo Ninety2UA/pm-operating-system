@@ -47,6 +47,8 @@ Read all available project artifacts:
 4. `projects/<project-name>/gtm-plan.md` (if exists — key source for market risks)
 5. `projects/<project-name>/user-stories.md` (if exists — key source for execution risks)
 6. `knowledge/research/projects/<project-name>.md` (if exists — competitor/market risks)
+7. `projects/<project-name>/spec.md` (if exists — §23 Architecture Decisions carry the reversibility rating)
+8. Glob `knowledge/decisions/*<project-name>*` (if any — decision records with their own reversibility assessment)
 
 The more artifacts available, the richer the pre-mortem. Minimum requirement is idea.md.
 
@@ -75,6 +77,8 @@ For each **relevant** category, generate 1-3 specific failure scenarios grounded
 
 Read the template at `.claude/skills/pre-mortem/references/pre-mortem-template.md` and fill each section from the project context and failure scenarios generated in Step 5.
 
+The document opens with `## One-way doors`, above the Risk Matrix: every decision rated `irreversible` in the spec's §23 or in a decision record read at Step 3, with what the undo would cost and whether it has been confirmed yet. (RW-2026-09-12-15) Write "No one-way doors recorded." when there are none — silence reads as "none found" and "none looked for" alike. A door is not a risk row; it is a decision the project cannot take back, and it belongs where the reader meets it first.
+
 ### Step 7: Save the Pre-mortem
 
 Save to `projects/<project-name>/pre-mortem.md`.
@@ -85,7 +89,7 @@ Add `projects/<project-name>/pre-mortem.md` to the idea.md `resource_refs` array
 
 ### Step 8.5: Quality Flags (soft, non-blocking)
 
-After saving, run the 8-item anti-patterns check from
+After saving, run the 9-item anti-patterns check from
 `.claude/skills/pre-mortem/references/anti-patterns.md` against the pre-mortem you
 just wrote. Print a structured review in this exact shape:
 
@@ -93,9 +97,10 @@ just wrote. Print a structured review in this exact shape:
 Pre-mortem Review: <project-name>
 
 Completeness: X/<N> risks with owner + trigger + score
+One-way doors: K (ADR-n (title) → <undo cost>, …) | none recorded
 Issues (K):
-  1. [#N <name>] <one-line description>. Fix: <specific suggestion>.
-  2. [#N <name>] <one-line description>. Fix: <specific suggestion>.
+  1. [#N <name>] <what it costs if this stands — no bare identifier>. Fix: <one sentence of intent>. Basis: <at most two sentences>.
+  2. [#N <name>] <what it costs if this stands — no bare identifier>. Fix: <one sentence of intent>. Basis: <at most two sentences>.
 Strengths:
   ✅ <at least one — what the pre-mortem does well>
 Readiness: Ready for review | Minor gaps | Major gaps
@@ -111,6 +116,13 @@ Second-opinion trigger: No | Yes (<reason>)
 `Go` recommendation despite any critical-severity risk having no kill criterion
 (anti-pattern #5).
 
+Each Issues line is decision-first: the opening sentence is the cost of leaving the
+finding as it stands and carries no bare identifier, the Fix is one sentence of
+intent, and the Basis is at most two sentences with the full trace available on
+request. (RW-2026-09-12-18) Gloss every identifier at its first mention in a line —
+`Risk 3 (first false positive)`, `ADR-2 (single-tenant schema)` — and leave later
+mentions in that line bare. (RW-2026-09-12-17)
+
 If 0 issues, the Issues block renders `Issues: none`. Always emit at least one
 Strength — if nothing stands out, name the single most credible risk identified.
 
@@ -119,6 +131,7 @@ Strength — if nothing stands out, name the single most credible risk identifie
 ### Step 9: Present Summary
 
 Present:
+- One-way doors recorded, each as `ADR-n (title)` with its undo cost, or "none recorded"
 - Total risks identified and severity breakdown
 - Top 3 critical/high risks with one-line descriptions
 - Go / No-Go recommendation

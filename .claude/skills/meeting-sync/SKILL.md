@@ -146,7 +146,9 @@ For "Create tasks" / "Both": create files in `tasks/` using the standard task te
 
 ### Step 7: Update People Profiles
 
-For each attendee, enrich `knowledge/people/<firstname-lastname>.md` following the procedure at `.claude/skills/meeting-sync/references/people-enrichment.md`. The reference covers the People template structure, gws email enrichment, and group dynamics.
+For each attendee, enrich `knowledge/people/<firstname-lastname>.md` following the procedure at `.claude/skills/meeting-sync/references/people-enrichment.md`. The reference covers the People template structure, gws email enrichment, group dynamics, the attribution gate, and the unreviewed-page keys.
+
+Close the step by returning the count of pages this run left unreviewed — created, filled with inferred sections, or enriched from email, so carrying `auto_enriched: true` with `reviewed` not true — as "N people pages unreviewed", so `/morning` can surface it without opening a profile. Zero is still reported. (RW-2026-09-12-25)
 
 ### Step 8: Continue
 

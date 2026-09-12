@@ -85,6 +85,8 @@ Focus on products launched or updated since 2024.
 
 Do NOT ask for URLs in the prompt. Do NOT use role-playing instructions like "Act as a market researcher."
 
+Add one instruction to the prompt: try to refute each finding against a primary source before reporting it, and label each finding with its citation number. In the brief, each finding is then Supported (an on-subject citation survives the refute attempt), Refuted (an authoritative source contradicts it — keep the correction and its citation), or Insufficient evidence with one reason. A secondary or off-version source that disagrees can only move a claim to Insufficient, never to Refuted. (RW-2026-09-12-23)
+
 **Network retry:** If the call fails with a network error (e.g., `TypeError: fetch failed`, timeout, or HTTP 5xx from the Perplexity MCP), retry the call exactly once before declaring failure. Do not retry beyond once.
 
 ### Step 6: Social Sentiment Call
@@ -116,6 +118,7 @@ If pattern 2 is detected:
 - Reduce that section to general directional themes only (e.g., "users report pricing-hike sentiment" — without specific numbers).
 - Add a ⚠ data-quality warning in the brief's Social Sentiment section: "Response lacked structured citations — themes treated as directional only; specifics omitted."
 - In the Review Notes (Step 8), explicitly flag the hallucination pattern.
+- Write every would-be Supported claim in that section as Insufficient evidence with reason `guardrail fired`. Refuted claims are unaffected — the guardrail suppresses unearned confidence, not corrections. (RW-2026-09-12-23)
 
 ### Step 7: Combine into Research Brief
 
@@ -132,6 +135,7 @@ Use only URLs from the structured `citations` field in sources — never use inl
 - **Completeness:** Are all sections filled with real data, not generic filler?
 - **Source quality:** Do citations look structurally plausible and recent?
 - **Citation presence (re-check):** Does each section that quotes specifics (numbers, named tools, thread titles) trace back to a citation? If a section contains specifics from an uncited response, scrub the specifics and replace with directional themes only.
+- **Dispositions:** Does every Key Finding sit under Supported, Refuted, or Insufficient evidence? Move any specific that traces to no citation, or whose citation is off the claim's subject, to Insufficient evidence with its reason; an untagged finding is Insufficient with reason `untagged`. (RW-2026-09-12-23)
 - **Relevance:** Does the research address this specific project, not a generic market?
 - **Gaps:** Flag any sections with thin data or only 1-2 sources.
 - **Actionability:** Does this help the user decide whether to pursue this project?
@@ -163,6 +167,8 @@ Present the key findings:
 - Social sentiment highlights (if available)
 - Overall assessment: strong opportunity / crowded market / needs differentiation / etc.
 - Path to the saved brief
+
+The pursue / kill / pivot verdict rests on Supported claims only, and states how many claims landed in Insufficient evidence — once a claim is plain prose, nothing distinguishes an unsupported one from a supported one. An all-Insufficient brief is reported as exactly that, not as a weak market signal. (RW-2026-09-12-23)
 
 ## Example Flow
 

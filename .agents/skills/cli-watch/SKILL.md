@@ -4,7 +4,7 @@ description: |-
   Platform currency watcher — fetch the Claude Code changelog and Anthropic doc deltas since the last baseline, classify each change (adopt-candidate / document / not-applicable) with rationale, and write a dated decision report to knowledge/currency/reports/cli/. Use when the user says "run the platform watcher", "check for Claude Code updates", "what's new in Claude Code", "cli watch", "am I behind on Anthropic features", or when a scheduled report-only run fires. Report-only is the default and only schedulable mode; `full` (owner-typed, interactive) additionally acts on owner-marked lines and advances the baseline.
 argument-hint: "[report-only|full]"
 generated_from: .claude/skills/cli-watch/SKILL.md
-source_sha256: 9c143f2924991875be2e0f27771a1d22ef14201222aec693f369d7e1e9abfdca
+source_sha256: 6d2bfcf31f7635b38c32589e1808e97f5c1f0e367e912888944f862b8b84fd80
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -82,6 +82,18 @@ implements marked adoptions and advances the baseline after the wave lands.
    touching hooks, settings, permissions, allowed-tools, the guard, MCP
    handlers, setup, or the enforcement code — these cannot be adopted from
    the summary alone (KTD-7).
+   **Model roster.** Compare every model identifier the delta carries against
+   the canonical roster (`CURRENT_MODEL_IDS` in
+   `core/scripts/validate_checks.py`) and state the outcome in the report
+   header's `Model roster` line. When the delta carries an identifier the
+   roster does not hold, add this decision line: "re-measure the
+   judgment-tier skills (adoption matrix §B, model and effort tier
+   assignments) before any re-pin — record a before-measurement
+   (RW-2026-09-11-18); no measurement harness exists (AS-01/SP-11 deferred),
+   so this is a stop-and-note, not a re-pin". Never write an example
+   identifier into this skill or its template — a real one reaching a report
+   is defanged like any other upstream string, and the roster itself stays
+   the validator's to own. (RW-2026-09-12-26)
 5. **Report.** Write `knowledge/currency/reports/cli/YYYY-MM-DD.md` from
    `references/report-template.md`, directly under its final name — named
    by the UTC date when the run can determine it, matching the guard's

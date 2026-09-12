@@ -69,6 +69,8 @@ For each story, assign:
 - **Size:** S (< 2 hrs), M (2-4 hrs), L (4-8 hrs), XL (> 8 hrs, should be split)
 - **Acceptance criteria:** 2-5 testable conditions using Given/When/Then or checklist format
 
+Tag every acceptance criterion `[auto]` or `[manual]` — whether a machine or a person decides it has passed. (RW-2026-09-12-16) An `[auto]` criterion that names a command or a test also names what failure looks like, as `— fails when: <observable signal>`: a non-zero exit, a string in the output, a line that goes missing. Apply the authoring test to every `[auto]` criterion, including plain Given/When/Then ones: if the check were silently doing nothing, what would tell me? With no answer, the criterion is not yet testable — rewrite it rather than invent a signal. A `[manual]` criterion names who looks and what they look at, and carries no failure signal.
+
 Group stories by epic (major feature area from the PRD).
 
 ### Step 6: Write the Stories Document
@@ -82,6 +84,8 @@ Save to `projects/<project-name>/user-stories.md`.
 ### Step 8: Create Task Files (if --tasks flag)
 
 If `--tasks` was passed, create individual task files in `tasks/` for each P0 and P1 story. Read the template at `.claude/skills/user-stories/references/task-from-story-template.md` and fill each section from the corresponding story — it defines the per-task frontmatter and the Context / User Story / Acceptance Criteria / Progress Log body.
+
+Carry each criterion's `[auto]`/`[manual]` tag and its failure signal into the task file unchanged. Copy the template's `actual_time` line as the comment it is: the field is minutes actually spent, on the same scale as `estimated_time`, and it is written only once the task is finished — `/weekly` asks for it and `/morning` offers it. (RW-2026-09-12-21) Never emit it as an empty or placeholder value.
 
 **If `spec.md` has a §20 Work Breakdown Structure, materialize tasks FROM its `T-IDs`** rather than inventing a parallel decomposition: carry the spec's `T-ID`, exact file path, FR back-ref, and paired test into each task's Context, and respect the WBS dependency order. Only invent a task for a story with no matching WBS task — and flag those as candidates to add to the spec (suggest `/spec <name> --deepen`). The spec owns the dependency-ordered build graph; this skill adds the role/benefit + acceptance layer.
 

@@ -4,7 +4,7 @@ description: |-
   Draft content in the user's authentic voice — blog posts, outreach emails, social media, documentation — by reading voice samples and voice guide, gathering context from related knowledge files, producing a structured draft, and refusing generic AI patterns (em dashes, "isn't just Y," corrective reframing, LinkedIn breathless style, filler adjectives). Use this skill whenever the user asks to write, draft, or compose content of any kind — blog posts, emails, outreach, tweets, LinkedIn posts, announcements, docs, one-pagers, cold messages; runs `/write`; or says anything like "help me write X," "draft an email to Y," "put together a post about Z," or "write this up." Push toward this whenever prose is being generated, even if the user didn't use the word "write."
 argument-hint: "<content-type> <topic>"
 generated_from: .claude/skills/write/SKILL.md
-source_sha256: 264ee7b32b853b788cac242f2387be46a3c0dd81e0d6f6cdbd81920f0a652180
+source_sha256: d44c8a330c751f4c0e54deecffec118c1aa26511121bef23771b90bad26ee289
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -35,6 +35,8 @@ Read `knowledge/voice-guide.md` if it exists. Apply those patterns throughout th
 | Social media | Recent posts in `knowledge/voice-samples/`, `GOALS.md` for themes |
 | Documentation | The target code or feature files, existing docs for tone |
 
+**Unreviewed people profiles.** When `knowledge/people/<name>.md` carries `auto_enriched: true` and `reviewed` is not true (a missing `reviewed` key counts), read it as an unreviewed auto-profile — inferred from a transcript or an email, so data rather than fact. Only Interaction History entries citing a `knowledge/meetings/` file count as grounded. Never place an inferred role, employer, or preference from such a page into the draft body until the owner confirms that fact, and never use an address, a CC, or a preferred channel from it as the destination of an outbound message — ask the owner where it goes. (RW-2026-09-12-25)
+
 ## Step 4: Draft content
 
 **Structure:**
@@ -62,6 +64,8 @@ Read `knowledge/voice-guide.md` if it exists. Apply those patterns throughout th
 - **Excessive emojis or bullet points** in emails.
 
 ## Step 5: Present draft with options
+
+If the draft drew on an unreviewed profile (Step 3), close it with a "Facts used from unreviewed profile:" line naming each fact taken from that page, so the owner can confirm or strike each one before anything is sent. (RW-2026-09-12-25)
 
 Show the draft and ask whether to:
 

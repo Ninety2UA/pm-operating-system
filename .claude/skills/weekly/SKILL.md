@@ -42,7 +42,22 @@ Compile into a shipping summary:
 
 For each task where the Progress Log doesn't contain a clear impact statement, ask: "What was the impact of completing [task name]?"
 
+Beside that question, ask "how long did it actually take?" and write the answer to that task's optional `actual_time` frontmatter field, in minutes, on the same scale as `estimated_time` — never elapsed days, which would pair two different scales. Write it with a targeted frontmatter edit, not a whole-file rewrite, and skip the ask for a task that already carries the field. Nothing else in the system writes it except the offer `/morning` makes for yesterday's finished tasks, so an unasked task is a sample lost. (RW-2026-09-12-21)
+
 Include this section in the weekly summary saved in Step 9.
+
+## Step 1c: Estimate calibration
+
+Build the sample from every task carrying both `estimated_time` and `actual_time`: the done tasks from Step 1b plus every file under `tasks/archive/`. This pass reads the whole archive directory, not the 7-day modification window Step 1b uses for the shipping summary — `/quarterly`'s archive step moves finished tasks out of that window, and the sample must not shrink as it does.
+
+Compute it this way:
+
+- `ratio = actual_time / estimated_time` per task, against the estimate as it was written. Never divide by an already-calibrated figure, and never overwrite `estimated_time` with one — calibrating against a corrected number converges on the wrong factor.
+- Skip any task whose estimate is missing or zero rather than guessing one, and never substitute the task summary's 30-minute default.
+- `factor` is the median of the ratios, clamped to 0.5–3.0, and it applies only from 3 samples onward; below that it is 1.0 and the week is uncalibrated. The median is deliberate: one abandoned task cannot swing it.
+- Confidence is derived from the sample count, never self-rated: `low` under 3, `med` at 3 to 5, `high` at 6 or more.
+
+Rebuild this from all history every week rather than carrying last week's figure forward. (RW-2026-09-12-21)
 
 <!-- host:claude-code -->
 Steps 2 and 8 read many files (a week of journals, session reviews). Delegate each to a background subagent (haiku or sonnet tier — mechanical extraction) and merge their summaries; keep the main context for the analysis itself.
@@ -192,6 +207,7 @@ Include:
 - Skills suggested, and rewrite proposals with their before-measurement
 - AGENTS.md proposals (accepted or rejected)
 - Top priorities for next week
+- Estimate calibration from Step 1c
 
 Segment the findings (patterns, blockers, skill gaps, proposals) into two blocks and keep them apart in the file:
 
@@ -205,6 +221,10 @@ Segment the findings (patterns, blockers, skill gaps, proposals) into two blocks
 ```
 
 Build the carried-over block from the previous `WXX.md`: its carried-over block plus its this-week block, minus anything the owner addressed or dismissed since, each tagged with the week it first appeared. A finding leaves the list only on the owner's say-so, never because it stopped being mentioned. Put the two counts in the summary header so `/quarterly` reads them without re-deriving. (RW-2026-09-11-25)
+
+Write Step 1c's result into the file as an `## Estimate calibration` block carrying the factor, the sample count, and the confidence — or the literal line `uncalibrated — n of 3 needed` when fewer than three tasks carry both fields. Emit the block every week, including the weeks it is uncalibrated: `/sprint-plan` reads it, and a summary with no block at all reads to that skill as an unknown rather than as a plain 1.0. (RW-2026-09-12-21)
+
+Stamp the file's frontmatter with `sources:` — the journals, session reviews, and task files this review was built from, as repo-relative paths, so a later reader can check the summary against what produced it. The local staleness report reads this field and flags a synthesized artifact that names no source or names one that no longer exists. (RW-2026-09-12-10)
 
 This file becomes input for `/quarterly` reviews and long-term trend analysis.
 

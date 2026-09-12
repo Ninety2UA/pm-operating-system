@@ -4,7 +4,7 @@ description: |-
   Run a 5-minute morning check-in that syncs meetings, reviews the top 5 tasks and any blocked work, advances one pipeline project, checks OKR alignment, and saves the plan to today's journal. Use this skill whenever the user says "good morning," asks what's on their plate today, wants to plan their day, runs `/morning`, asks for a standup, or mentions starting their work day — even if they don't explicitly ask for a "standup." Push toward this at the start of a work session when no plan has been saved yet for the current date.
 argument-hint: "[quick]"
 generated_from: .claude/skills/morning/SKILL.md
-source_sha256: 6c6e4ad54675408d0d16a2dd3da16d7fa219059e44ce7f90d1a7308a8346283c
+source_sha256: 9b779ef6bbed745b87ea76bbb13c65e0ab8b09995df3c1f35acde6d4ac682694
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -22,6 +22,8 @@ Check if a journal entry exists for yesterday at `knowledge/journals/YYYY/MM/DD.
 - Note any unfinished tasks that should carry forward.
 - Mention briefly: "Yesterday you planned X tasks, completed Y. Carrying forward: [unfinished items]."
 
+If yesterday's Actuals list finished tasks, make one short offer to record how long each actually took, and write each answer to that task's optional `actual_time` frontmatter field in minutes by a targeted frontmatter edit. One offer only — a decline is not re-asked, and `/weekly` picks up anything missed. (RW-2026-09-12-21)
+
 If no journal exists for yesterday, skip silently.
 
 ## Step 0b: Weekly theme
@@ -36,6 +38,8 @@ If no Monday journal exists (e.g., holiday), check the most recent weekday journ
 ## Step 1: Sync meetings (if Granola available)
 
 Invoke the `/meeting-sync` skill to check for unsynced Granola meetings. If the Granola MCP server is unavailable, skip silently.
+
+Fold the sync's result into the summary, including the count of people pages it reports leaving unreviewed: show "N people pages unreviewed" with a pointer to the people-review step in `/quarterly`. This standup never opens a people page itself; the count comes back from the sync. If the sync has not returned by the time the summary is written, print "people pages unreviewed: pending (sync still running)" instead of omitting the line, so a missing count never reads as zero. (RW-2026-09-12-25)
 
 
 ## Step 1b: Currency check (read-only, silent-degrade)
@@ -57,7 +61,9 @@ Call the `list_tasks` tool (manager-ai MCP server) with `status: "n,s"` to get a
 - Goal/OKR alignment
 - Any blockers
 
-If the MCP server is unavailable, read `tasks/*.md` directly.
+If the result carries an `unreadable` list, print "N task files unreadable" with their paths under the top five. Those tasks are missing from the list above, not absent from the workspace, and one of them may outrank everything shown.
+
+If the MCP server is unavailable, read `tasks/*.md` directly — and say so, because the direct read reports nothing about files it could not parse, so a corrupt task is simply invisible on that path. (RW-2026-09-12-1)
 
 ## Step 2b: Waiting on (dependency table)
 
@@ -121,6 +127,8 @@ If yes, format a concise message and post using the `slack_send_message` tool (S
 - Top 3 focus tasks (one line each, with priority)
 - Pipeline project being advanced today
 - Blockers (if any)
+
+Keep the decision lines in the Slack rendering, not only in the narrative here: the top tasks, each blocked item paired with its unblocking action, the pipeline project for today, and any ask. Shortening for Slack means cutting the commentary, never the lines the reader has to act on. (RW-2026-09-12-18)
 
 If Slack MCP is unavailable, skip silently.
 

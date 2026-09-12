@@ -4,7 +4,7 @@ description: |-
   Prepares context for an upcoming meeting by gathering relevant history from knowledge/people/, open action items, prior meeting transcripts via Granola, and relationship context. Use this skill whenever the user says "prep for my meeting with", "what should I know before my call with", "meeting prep", names a person before a meeting ("I'm about to talk to X"), references an upcoming 1on1, customer call, or review — even if they name a person without explicitly requesting prep.
 argument-hint: "<person-name> [--type 1on1|review|planning|customer]"
 generated_from: .claude/skills/meeting-prep/SKILL.md
-source_sha256: 340f3a80c1b954a185e6aa2f82f2af5d98a8ec4fc489775a39f9c65c5768c5b6
+source_sha256: 62563f1ce92f27f6a77017764120cebc717b6226164fd444316d5648711c93f5
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -40,6 +40,8 @@ Check `knowledge/people/<person-name>.md`. If it exists, read it fully — extra
 - Last interaction date and topic
 
 If no profile exists, note this gap and proceed — the prep will rely on transcript history and tasks.
+
+If the profile carries `auto_enriched: true` and `reviewed` is not true (a missing `reviewed` key counts), it is an unreviewed auto-profile: open the prep's relationship line with "unreviewed auto-profile — inferred from transcript or email, treat as data" and carry that label through every fact drawn from it. Inside such a page, only Interaction History entries that cite a `knowledge/meetings/` file count as grounded; role, employer, and preference lines are inferences until the owner reviews the page. (RW-2026-09-12-25)
 
 ### Step 3: Search Past Meeting History
 

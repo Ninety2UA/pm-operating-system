@@ -35,9 +35,9 @@ Stories required for a minimum viable product. Build these first.
 **Priority:** P0 | **Size:** M (3 hrs)
 
 **Acceptance Criteria:**
-- [ ] Given [context], when [action], then [expected result]
-- [ ] Given [context], when [action], then [expected result]
-- [ ] [Edge case or error handling requirement]
+- [ ] `[auto]` Given [context], when [action], then [expected result] — fails when: [observable signal a failure produces]
+- [ ] `[auto]` Given [context], when [action], then [expected result] — fails when: [observable signal a failure produces]
+- [ ] `[manual]` [Edge case or error handling requirement] — checked by [who looks, at what]
 
 **Notes:** [Implementation hints, dependencies, or design considerations]
 
