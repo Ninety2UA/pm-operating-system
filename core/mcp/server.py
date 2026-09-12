@@ -143,12 +143,12 @@ async def handle_list_tools() -> list[types.Tool]:
         ),
         types.Tool(
             name="get_task_summary",
-            description="Get summary statistics for all tasks",
+            description="Get summary statistics for all tasks." + " Files that exist but could not be parsed are listed under `unreadable` with a reason instead of silently disappearing.",
             inputSchema={"type": "object", "properties": {}}
         ),
         types.Tool(
             name="check_priority_limits",
-            description="Check if priority limits are exceeded (P0 max 3, P1 max 7)",
+            description="Check if priority limits are exceeded (P0 max 3, P1 max 7)." + " Files that exist but could not be parsed are listed under `unreadable` with a reason instead of silently disappearing.",
             inputSchema={"type": "object", "properties": {}}
         ),
         types.Tool(
@@ -194,7 +194,7 @@ async def handle_list_tools() -> list[types.Tool]:
         ),
         types.Tool(
             name="get_pipeline_status",
-            description="Get count of projects at each pipeline stage",
+            description="Get count of projects at each pipeline stage." + " Files that exist but could not be parsed are listed under `unreadable` with a reason instead of silently disappearing.",
             inputSchema={"type": "object", "properties": {}}
         ),
         types.Tool(
@@ -210,14 +210,14 @@ async def handle_list_tools() -> list[types.Tool]:
         ),
         types.Tool(
             name="get_project_summary",
-            description="Get aggregate project statistics — by status, category, artifact coverage",
+            description="Get aggregate project statistics — by status, category, artifact coverage." + " Files that exist but could not be parsed are listed under `unreadable` with a reason instead of silently disappearing.",
             inputSchema={"type": "object", "properties": {}}
         ),
 
         # ── System tools ──
         types.Tool(
             name="get_system_status",
-            description="Get comprehensive system status — tasks, projects, backlog, time insights",
+            description="Get comprehensive system status — tasks, projects, backlog, time insights." + " Files that exist but could not be parsed are listed under `unreadable` with a reason instead of silently disappearing.",
             inputSchema={"type": "object", "properties": {}}
         ),
         types.Tool(
@@ -227,7 +227,7 @@ async def handle_list_tools() -> list[types.Tool]:
         ),
         types.Tool(
             name="process_backlog_with_dedup",
-            description="Process backlog items with duplicate detection against both tasks/ and projects/",
+            description="Process backlog items with duplicate detection against both tasks/ and projects/." + " Files that exist but could not be parsed are listed under `unreadable` with a reason instead of silently disappearing.",
             inputSchema={
                 "type": "object",
                 "properties": {

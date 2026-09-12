@@ -9,6 +9,7 @@ Home of tests: core/scripts/tests/test_validate_checks.py.
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import unicodedata
@@ -697,8 +698,11 @@ def _symlink_target_label(root: Path, rel: str) -> str:
     label = home_tilde(target, str(Path.home()))
     if label != target:
         return label
-    return ("an absolute target outside the repository"
-            if target.startswith("/") else target)
+    if target.startswith("/"):
+        return "an absolute target outside the repository"
+    if os.path.normpath(target).split(os.sep)[0] == "..":
+        return "a relative target outside the repository"  # never print what it climbs into
+    return target
 
 
 def check_tracked_tree_hygiene(root: Path | str) -> list[str]:
@@ -949,7 +953,7 @@ def check_source_pointers(root: Path | str) -> list[str]:
                 continue
             rel = f.relative_to(root)
             entries = _sources_entries(_frontmatter_lines(text))
-            if entries is not None:
+            if entries:
                 flags += [f"{rel}:{line_no}: `sources:` entry `{src}` no longer "
                           f"exists" for line_no, src in entries
                           if not (root / src).exists()]

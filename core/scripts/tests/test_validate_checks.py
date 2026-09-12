@@ -687,6 +687,20 @@ def test_tree_hygiene_flags_tracked_symlink_without_leaking_home(tmp_path):
     assert "/Users/" not in warns[0] and "/home/" not in warns[0]
 
 
+def test_tree_hygiene_redacts_a_relative_target_that_escapes_the_repo(tmp_path):
+    """A stored target such as `../../Users/<name>/.ssh/id_rsa` is neither
+    absolute nor under the home directory, so it used to print verbatim
+    (review finding); it must be named without being shown."""
+    import os
+    d = _work_repo(tmp_path)
+    os.symlink("../../Users/someone/.ssh/id_rsa", d / "link")
+    _git("add", "link", cwd=d)
+    warns = vc.check_tracked_tree_hygiene(d)
+    assert len(warns) == 1, warns
+    assert "relative target outside the repository" in warns[0]
+    assert "someone" not in warns[0] and "id_rsa" not in warns[0]
+
+
 def test_tree_hygiene_flags_case_folding_collision(tmp_path):
     import subprocess as sp
     d = _work_repo(tmp_path)
@@ -775,6 +789,18 @@ def test_source_pointers_flags_missing_pointer_and_honours_exemption(tmp_path):
     assert len(flags) == 1, flags
     assert flags[0].startswith("knowledge/session-reviews/2026/09/12_build.md:")
     assert "sources:" in flags[0]
+
+
+def test_source_pointers_flags_an_empty_sources_list(tmp_path):
+    """`sources: []` and a bare `sources:` key name no source at all, so they
+    are missing pointers, not compliant ones (review finding)."""
+    _artifact(tmp_path, "knowledge/session-reviews/2026/09/12_empty.md",
+              "---\ntitle: Empty\nsources: []\n---\n# Empty\n")
+    _artifact(tmp_path, "knowledge/session-reviews/2026/09/12_bare.md",
+              "---\ntitle: Bare\nsources:\n---\n# Bare\n")
+    flags = vc.check_source_pointers(tmp_path)
+    assert len(flags) == 2, flags
+    assert all("no `sources:` pointer" in f for f in flags)
 
 
 def test_source_pointers_flags_vanished_source_and_passes_a_live_one(tmp_path):

@@ -4,7 +4,7 @@ description: |-
   Run a 5-minute morning check-in that syncs meetings, reviews the top 5 tasks and any blocked work, advances one pipeline project, checks OKR alignment, and saves the plan to today's journal. Use this skill whenever the user says "good morning," asks what's on their plate today, wants to plan their day, runs `/morning`, asks for a standup, or mentions starting their work day — even if they don't explicitly ask for a "standup." Push toward this at the start of a work session when no plan has been saved yet for the current date.
 argument-hint: "[quick]"
 generated_from: .claude/skills/morning/SKILL.md
-source_sha256: c0e2e9ce795f8552774e4c32baffc653f4a76717c06e5cbbe3bb50d8de28464a
+source_sha256: 9b779ef6bbed745b87ea76bbb13c65e0ab8b09995df3c1f35acde6d4ac682694
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -39,7 +39,7 @@ If no Monday journal exists (e.g., holiday), check the most recent weekday journ
 
 Invoke the `/meeting-sync` skill to check for unsynced Granola meetings. If the Granola MCP server is unavailable, skip silently.
 
-Fold the sync's result into the summary, including the count of people pages it reports leaving unreviewed: show "N people pages unreviewed" with a pointer to the people-review step in `/quarterly`. This standup never opens a people page itself; the count comes back from the sync. (RW-2026-09-12-25)
+Fold the sync's result into the summary, including the count of people pages it reports leaving unreviewed: show "N people pages unreviewed" with a pointer to the people-review step in `/quarterly`. This standup never opens a people page itself; the count comes back from the sync. If the sync has not returned by the time the summary is written, print "people pages unreviewed: pending (sync still running)" instead of omitting the line, so a missing count never reads as zero. (RW-2026-09-12-25)
 
 
 ## Step 1b: Currency check (read-only, silent-degrade)

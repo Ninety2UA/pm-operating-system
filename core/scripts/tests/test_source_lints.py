@@ -494,6 +494,33 @@ def _searched_line(func, names: set[str]) -> int | None:
     return None
 
 
+def _inline_read_searched_line(func, opaque, locals_, module_names) -> int | None:
+    """A search whose subject is the read expression itself — `"x" in
+    P.read_text()`, `P.read_text().index("x")`, `re.search("x", open(P).read())`
+    — never binds a name, so it must be caught on the expression (review
+    finding: inline greps evaded the name-bound predicate)."""
+    def tracked_read(node) -> bool:
+        path_expr = _read_path_expr(node)
+        if path_expr is None:
+            return False
+        segments = _path_segments(path_expr, opaque, locals_, module_names)
+        return segments is not None and _is_tracked(segments)
+
+    for node in ast.walk(func):
+        if isinstance(node, ast.Compare):
+            for op, comparator in zip(node.ops, node.comparators):
+                if isinstance(op, (ast.In, ast.NotIn)) and tracked_read(comparator):
+                    return node.lineno
+        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            subject = node.func.value
+            if node.func.attr in TEXT_SEARCH_METHODS and tracked_read(subject):
+                return node.lineno
+            if node.func.attr in RE_SEARCH_FUNCS and isinstance(subject, ast.Name) \
+                    and subject.id == "re" and any(tracked_read(a) for a in node.args):
+                return node.lineno
+    return None
+
+
 def _outermost_functions(tree) -> list[ast.AST]:
     found = []
 
@@ -531,9 +558,9 @@ def grep_lint_findings(paths) -> list[tuple[str, str, int]]:
                 segments = _path_segments(path_expr, opaque, locals_, module_names)
                 if segments is not None and _is_tracked(segments):
                     tracked.add(node.targets[0].id)
-            if not tracked:
-                continue
-            line = _searched_line(func, tracked)
+            line = _searched_line(func, tracked) if tracked else None
+            if line is None:
+                line = _inline_read_searched_line(func, opaque, locals_, module_names)
             if line is not None:
                 findings.append((path.name, func.name, line))
     return sorted(findings)
@@ -574,6 +601,15 @@ def flagged_open_read():
     with_open = open(REPO_ROOT / "core" / "scripts" / "validate.py").read()
     return with_open.startswith("#!")
 
+def flagged_inline_membership():
+    assert "foo" in (REPO_ROOT / ".claude" / "skills" / "x" / "SKILL.md").read_text(encoding="utf-8")
+
+def flagged_inline_index():
+    return DOC.read_text(encoding="utf-8").index("name:")
+
+def flagged_inline_regex():
+    return re.search("name:", open(REPO_ROOT / "core" / "scripts" / "validate.py").read())
+
 def clean_tmp_path(tmp_path):
     text = (tmp_path / "SKILL.md").read_text(encoding="utf-8")
     assert "foo" in text
@@ -605,7 +641,9 @@ def test_grep_lint_flags_source_greps_and_leaves_data_reads_alone(tmp_path):
     mod.write_text(GREP_FIXTURE, encoding="utf-8")
     flagged = {fn for _, fn, _ in grep_lint_findings([mod])}
     expected = {"flagged_membership", "flagged_local_chain",
-                "flagged_module_constant", "flagged_open_read"}
+                "flagged_module_constant", "flagged_open_read",
+                "flagged_inline_membership", "flagged_inline_index",
+                "flagged_inline_regex"}
     assert flagged == expected
 
 
