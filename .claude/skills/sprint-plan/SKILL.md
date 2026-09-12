@@ -62,6 +62,8 @@ Read the following in parallel:
 
 ### Step 3: Calculate Capacity
 
+Read the newest weekly summary under `knowledge/journals/YYYY/weekly/` and take the factor, sample count, and confidence from its `## Estimate calibration` block. A summary written before that block existed carries none: apply a factor of 1.0 and say which summary date you read, so the plan never implies a calibration it does not have.
+
 ```
 Total available hours: [from args or default 15]
 Planning capacity (70%): [total × 0.7]
@@ -69,6 +71,8 @@ Buffer (30%): [total × 0.3] — for interruptions, meetings, unplanned work
 ```
 
 Why 70%: Planning at 100% capacity guarantees failure. The 30% buffer absorbs reality.
+
+Show each candidate item's raw estimate and its calibrated `raw × factor`, and fill the 70% against the calibrated figures. Never write the calibrated figure back into a task's `estimated_time` — the raw estimate is what the next calibration divides by. (RW-2026-09-12-21)
 
 ### Step 4: Select Sprint Items
 
@@ -81,7 +85,7 @@ Prioritize items in this order:
 
 Fill the sprint backlog up to 70% capacity. Do NOT overfill.
 
-If there are more P0 items than capacity allows, flag this as a planning problem and ask the user to cut scope or extend the timeline.
+If there are more P0 items than capacity allows, flag this as a planning problem and ask the user to cut scope or extend the timeline. Name the calibration factor and its confidence alongside that flag, so a `low`-confidence factor built on two samples is not read as precision. (RW-2026-09-12-21)
 
 ### Step 5: Write the Sprint Plan
 

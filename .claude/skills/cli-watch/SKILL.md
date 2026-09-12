@@ -81,6 +81,18 @@ implements marked adoptions and advances the baseline after the wave lands.
    touching hooks, settings, permissions, allowed-tools, the guard, MCP
    handlers, setup, or the enforcement code — these cannot be adopted from
    the summary alone (KTD-7).
+   **Model roster.** Compare every model identifier the delta carries against
+   the canonical roster (`CURRENT_MODEL_IDS` in
+   `core/scripts/validate_checks.py`) and state the outcome in the report
+   header's `Model roster` line. When the delta carries an identifier the
+   roster does not hold, add this decision line: "re-measure the
+   judgment-tier skills (adoption matrix §B, model and effort tier
+   assignments) before any re-pin — record a before-measurement
+   (RW-2026-09-11-18); no measurement harness exists (AS-01/SP-11 deferred),
+   so this is a stop-and-note, not a re-pin". Never write an example
+   identifier into this skill or its template — a real one reaching a report
+   is defanged like any other upstream string, and the roster itself stays
+   the validator's to own. (RW-2026-09-12-26)
 5. **Report.** Write `knowledge/currency/reports/cli/YYYY-MM-DD.md` from
    `references/report-template.md`, directly under its final name — named
    by the UTC date when the run can determine it, matching the guard's

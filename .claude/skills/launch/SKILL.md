@@ -60,6 +60,17 @@ Execute each stage in order. After each, present the key findings and ask **Go /
 - Present: System shape, chosen stack, P0 components, INFERRED count.
 - No blocking Go/No-Go — spec is the build contract, not a kill-decision gate. Continue to Stage 7.
 
+**Gate: one-way doors** (runs before Stage 7, whatever stage `--from` started the run at)
+
+A one-way door is a decision the project cannot take back cheaply. The gate is keyed on what is on disk, not on which stages this run happened to execute, so a resumed run never walks past a door an earlier run recorded. (RW-2026-09-12-15)
+
+1. Read `projects/<project-name>/spec.md` §23 and collect every architecture decision whose `**Reversibility:**` reads `irreversible`. Also read the decision records the spec's `related_adrs` names under `knowledge/decisions/` — where a record amends an earlier one, the newest record in the chain is the decision in force.
+2. Read the `idea.md` Progress Log and subtract every door that already carries a line `one-way door confirmed: ADR-n (<title>)`. The title is matched, not only the number, because a spec rebuild renumbers ADRs.
+3. If nothing remains, say so in one line and continue to Stage 7.
+4. For each remaining door, present three things and ask for an explicit confirm on that door alone: the decision, what undoing it would cost (the migration, contract, or dependent system the rationale names), and the alternatives the ADR rejected. Do not batch several doors into one question.
+   - **Confirmed:** append `one-way door confirmed: ADR-n (<title>)` to the `idea.md` Progress Log, then move to the next door.
+   - **Declined:** append `one-way door ADR-n (<title>) declined — revise spec` to the Progress Log, leave `project_status` at `ready`, stop the run before Stage 7, and suggest `/spec <project-name> --deepen` to revise the decision. A declined door is not a project No-Go: nothing is archived or paused, and the No-Go handling below does not apply.
+
 **Stage 7: User Stories**
 - Invoke `/user-stories <project-name> --tasks`.
 - Present: MVP scope, story count, estimated hours.
@@ -75,6 +86,8 @@ After each Go decision, update the project's `idea.md` frontmatter:
 - After Stage 7 (User Stories): `project_status: active`
 
 Stage 6 (Spec) does not change `project_status` — the project remains `ready` until Stage 7 completes.
+
+Before writing `active`, re-run the one-way door gate against what is on disk now. Stage 6 and Stage 7 can add or renumber ADRs, so a door recorded after the first pass would otherwise reach `active` unconfirmed. (RW-2026-09-12-15) An unconfirmed door leaves the project at `ready` and stops the run.
 
 ## No-Go handling
 
@@ -96,6 +109,8 @@ Use `mcp__plugin_slack_slack__slack_send_message` to `#os-progress`. If Slack MC
 
 ## Batch evaluation
 
+Batch evaluation runs Stages 1 to 5 only — it stops at the pre-mortem and never reaches the spec, the door gate, or user stories. A one-way door found during a batch is recorded in the artifacts and left for an owner-run `/launch` to confirm; nothing in a batch moves a project past `ready`. (RW-2026-09-12-15)
+
 <!-- host:claude-code -->
 When the user asks to run several projects through evaluation at once, do not loop this pipeline serially: dispatch the batch-evaluator flow as a Workflow fan-out (one agent per project running the per-project evaluation, then a merge/ranking stage). Workflows are owner-triggered — never start one from a scheduled run (adoption matrix: unattended-allowed no).
 <!-- host:fallback (portable hosts see only this section) -->
@@ -110,6 +125,8 @@ Every evaluation stage produces its artifact by invoking its skill and ends at i
 - *"I know this market; I'll summarize instead of invoking the stage skill."* A stage without its artifact on disk did not run. Invoke the skill; a summary written here is not an artifact.
 - *"The pre-mortem passed, so mark the project active now."* Only Stage 7 moves a project to `active`. Status edits follow Step 4 exactly.
 - *"The owner skipped competitive analysis, so the pre-mortem can go too."* Only Stage 4 is optional. Every other stage runs, or the owner says No-Go and the project pauses or archives.
+- *"The owner already picked this stack in the spec, so the door is settled."* Recording a decision is not confirming it. The gate exists because the author and the person who lives with the migration are the same person on different days; ask the door, one at a time.
+- *"They declined one door — call the project No-Go and archive it."* A declined door revises the spec, not the project. Status stays `ready`, the decline goes in the Progress Log, and the run stops there.
 - *"It's a batch, so the scheduled run can start it."* Batch evaluation is owner-triggered only; a scheduled run never starts it. Red flag: a `project_status` edit that matches no line in Step 4, or a stage reported done with no artifact under `projects/<name>/`. (RW-2026-09-11-16)
 
 ## Notes

@@ -5,7 +5,7 @@ model: inherit
 readonly: false
 is_background: true
 generated_from: .claude/agents/deep-research.md
-source_sha256: 61fb042e1605239b56d0f7c5b81605f3cb6270f63b939d9b3f55b9e1b7a5c808
+source_sha256: 14754a861051060d03bc3fbc4abe5c71e6f09839a811383b7d1ac38a9126e5e4
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -49,14 +49,19 @@ query_used: [primary search queries]
 [3-5 sentence overview of key findings]
 
 ## Key Findings
-### [Finding 1]
-[Details with source attribution]
 
-### [Finding 2]
-[Details with source attribution]
+Every claim carries exactly one disposition. Supported and Refuted each need a citation whose
+source is on that claim's subject; anything else is Insufficient evidence. Omit an empty
+subsection.
 
-### [Finding 3]
-[Details with source attribution]
+### Supported
+- [Claim as the sources support it] [n]
+
+### Refuted
+- [Claim, then what the source corrects] [n]
+
+### Insufficient evidence
+- [Claim] — reason: no citation | off-subject source | sources conflict | untagged
 
 ## Market Landscape
 [If applicable: key players, market size, trends]
@@ -65,7 +70,7 @@ query_used: [primary search queries]
 [What the research suggests for decision-making]
 
 ## Sources
-[List key sources referenced]
+[One numbered row per source: [n] title — URL. Every [n] cited above resolves to a row here.]
 ```
 
 5. **Save the brief:**
@@ -76,6 +81,7 @@ query_used: [primary search queries]
 
 **Quality Standards:**
 - Every claim must be attributed to a source
+- Every claim carries one disposition — Supported, Refuted, or Insufficient evidence. Only Supported claims may be stated downstream as settled fact; an Insufficient claim travels as unresolved with its reason, or not at all, because nothing distinguishes the two once they are plain prose. (RW-2026-09-12-23)
 - Distinguish between facts and opinions
 - Note the recency of data (flag anything older than 12 months)
 - If a research question yields no good results, say so explicitly rather than speculating
@@ -85,4 +91,4 @@ query_used: [primary search queries]
 - If the topic is too broad, narrow it to the most actionable angle
 - If Perplexity returns limited results, supplement with WebSearch
 - If the topic is highly technical, include a "Plain English Summary" section
-- If conflicting information is found, present both sides with source attribution
+- If conflicting information is found, record the claim as Insufficient evidence with reason `sources conflict` and both citations — never pick a side silently. A secondary or off-version source that disagrees, or your own prior, can only move a claim to Insufficient, never to Refuted. (RW-2026-09-12-23)

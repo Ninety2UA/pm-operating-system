@@ -423,16 +423,16 @@ $ tool command --flag value
 
 ## 19. Testing Strategy & Test List (test-first)
 
-> Prompt: Lead with a FLAT TEST LIST derived one-per-P0-acceptance-criterion (Canon TDD — write the list before code). Each row: `test-id | SPEC:FR-id | file | given/when/then | impl file it drives`. Order tests BEFORE their implementation in §20. The cadence is literal: write test → confirm RED → minimal GREEN → REFACTOR, one behavior at a time. Then a SECONDARY 4-lane tooling table (unit/integration/e2e/manual) + an explicit "not tested" gate. If §21/§22 names any code generator, add a mandatory "Generated-code review" lane. See references/tdd-guide.md.
+> Prompt: Lead with a FLAT TEST LIST derived one-per-P0-acceptance-criterion (Canon TDD — write the list before code). Each row: `test-id | SPEC:FR-id | file | given/when/then | fails when | impl file it drives`. The `fails when` cell names the observable signal that shows the check did its work (non-zero exit, a named string in the output, a missing line); a Manual-lane row carries `manual` instead; placeholders (`TBD`, `TODO`, `N/A`, `none`, `unknown`, `?`, `-`) and bare restatements ("the test fails") are rejected. Order tests BEFORE their implementation in §20. The cadence is literal: write test → confirm RED → minimal GREEN → REFACTOR, one behavior at a time. Then a SECONDARY 4-lane tooling table (unit/integration/e2e/manual) + an explicit "not tested" gate. If §21/§22 names any code generator, add a mandatory "Generated-code review" lane. See references/tdd-guide.md.
 
 **Cadence:** write the failing test → confirm RED → minimal code to GREEN → REFACTOR. One behavior at a time.
 
 **Test List (P0 first):**
 
-| test-id | SPEC:FR | file | given / when / then | drives impl |
-|---------|---------|------|---------------------|-------------|
-| T004 | FR-2 | `tests/detect/zscore.test.ts` | given a series w/ one outlier · when detect('zscore') · then 1 Anomaly sev=high | `src/detect/zscore.ts` |
-| T006 | FR-1 | `tests/parse/csv.test.ts` | given a headered CSV · when parse() · then column map inferred | `src/parse/csv.ts` |
+| test-id | SPEC:FR | file | given / when / then | fails when | drives impl |
+|---------|---------|------|---------------------|------------|-------------|
+| T004 | FR-2 | `tests/detect/zscore.test.ts` | given a series w/ one outlier · when detect('zscore') · then 1 Anomaly sev=high | 0 anomalies returned, or severity != high | `src/detect/zscore.ts` |
+| T006 | FR-1 | `tests/parse/csv.test.ts` | given a headered CSV · when parse() · then column map inferred | non-zero exit, or the column map is empty | `src/parse/csv.ts` |
 
 **Lanes (secondary):**
 
@@ -445,7 +445,7 @@ $ tool command --flag value
 
 **Explicitly not tested:** [e.g., cross-browser — Chrome only MVP].
 
-*Anti-pattern:* a Testing section that names lanes but enumerates zero tests, or any P0 FR lacking a pre-named failing test. "Tests later" = no tests.
+*Anti-pattern:* a Testing section that names lanes but enumerates zero tests, or any P0 FR lacking a pre-named failing test. "Tests later" = no tests. An automated row whose `fails when` cell is blank, a placeholder, or a restatement of the command is the same failure one step later: a check that exits 0 on a no-op passes green and silently.
 
 ---
 
@@ -538,7 +538,7 @@ T001→T002→T003→{T004→T005, T006→T007}→T008→{T009,T010}→T011
 
 ## 23. Architecture Decisions (MADR)
 
-> Prompt: 3–5 rejected/decided architectural options as MADR-format records (status · context · decision drivers · considered options · decision outcome · consequences good/bad · Confirmation/revisit-when). The Confirmation field wires each decision into a §19 test or a §25 Checkpoint so honoring it is verifiable. Substantial decisions are ALSO emitted as `knowledge/decisions/YYYY-MM-DD-<project-name>-<slug>.md` files (project-scoped + dated so they never collide across projects and are found by the Step 2 `*<project-name>*` glob on re-runs) and listed in `related_adrs` frontmatter. Pull candidates from §1 deviations, idea.md rejected tech, pre-mortem options. Never empty.
+> Prompt: 3–5 rejected/decided architectural options as MADR-format records (status · context · decision drivers · considered options · decision outcome · consequences good/bad · Reversibility · Confirmation/revisit-when). Reversibility is `easy | hard | irreversible` with a rationale that names the migration, contract, or dependent system behind the undo cost — rate the decision, not the difficulty of the work, and rate `easy` when unsure. The Confirmation field wires each decision into a §19 test or a §25 Checkpoint so honoring it is verifiable; for an `irreversible` rating it also names the gate that clears before the dependent task starts, and the §25 milestone holding that task carries the matching `one-way door ADR-n confirmed` acceptance line. Substantial decisions are ALSO emitted as `knowledge/decisions/YYYY-MM-DD-<project-name>-<slug>.md` files (project-scoped + dated so they never collide across projects and are found by the Step 2 `*<project-name>*` glob on re-runs) and listed in `related_adrs` frontmatter. Pull candidates from §1 deviations, idea.md rejected tech, pre-mortem options. Never empty.
 
 ### ADR-1: [e.g., SQLite over Postgres for MVP]
 - **Status:** accepted
@@ -546,6 +546,7 @@ T001→T002→T003→{T004→T005, T006→T007}→T008→{T009,T010}→T011
 - **Considered options:** SQLite · Postgres (Neon) · flat files
 - **Decision:** [SQLite]
 - **Consequences:** good — [zero-ops, single file]; bad — [no managed backups]
+- **Reversibility:** hard — [swapping engines needs a data migration of the anomalies table and a rewrite of every query in `src/db/`]
 - **Confirmation:** [test T0xx asserts migration runs] / **Revisit when:** [>1 concurrent writer]
 
 *Anti-pattern:* rejected alternatives that were never real candidates ("considered COBOL"). List only what a reasonable engineer would weigh.
@@ -566,23 +567,23 @@ T001→T002→T003→{T004→T005, T006→T007}→T008→{T009,T010}→T011
 
 ## 25. Milestones & Phasing
 
-> Prompt: Map to prd.md §6 (reference, don't restate). Three blocks: M1 walking skeleton → M2 MVP → M3 polish. Each: concrete exit criteria (verifiable), stories/tasks included (cite §20 T-IDs), relative timeframes (not dates), AND a REQUIRED closing "Acceptance & Verification" subsection — the literal command an agent runs to prove the slice works + the pass signal.
+> Prompt: Map to prd.md §6 (reference, don't restate). Three blocks: M1 walking skeleton → M2 MVP → M3 polish. Each: concrete exit criteria (verifiable), stories/tasks included (cite §20 T-IDs), relative timeframes (not dates), AND a REQUIRED closing "Acceptance & Verification" subsection — the literal command an agent runs to prove the slice works + the pass signal + a `→ fails when: <signal>` clause naming what a real failure looks like (or `manual:` for a human check). A milestone that holds a task behind an irreversible §23 ADR also carries the `one-way door ADR-n confirmed` acceptance line.
 
 ### M1 — Walking skeleton (~week 1)
 **Exit criteria:** [CSV → parsed → Z-score → chart on happy path with seed data.]
 **Tasks:** T001–T008.
-**Acceptance & Verification:** `pnpm test parse/ detect/ && pnpm build` → all green; manual: seed CSV shows 3 anomalies.
+**Acceptance & Verification:** `pnpm test parse/ detect/ && pnpm build` → all green → fails when: non-zero exit, or the run reports 0 tests; manual: seed CSV shows 3 anomalies.
 
 ### M2 — MVP (~weeks 2–3)
 **Exit criteria:** [from prd.md §6 MVP exit — referenced.]
 **Tasks:** T009–T010.
-**Acceptance & Verification:** `pnpm exec playwright test e2e/upload.spec.ts` → green; visual diff vs §22 reference ≤2%.
+**Acceptance & Verification:** `pnpm exec playwright test e2e/upload.spec.ts` → green → fails when: non-zero exit, or no spec is collected; visual diff vs §22 reference ≤2%.
 
 ### M3 — Phase 2 polish (~weeks 4–6)
 **Exit criteria:** [from prd.md §6 Phase 2.]
-**Acceptance & Verification:** [command + pass signal].
+**Acceptance & Verification:** [command + pass signal] → fails when: [observable failure signal] (or `manual:` [what a human checks]).
 
-*Anti-pattern:* a milestone without an executable Acceptance command. "Looks done" is not a pass signal.
+*Anti-pattern:* a milestone without an executable Acceptance command, or a command with no stated failing direction. "Looks done" is not a pass signal, and a command that cannot fail proves nothing.
 
 ---
 

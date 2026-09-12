@@ -107,6 +107,8 @@ Show the memo to the user for review. Then offer (via AskUserQuestion):
 
 If the user picks Slack, format with Slack markdown (bold with `*asterisks*`, bullets with `•`).
 
+The Slack rendering keeps the decision lines: the status with its reason, each blocker paired with the unblocking action and who owns it, and every ask with its date. Slack is shorter than the memo because the narrative goes, never because what the recipient has to decide goes. (RW-2026-09-12-18)
+
 ### Step 8: Cross-Link
 
 If the memo references specific projects, append a one-line entry to each project's `idea.md` Progress Log:

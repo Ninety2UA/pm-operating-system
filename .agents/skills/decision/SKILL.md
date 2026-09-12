@@ -4,7 +4,7 @@ description: |-
   Documents a decision with structured context, options considered, pros/cons, reversibility assessment, and rationale — saved to knowledge/decisions/ for future reference. Use this skill whenever the user says "I need to decide", "log this decision", "decision record", "ADR", "let's pick between X and Y", mentions a tough call, weighs options, frames a strategic/architectural choice they'll want to revisit, is about to commit to a path that's non-trivial to reverse, or wants to change an earlier recorded decision (a new record that amends the old one) — even if they don't explicitly ask to "log" it.
 argument-hint: "<topic>"
 generated_from: .claude/skills/decision/SKILL.md
-source_sha256: bad3b3731faf2add7202663151cdef7993a99916f2f382b0eccf69a1fa53a1a5
+source_sha256: b95f9a194167459a67f77ad92e30aa6169681d27e5a4f52ee5c01ab79bfd2387
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -31,6 +31,8 @@ For each option, assess:
 - **Effort** — how much work is involved
 - **Reversibility** — can you undo this if it's wrong?
 
+The reversibility rating is `easy`, `hard`, or `irreversible`, and anything above `easy` states a rationale that names the migration, the published contract, or the dependent system that makes the undo expensive. (RW-2026-09-12-15) "Hard to change" names nothing and does not count. Rate the decision, not the difficulty of the work, and rate `easy` when unsure — a log where every option reads irreversible warns about nothing.
+
 ### Step 3: Write the Decision Record
 
 Create the directory if needed: `knowledge/decisions/`
@@ -52,8 +54,10 @@ amended_by: [knowledge/decisions/YYYY-MM-DD-topic-slug.md — optional, set on t
 ---
 # Decision: [Topic]
 
+[Two or three sentences a reader who was not in the room can act on: what was decided, why, and what changes because of it. Write this before the sections below and keep it free of shorthand — it is the whole record for anyone skimming.]
+
 ## Context
-[Why this decision needs to be made now. What's driving it.]
+[Why this decision needs to be made now. What's driving it. Gloss every identifier at its first mention — `Option B (hosted queue)`, `ADR-3 (SQLite over Postgres)`, the ledger row and its subject — and leave later mentions bare.]
 
 ## Options Considered
 
@@ -70,9 +74,9 @@ amended_by: [knowledge/decisions/YYYY-MM-DD-topic-slug.md — optional, set on t
 - **Reversibility:** [easy/hard/irreversible]
 
 ## Decision
-**Chosen:** [Option X]
+**Chosen:** Option X ([name])
 
-**Rationale:** [Why this option was selected over others]
+**Rationale:** [Why this option was selected over others, citing this decision's own constraints. Where the chosen option is not `easy` to reverse, the rationale names the migration, contract, or dependent system behind that rating. Gloss each identifier at its first mention here too.]
 
 ## Follow-up Actions
 - [ ] [Action items that result from this decision]
@@ -108,6 +112,7 @@ A decision record carries at least two options, each with pros, cons, effort, an
 - *"The user already decided — I'll just log the outcome."* The outcome without the options and the "why" is exactly the record this skill exists to prevent. Ask the three Step 1 questions anyway; it takes a minute.
 - *"It's easily reversible, so it doesn't need a record."* Reversibility is an assessment to write down, not a reason to skip. Cheap-to-undo decisions are the ones that repeat, and the record is what lets `/weekly` surface the pattern.
 - *"Let me see what the research says first, then form a view."* Position discipline runs the other way: freeze your own recommendation before consulting any external opinion.
+- *"The record speaks for itself — the options are right there."* A reader arriving cold sees the options, not the call. Open the body with the summary paragraph: what was decided, why, what it changes. (RW-2026-09-12-19)
 - *"The old decision changed — I'll update that record in place."* Rewriting a decided record erases what was believed at the time. Write a new record that amends it and add the reciprocal line to the old one. Red flag: a Write to `knowledge/decisions/` with fewer than two options, or a rationale that cites no constraint from this decision's own context. (RW-2026-09-11-16)
 
 ## Position discipline

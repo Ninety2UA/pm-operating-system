@@ -82,6 +82,10 @@ For each empty section, ask a focused question. Batch related questions together
 
 After getting answers, update GOALS.md with the user's responses. Keep their voice and phrasing — don't rewrite into corporate speak.
 
+Prefer a targeted edit over a whole-file write: change the section that moved and leave the rest of the file as it stands.
+
+Before replacing `GOALS.md` wholesale, compare line counts — the current file's and the replacement's, never bytes. If the current file has 40 or more lines and the replacement has fewer than 40% of them, stop, show both counts, and ask before writing. The rule is advisory prose, not an enforced gate: it judges one write at a time, so erosion spread across several smaller rewrites goes unseen, and nothing but this step stands between a confident rewrite and a collapsed file. (RW-2026-09-12-20)
+
 Update the "Last updated" date at the top.
 
 ### Step 5: Verify Priority Alignment

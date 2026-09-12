@@ -16,6 +16,7 @@ built from actual data. No conversational filler.
 - Baseline: <cursor version read> (schema v1) | rescan: <reason> | throttled
 - Lock: acquired | reclaimed (<notice>) — released: deleted | marker
 - Fetches: <n>/15 | Skipped oversize: <n>
+- Model roster: unchanged | new ID(s) classified this run
 
 ## Delta since <cursor>
 
@@ -62,4 +63,5 @@ Completeness checklist (a report is complete when):
 - [ ] every adopt-candidate has a decision line
 - [ ] every sensitive row is flagged on its decision line
 - [ ] Gaps section present (empty is a claim, not an omission — write "none")
+- [ ] Model roster line states `unchanged` or names what the run classified
 - [ ] trailer is the final line

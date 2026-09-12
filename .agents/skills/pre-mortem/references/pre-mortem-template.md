@@ -10,6 +10,16 @@ critical_risks: [count of Critical/High risks]
 
 > It is [date + 6 months]. [Project Title] has failed. Here's what went wrong.
 
+## One-way doors
+
+Decisions this project cannot take back, from spec §23 and `knowledge/decisions/`. Read these before the risk matrix: a mitigated risk costs time, a wrong one-way door costs the project.
+
+| # | Decision | Source | Undo cost | Confirmed? |
+|---|----------|--------|-----------|------------|
+| 1 | [What was decided] | [spec §23 ADR-n (title) / decision record] | [the migration, contract, or dependent system that makes the undo expensive] | [yes — confirmed <date> / not yet] |
+
+[If none: **No one-way doors recorded.** — every decision on file is rated easy or hard to reverse.]
+
 ## Risk Matrix
 
 | # | Risk | Category | Likelihood | Impact | Severity | Mitigation |
@@ -46,14 +56,16 @@ critical_risks: [count of Critical/High risks]
 
 The three most important things to do before committing to build:
 
-1. **[Action]** — Validates against Risk [#]. Do this [timeframe].
-2. **[Action]** — Validates against Risk [#]. Do this [timeframe].
-3. **[Action]** — Validates against Risk [#]. Do this [timeframe].
+1. **[Action]** — Validates against Risk [#] ([short risk handle]). Do this [timeframe].
+2. **[Action]** — Validates against Risk [#] ([short risk handle]). Do this [timeframe].
+3. **[Action]** — Validates against Risk [#] ([short risk handle]). Do this [timeframe].
 
 ## Go / No-Go Assessment
 
 **Overall risk level:** [High / Moderate / Low]
 **Recommendation:** [Go — risks are manageable / Go with conditions — address top 3 first / No-go — fundamental risks unresolved]
+**Drove the call:** [Risk [#] ([short risk handle]) and Risk [#] ([short risk handle]) — gloss every cross-reference at its first mention here so this section reads without turning back]
+**Open one-way doors:** [Door [#] ([what was decided]) is unconfirmed / none]
 **Key assumption to validate:** [The single most important thing that must be true for this to succeed]
 
 ---
