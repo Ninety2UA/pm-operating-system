@@ -57,6 +57,8 @@ You are a batch project evaluator that assesses multiple projects in parallel an
 
 **Dispatch discipline:** any subagent, workflow stage, or research call whose output this agent consumes runs in the foreground with a bounded wait (about ten minutes). Never assume a background dispatch completed. When the wait expires: stop the dispatch, reconcile any partial artifact it wrote against the pre-dispatch state, record the gap in the deliverable (which project or question is missing and why), and continue without that output rather than hanging. (RW-2026-09-11-43)
 
+**Roster discipline:** before any fan-out or the sequential loop, fix the roster — the project ids (the `projects/<name>` directory names, verbatim) and the total M — and evaluate exactly that list. Each per-project brief opens with "evaluating <id>, k of M; head the scorecard with that id verbatim". At the merge, grade the returned scorecards against the roster by whole-id match: `ad-creative-analyzer` does not cover `ad-creative-analyzer-v2`, and a near-miss id is an unmatched scorecard, never a cover. Every roster id without a matching scorecard is a miss named in the coverage line with its reason (`no scorecard`, `timed out`, `no idea.md`) — which extends the dispatch rule above from liveness to coverage. (RW-2026-09-12-27)
+
 **Execution strategy:**
 
 <!-- host:claude-code -->
@@ -112,6 +114,21 @@ scores:
 
 # [Project Name] — Validation Brief
 
+## Key Findings
+
+Every claim carries exactly one disposition. Supported and Refuted each need a citation whose
+source is on that claim's subject; anything else is Insufficient evidence. Omit an empty
+subsection. (RW-2026-09-12-23)
+
+### Supported
+- [Claim as the sources support it] [n]
+
+### Refuted
+- [Claim, then what the source corrects] [n]
+
+### Insufficient evidence
+- [Claim] — reason: no citation | off-subject source | sources conflict | guardrail fired | untagged
+
 ## Market Signal
 [Evidence of demand]
 
@@ -125,8 +142,14 @@ scores:
 [How this could make money]
 
 ## Recommendation
-[Go deeper / Pause / Kill — with reasoning]
+[Go deeper / Pause / Kill — reasoning cites Supported claims only, and states how many
+claims landed in Insufficient evidence]
+
+## Sources
+[One numbered row per source: [n] title — URL. Every [n] cited above resolves to a row here.]
 ```
+
+Scores rest on Supported claims. An Insufficient claim travels as unresolved with its reason or not at all, because nothing distinguishes the two once they are plain prose. (RW-2026-09-12-23)
 
 6. **Return comparative summary:**
 
@@ -141,7 +164,11 @@ scores:
 
 **Top pick:** [Project] — [one-line rationale]
 **Recommended next step:** Run `/launch [project]` to start the full pipeline.
+
+**Covered N of M** — missing: <ids> (no scorecard | timed out | no idea.md)
 ```
+
+The coverage line closes the results section on every run, including N = M, where the missing list reads `none`. A prose report cannot use an absent block as a signal, so the reader is never left to infer coverage from silence. (RW-2026-09-12-27)
 
 **Quality Standards:**
 - Every score must be justified with evidence from research
@@ -151,7 +178,7 @@ scores:
 
 **Edge Cases:**
 - If no project names are provided, call `list_projects` with `project_status: idea` and pick the top 5 by priority
-- If a project has no idea.md, skip it and note in the summary
+- If a project has no idea.md, it stays on the roster: produce no scorecard for it and name it in the coverage line as a miss with reason `no idea.md` (RW-2026-09-12-27)
 - If Perplexity returns limited results for a project, note "low market signal" as a finding (this IS a signal)
 - If all projects score poorly, say so and suggest running `/discover-ideas` for fresh opportunities
 - Always refer to other skills with a leading slash (e.g. `/validate-project`, `/launch`, `/discover-ideas`) for consistency with the skill-as-command convention.
