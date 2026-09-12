@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import unicodedata
 from datetime import date
 from pathlib import Path
 
@@ -589,12 +590,18 @@ def _git_stdout(root: Path, *args: str):
 def check_backup_coverage(root: Path | str) -> list[str]:
     """Warn when the framework cannot be recreated from its remote: no
     `origin` remote, or `main` tracks an upstream and is ahead of it.
-    Silent when git is unavailable, outside a repository, or when `main`
-    has no upstream (nothing to compare against)."""
+
+    The probe is classified before anything is decided (R7): git missing or
+    a root that is not a repository yields one "could not determine" line,
+    because silence there is indistinguishable from "fully backed up" — the
+    exact reading this check exists to prevent. `main` with no upstream
+    stays silent: there is nothing to compare against. (RW-2026-09-12-7)
+    """
     root = Path(root)
-    remotes = _git_stdout(root, "remote")
-    if remotes is None:
-        return []
+    if _git_stdout(root, "rev-parse", "--is-inside-work-tree") is None:
+        return ["could not determine backup coverage: git is unavailable or "
+                "the root is not a git repository"]
+    remotes = _git_stdout(root, "remote") or ""
     warns = []
     if "origin" not in remotes.split():
         warns.append("no `origin` remote — the framework cannot be recreated "
@@ -607,6 +614,97 @@ def check_backup_coverage(root: Path | str) -> list[str]:
     if ahead and ahead.isdigit() and int(ahead) > 0:
         warns.append(f"`main` is {ahead} commit(s) ahead of `{upstream}` — "
                      f"push so the remote holds a full copy")
+    return warns
+
+
+# ── privacy-placement (warn) — R5 / RW-2026-09-12-5 ──────────────────────────
+# Only the repository's own ignore rules count. `core.excludesFile=/dev/null`
+# drops the user's global exclude file, so the finding does not depend on whose
+# shell ran the validator. (A clone's own `.git/info/exclude` is part of that
+# checkout and still counts — `--exclude-standard` includes it by design.)
+_REPO_IGNORE_RULES_ONLY = ("-c", "core.excludesFile=/dev/null")
+
+
+def _nul_fields(out: str | None) -> list[str] | None:
+    """Split a `-z` git listing, or None when the command could not run."""
+    return None if out is None else [f for f in out.split("\0") if f]
+
+
+def _ignore_rule(root: Path, rel: str) -> str:
+    """`<source>:<line>:<pattern>` for the rule that ignores `rel`.
+    `--no-index` is required: without it `check-ignore` prints nothing at all
+    for a path that is already tracked, which is every path this check sees."""
+    out = _git_stdout(root, *_REPO_IGNORE_RULES_ONLY,
+                      "check-ignore", "-v", "--no-index", "--", rel)
+    return out.splitlines()[0].split("\t")[0] if out else "an ignore rule"
+
+
+def check_privacy_placement(root: Path | str) -> list[str]:
+    """Warn on a tracked file the repository's own ignore rules say should be
+    ignored. An ignore rule has no effect on a file already in the index, so
+    the rule reads as enforced while the file keeps shipping to every clone —
+    and these rules exist to keep personal data out of one. Git evaluates the
+    rules, negations included, so there is no hand-kept path list to drift.
+    A probe that cannot run says so rather than reporting a clean tree."""
+    root = Path(root)
+    listed = _nul_fields(_git_stdout(
+        root, *_REPO_IGNORE_RULES_ONLY,
+        "ls-files", "-i", "-c", "--exclude-standard", "-z"))
+    if listed is None:
+        return ["could not determine tracked-but-ignored files: git is "
+                "unavailable or the root is not a git repository"]
+    return [f"{rel}: tracked but ignored by {_ignore_rule(root, rel)} — an "
+            f"ignore rule has no effect on an already-tracked file; "
+            f"`git rm --cached {rel}` untracks it and keeps it on disk, or "
+            f"add a `!` negation if tracking it is intended"
+            for rel in listed]
+
+
+# ── tree-hygiene (warn) — R6 / RW-2026-09-12-6 ───────────────────────────────
+def _symlink_target_label(root: Path, rel: str) -> str:
+    """The link's stored target, reduced so no username reaches output a PR
+    may quote: a target under the home directory prints in `~` form, any other
+    absolute target is named but never shown."""
+    target = _git_stdout(root, "cat-file", "blob", f":{rel}")
+    if not target:
+        return "an unreadable target"
+    home = str(Path.home())
+    if target == home or target.startswith(home + "/"):
+        return "~" + target[len(home):]
+    return ("an absolute target outside the repository"
+            if target.startswith("/") else target)
+
+
+def check_tracked_tree_hygiene(root: Path | str) -> list[str]:
+    """Warn on two index-level defects every clone inherits: a tracked symlink
+    (the link travels, its target may not exist or may sit outside the repo)
+    and two tracked paths that differ only under case folding (a
+    case-insensitive checkout can hold just one of them, so the other silently
+    goes missing). Both halves read `git ls-files`, never the filesystem, so
+    the answer is the same on a case-folding and a case-sensitive host."""
+    root = Path(root)
+    listed = _nul_fields(_git_stdout(root, "ls-files", "-s", "-z"))
+    if listed is None:
+        return ["could not determine tracked-tree hygiene: git is unavailable "
+                "or the root is not a git repository"]
+    warns: list[str] = []
+    groups: dict[str, list[str]] = {}
+    for entry in listed:
+        meta, _, rel = entry.partition("\t")
+        if not rel:
+            continue
+        groups.setdefault(
+            unicodedata.normalize("NFC", rel).casefold(), []).append(rel)
+        if meta.split()[:1] == ["120000"]:
+            warns.append(f"{rel}: tracked symlink → "
+                         f"{_symlink_target_label(root, rel)} — every clone "
+                         f"gets the link; `git rm --cached {rel}` untracks it")
+    for key in sorted(groups):
+        group = sorted(set(groups[key]))
+        if len(group) > 1:
+            warns.append(f"tracked paths collide under case folding: "
+                         f"{', '.join(group)} — a case-insensitive checkout "
+                         f"can hold only one of them; rename all but one")
     return warns
 
 
@@ -706,15 +804,161 @@ def project_progress_ratchet(root: Path | str) -> list[str]:
     return flags
 
 
+# ── unfilled template tokens (local mode) — R9 / RW-2026-09-12-9 ─────────────
+_FENCE_CM_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+_INLINE_CODE_RE = re.compile(r"(`+)[^`]*?\1")
+_TEMPLATE_TOKENS = ("[Project name]", "[Actionable task name]", "[YYYY-MM-DD]",
+                    "[see categories]", "[P0|P1|P2|P3]")
+_MUSTACHE_RE = re.compile(r"\{\{[^{}]*\}\}")
+_TOKEN_SCAN_GLOBS = ("projects/**/*.md", "tasks/*.md")
+
+
+def mask_code(lines):
+    """Blank every fenced block and inline code span to spaces, keeping the
+    line count and each line's length so flags keep their real line numbers.
+    The fence rule is CommonMark's: a closer is the same character, at least
+    as long as the opener, and carries nothing but whitespace after it — so an
+    info-string line (```json) never closes a block and a longer fence
+    swallows a shorter one."""
+    out, fence = [], None
+    for line in lines:
+        m = _FENCE_CM_RE.match(line)
+        if fence is None:
+            if m:
+                fence = (m.group(1)[0], len(m.group(1)))
+                out.append(" " * len(line))
+            else:
+                out.append(_INLINE_CODE_RE.sub(
+                    lambda mm: " " * len(mm.group(0)), line))
+            continue
+        char, width = fence
+        if (m and m.group(1)[0] == char and len(m.group(1)) >= width
+                and not m.group(2).strip()):
+            fence = None
+        out.append(" " * len(line))
+    return out
+
+
+def check_template_tokens(root: Path | str) -> list[str]:
+    """Scaffolded files whose placeholders were never filled in, frontmatter
+    included — an unfilled `due_date: [YYYY-MM-DD]` parses as a YAML list, so
+    the field reads as data rather than as a hole. Code is masked first, so a
+    fenced template block or an inline `[YYYY-MM-DD]` span is documentation,
+    not a finding. Reads gitignored data: local mode only."""
+    root = Path(root)
+    flags, seen = [], set()
+    for glob in _TOKEN_SCAN_GLOBS:
+        for f in sorted(root.glob(glob)):
+            if f in seen or not f.is_file():
+                continue
+            seen.add(f)
+            try:
+                lines = f.read_text(encoding="utf-8").splitlines()
+            except (UnicodeDecodeError, OSError):
+                continue
+            rel = f.relative_to(root)
+            for i, line in enumerate(mask_code(lines), 1):
+                hits = [t for t in _TEMPLATE_TOKENS if t in line]
+                hits += [m.group(0) for m in _MUSTACHE_RE.finditer(line)]
+                flags += [f"{rel}:{i}: unfilled template token `{t}`"
+                          for t in hits]
+    return flags
+
+
+# ── synthesized artifacts without a source pointer — R9 / RW-2026-09-12-10 ───
+_SOURCE_SCAN_GLOBS = ("knowledge/session-reviews/**/*.md",
+                      "knowledge/journals/*/weekly/*.md",
+                      "knowledge/journals/*/quarterly/*.md")
+_SOURCES_KEY_RE = re.compile(r"^sources:[ \t]*(.*)$")
+_SOURCE_ENTRY_RE = re.compile(r"^\s*-\s+(.+?)\s*$")
+
+
+def _frontmatter_lines(text: str) -> list[str]:
+    if not text.startswith("---"):
+        return []
+    end = text.find("\n---", 3)
+    return (text[:end] if end != -1 else text).splitlines()
+
+
+def _sources_entries(fm_lines: list[str]):
+    """(line number, path) for every entry of a frontmatter `sources:` list,
+    or None when the key is absent. Block form and one-line value both parse;
+    the line number is the entry's own, so a dangling pointer is addressable."""
+    for i, line in enumerate(fm_lines, 1):
+        m = _SOURCES_KEY_RE.match(line)
+        if not m:
+            continue
+        inline = m.group(1).strip()
+        if inline.startswith("[") and inline.endswith("]"):
+            return [(i, s.strip().strip("'\"`"))
+                    for s in inline[1:-1].split(",") if s.strip()]
+        if inline and not inline.startswith("#"):
+            return [(i, inline.strip("'\"`"))]
+        entries = []
+        for j, nxt in enumerate(fm_lines[i:], i + 1):
+            em = _SOURCE_ENTRY_RE.match(nxt)
+            if em:
+                entries.append((j, em.group(1).strip("'\"`")))
+            elif nxt.strip():
+                break
+        return entries
+    return None
+
+
+def check_source_pointers(root: Path | str) -> list[str]:
+    """Synthesized artifacts — session reviews, weekly and quarterly
+    summaries — whose raw-source pointer is missing or dangling. Class A: no
+    `sources:` key and no `sources_exempt: true  # <reason>`; an exemption
+    with no reason is itself class A, because an unexplained exemption is how
+    the rule quietly stops applying. Class B: a listed source that no longer
+    exists, which is what a real deletion leaves behind. Existence only, never
+    content. Reads gitignored data: local mode only."""
+    root = Path(root)
+    flags, seen = [], set()
+    for glob in _SOURCE_SCAN_GLOBS:
+        for f in sorted(root.glob(glob)):
+            if f in seen or not f.is_file():
+                continue
+            seen.add(f)
+            try:
+                text = f.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError):
+                continue
+            rel = f.relative_to(root)
+            entries = _sources_entries(_frontmatter_lines(text))
+            if entries is None:
+                exempt = _top_level_key(text, "sources_exempt") or ""
+                if exempt.split("#")[0].strip().lower() == "true":
+                    if exempt.partition("#")[2].strip():
+                        continue
+                    flags.append(f"{rel}:1: `sources_exempt: true` carries no "
+                                 f"reason — add it as a trailing `# <reason>`")
+                    continue
+                flags.append(f"{rel}:1: no `sources:` pointer — stamp the "
+                             f"journals, reviews, and notes it was "
+                             f"synthesized from, or mark "
+                             f"`sources_exempt: true  # <reason>`")
+                continue
+            flags += [f"{rel}:{line_no}: `sources:` entry `{src}` no longer "
+                      f"exists" for line_no, src in entries
+                      if not (root / src).exists()]
+    return flags
+
+
 def staleness_sections(root: Path | str) -> list[tuple[str, list[str]]]:
-    """The local-mode report as (title, flags) sections. Everything here
-    reads gitignored data, so none of it is ever a default-run warning."""
+    """The local-mode report as (title, flags) sections — five of them.
+    Everything here reads gitignored data, so none of it is ever a
+    default-run warning (KTD7)."""
     return [
         ("Retired model IDs in project specs", staleness_report(root)),
         (f"Watcher reports older than {_WATCHER_MAX_AGE_DAYS} days",
          watcher_report_staleness(root)),
         ("Projects whose Progress Log never records their status (ratchet)",
          project_progress_ratchet(root)),
+        ("Unfilled template tokens in projects/ and tasks/",
+         check_template_tokens(root)),
+        ("Synthesized artifacts with a missing or dangling source pointer",
+         check_source_pointers(root)),
     ]
 
 

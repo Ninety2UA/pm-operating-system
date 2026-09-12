@@ -3,6 +3,7 @@ Each check is a pure function over a root path or text inputs, so it is
 exercised on synthetic fixtures here and wired into the sequential
 validator against the real repo separately.
 """
+import pytest
 from conftest import REPO_ROOT
 
 import validate_checks as vc
@@ -509,13 +510,17 @@ def test_backup_silent_without_upstream_and_when_detached(tmp_path):
     assert vc.check_backup_coverage(d) == []
 
 
-def test_backup_silent_outside_a_repo_and_without_git(tmp_path, monkeypatch):
-    assert vc.check_backup_coverage(tmp_path / "not-a-repo-yet") == []
+def test_backup_undetermined_outside_a_repo_and_without_git(tmp_path, monkeypatch):
+    """An unrunnable probe says so (R7): silence there reads as "backed up"
+    to every caller. Renamed from ...silent_outside... with the behaviour."""
+    off = vc.check_backup_coverage(tmp_path / "not-a-repo-yet")
+    assert len(off) == 1 and "could not determine" in off[0]
     d = _work_repo(tmp_path)  # would warn (no origin) — unless git is absent
     nobin = tmp_path / "nobin"
     nobin.mkdir()
     monkeypatch.setenv("PATH", str(nobin))
-    assert vc.check_backup_coverage(d) == []
+    nogit = vc.check_backup_coverage(d)
+    assert len(nogit) == 1 and "could not determine" in nogit[0]
 
 
 def test_backup_green_on_real_repo():
@@ -608,7 +613,248 @@ def test_progress_ratchet_lists_status_without_log_line(tmp_path):
 def test_staleness_sections_shape(tmp_path):
     sections = vc.staleness_sections(tmp_path)
     titles = [s[0] for s in sections]
-    assert len(sections) == 3 and all(isinstance(s[1], list) for s in sections)
+    assert len(sections) == 5 and all(isinstance(s[1], list) for s in sections)
     assert any("model" in t.lower() for t in titles)
     assert any("watcher" in t.lower() for t in titles)
     assert any("progress" in t.lower() for t in titles)
+    assert any("template" in t.lower() for t in titles)
+    assert any("source" in t.lower() for t in titles)
+
+
+# ── privacy-placement (warn) — R5 / RW-2026-09-12-5 ──────────────────────────
+
+def _ignored_but_tracked(tmp_path):
+    """A repo whose ignore rules cover a file that is already in the index —
+    the exact state `.gitignore` cannot undo on its own."""
+    d = _work_repo(tmp_path)
+    (d / "secrets.md").write_text("personal\n", encoding="utf-8")
+    _git("add", "secrets.md", cwd=d)
+    _git("commit", "-qm", "track it", cwd=d)
+    (d / ".gitignore").write_text("secrets.md\n", encoding="utf-8")
+    _git("add", ".gitignore", cwd=d)
+    _git("commit", "-qm", "ignore it", cwd=d)
+    return d
+
+
+def test_privacy_placement_flags_tracked_but_ignored_file(tmp_path):
+    d = _ignored_but_tracked(tmp_path)
+    warns = vc.check_privacy_placement(d)
+    assert len(warns) == 1, warns
+    assert "secrets.md" in warns[0]
+    assert ".gitignore:1:secrets.md" in warns[0]      # the rule that fired
+    assert "git rm --cached" in warns[0]              # the remedy
+
+
+def test_privacy_placement_silent_when_negated_and_loud_off_repo(tmp_path):
+    d = _ignored_but_tracked(tmp_path)
+    (d / ".gitignore").write_text("secrets.md\n!secrets.md\n", encoding="utf-8")
+    _git("add", ".gitignore", cwd=d)
+    _git("commit", "-qm", "negate it", cwd=d)
+    assert vc.check_privacy_placement(d) == []
+    off = vc.check_privacy_placement(tmp_path / "not-a-repo-yet")
+    assert len(off) == 1 and "could not determine" in off[0]
+
+
+def test_privacy_placement_ignores_the_users_global_exclude(tmp_path):
+    """The check must answer the same on every machine, so a path ignored
+    only by the user's global exclude file is not tracked-but-ignored."""
+    d = _work_repo(tmp_path)
+    (d / "notes.md").write_text("x\n", encoding="utf-8")
+    _git("add", "notes.md", cwd=d)
+    _git("commit", "-qm", "track", cwd=d)
+    glob_ex = tmp_path / "global-exclude"
+    glob_ex.write_text("notes.md\n", encoding="utf-8")
+    _git("config", "core.excludesFile", str(glob_ex), cwd=d)
+    assert vc.check_privacy_placement(d) == []
+
+
+def test_privacy_placement_green_on_real_repo():
+    assert vc.check_privacy_placement(REPO_ROOT) == []
+
+
+# ── tree-hygiene (warn) — R6 / RW-2026-09-12-6 ───────────────────────────────
+
+def test_tree_hygiene_flags_tracked_symlink_without_leaking_home(tmp_path):
+    import os
+    from pathlib import Path as _P
+    d = _work_repo(tmp_path)
+    os.symlink(str(_P.home() / "private" / "keys"), d / "link")
+    _git("add", "link", cwd=d)
+    warns = vc.check_tracked_tree_hygiene(d)
+    assert len(warns) == 1, warns
+    assert "link" in warns[0] and "symlink" in warns[0]
+    assert "~/private/keys" in warns[0]
+    assert "/Users/" not in warns[0] and "/home/" not in warns[0]
+
+
+def test_tree_hygiene_flags_case_folding_collision(tmp_path):
+    import subprocess as sp
+    d = _work_repo(tmp_path)
+    blob = sp.run(["git", "hash-object", "-w", "--stdin"], cwd=d, input=b"x\n",
+                  capture_output=True, timeout=30).stdout.decode().strip()
+    for name in ("Notes.md", "notes.md"):
+        _git("update-index", "--add", "--cacheinfo", f"100644,{blob},{name}", cwd=d)
+    warns = vc.check_tracked_tree_hygiene(d)
+    assert len(warns) == 1, warns
+    assert "Notes.md" in warns[0] and "notes.md" in warns[0]
+    assert "case" in warns[0].lower()
+
+
+def test_tree_hygiene_green_on_real_repo():
+    assert vc.check_tracked_tree_hygiene(REPO_ROOT) == []
+
+
+# ── template tokens (--staleness-report section) — CE-U-11 / RW-2026-09-12-9 ─
+
+_TOKEN_DOC = """---
+title: Demo
+due_date: [YYYY-MM-DD]
+---
+Inline `[YYYY-MM-DD]` is documentation, not an unfilled field.
+
+````
+```json
+{"created_date": "[YYYY-MM-DD]"}
+```
+[see categories]
+````
+
+Still unfilled: [Project name] here.
+"""
+
+_TOKEN_DOC2 = """```
+```json
+[Actionable task name]
+```
+[P0|P1|P2|P3]
+"""
+
+
+def test_template_tokens_masks_code_and_flags_prose_and_frontmatter(tmp_path):
+    t = tmp_path / "tasks"
+    t.mkdir()
+    (t / "demo.md").write_text(_TOKEN_DOC, encoding="utf-8")
+    flags = vc.check_template_tokens(tmp_path)
+    assert len(flags) == 2, flags
+    assert flags[0].startswith("tasks/demo.md:3:") and "[YYYY-MM-DD]" in flags[0]
+    assert flags[1].startswith("tasks/demo.md:14:") and "[Project name]" in flags[1]
+
+
+def test_template_tokens_info_string_line_is_not_a_closing_fence(tmp_path):
+    p = tmp_path / "projects" / "demo"
+    p.mkdir(parents=True)
+    (p / "idea.md").write_text(_TOKEN_DOC2, encoding="utf-8")
+    flags = vc.check_template_tokens(tmp_path)
+    assert len(flags) == 1, flags
+    assert flags[0].startswith("projects/demo/idea.md:5:")
+    assert "[P0|P1|P2|P3]" in flags[0]
+
+
+def test_template_tokens_flags_unresolved_mustache(tmp_path):
+    t = tmp_path / "tasks"
+    t.mkdir()
+    (t / "m.md").write_text("Owner is {{owner}} today.\n", encoding="utf-8")
+    flags = vc.check_template_tokens(tmp_path)
+    assert len(flags) == 1 and "{{owner}}" in flags[0]
+
+
+# ── source pointers (--staleness-report section) — GB-U-16 / RW-2026-09-12-10 ─
+
+def _artifact(tmp_path, rel, text):
+    p = tmp_path / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(text, encoding="utf-8")
+
+
+def test_source_pointers_flags_missing_pointer_and_honours_exemption(tmp_path):
+    _artifact(tmp_path, "knowledge/session-reviews/2026/09/12_build.md",
+              "---\ntitle: Build\n---\n# Build\n")
+    _artifact(tmp_path, "knowledge/session-reviews/2026/09/11_plan.md",
+              "---\ntitle: Plan\nsources_exempt: true  # transcript-only session\n---\n")
+    flags = vc.check_source_pointers(tmp_path)
+    assert len(flags) == 1, flags
+    assert flags[0].startswith("knowledge/session-reviews/2026/09/12_build.md:")
+    assert "sources:" in flags[0]
+
+
+def test_source_pointers_flags_vanished_source_and_passes_a_live_one(tmp_path):
+    _artifact(tmp_path, "knowledge/journals/2026/09/11.md", "# day\n")
+    _artifact(tmp_path, "knowledge/journals/2026/weekly/W37.md",
+              "---\nsources:\n  - knowledge/journals/2026/09/11.md\n"
+              "  - knowledge/journals/2026/09/09.md\n---\n# Week 37\n")
+    _artifact(tmp_path, "knowledge/journals/2026/quarterly/Q3.md",
+              "---\nsources:\n  - knowledge/journals/2026/weekly/W37.md\n---\n")
+    flags = vc.check_source_pointers(tmp_path)
+    assert len(flags) == 1, flags
+    assert flags[0].startswith("knowledge/journals/2026/weekly/W37.md:4:")
+    assert "09/09.md" in flags[0] and "no longer exists" in flags[0]
+
+
+def test_source_pointers_exemption_without_a_reason_still_flags(tmp_path):
+    _artifact(tmp_path, "knowledge/session-reviews/2026/09/12_x.md",
+              "---\nsources_exempt: true\n---\n")
+    flags = vc.check_source_pointers(tmp_path)
+    assert len(flags) == 1 and "reason" in flags[0]
+
+
+# ── subprocess timeouts (validate.py) — R8 / GSD-U-11 / RW-2026-09-12-8 ──────
+#
+# One validator run under a stub PATH serves all three assertions: each stall
+# costs its own budget in wall time (10 s + 10 s + 30 s), so three separate
+# runs would triple that for no extra coverage. Each stub stalls only on the
+# argument shape its check uses and delegates everything else to the real
+# binary, so no other check changes behaviour.
+
+def _stub(dirpath, name, body):
+    p = dirpath / name
+    p.write_text(body, encoding="utf-8")
+    p.chmod(0o755)
+    return p
+
+
+@pytest.fixture(scope="module")
+def stalled_validator(tmp_path_factory):
+    import os
+    import shutil
+    import subprocess as sp
+    import sys
+    stubs = tmp_path_factory.mktemp("stalled-bin")
+    real_which = shutil.which("which")
+    real_git = shutil.which("git")
+    assert real_which and real_git, "drill needs the real which/git to delegate to"
+    _stub(stubs, "which",
+          "#!/bin/sh\n"
+          "# check 13 looks up the .mcp.json server command; stall only there.\n"
+          'case "$1" in uv) exec sleep 45 ;; esac\n'
+          f'exec {real_which} "$@"\n')
+    _stub(stubs, "git",
+          "#!/bin/sh\n"
+          "# check 17 lists tracked markdown; stall only on that shape.\n"
+          'for a in "$@"; do case "$a" in *.md) exec sleep 45 ;; esac; done\n'
+          f'exec {real_git} "$@"\n')
+    _stub(stubs, "uv", "#!/bin/sh\nexec sleep 45\n")
+    proc = sp.run(
+        [sys.executable, str(REPO_ROOT / "core/scripts/validate.py")],
+        capture_output=True, text=True, cwd=REPO_ROOT, timeout=240,
+        env={**os.environ, "PATH": f"{stubs}{os.pathsep}{os.environ['PATH']}"},
+    )
+    return proc
+
+
+def test_stalled_which_is_a_named_failure_not_a_hang(stalled_validator):
+    assert stalled_validator.returncode != 0
+    assert "`which uv` timed out after 10s" in stalled_validator.stdout
+
+
+def test_stalled_git_fails_check_17_without_a_green_link_scan(stalled_validator):
+    out = stalled_validator.stdout
+    assert "`git ls-files` timed out after 10s" in out
+    # The link / marker / noise scans must not report a clean sweep off an
+    # emptied file list.
+    assert "broken link" not in out
+
+
+def test_stalled_uv_reports_the_import_budget_not_a_traceback(stalled_validator):
+    out, err = stalled_validator.stdout, stalled_validator.stderr
+    assert "server.py import timed out after 30s" in out
+    assert "Traceback" not in out and "Traceback" not in err
