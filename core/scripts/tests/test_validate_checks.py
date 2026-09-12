@@ -512,7 +512,7 @@ def test_backup_silent_without_upstream_and_when_detached(tmp_path):
 
 def test_backup_undetermined_outside_a_repo_and_without_git(tmp_path, monkeypatch):
     """An unrunnable probe says so (R7): silence there reads as "backed up"
-    to every caller. Renamed from ...silent_outside... with the behaviour."""
+    to every caller."""
     off = vc.check_backup_coverage(tmp_path / "not-a-repo-yet")
     assert len(off) == 1 and "could not determine" in off[0]
     d = _work_repo(tmp_path)  # would warn (no origin) — unless git is absent
@@ -851,6 +851,38 @@ def test_stalled_git_fails_check_17_without_a_green_link_scan(stalled_validator)
     assert "`git ls-files` timed out after 10s" in out
     # The link / marker / noise scans must not report a clean sweep off an
     # emptied file list.
+    assert "broken link" not in out
+
+
+@pytest.fixture(scope="module")
+def failed_git_validator(tmp_path_factory):
+    """A `git ls-files` that exits non-zero (not a repository, or a broken
+    index) must fail check 17 by name, never feed checks 17-19 an empty list
+    they would report as three clean sweeps (review finding: the timeout was
+    the only guarded failure)."""
+    import os
+    import shutil
+    import subprocess as sp
+    import sys
+    stubs = tmp_path_factory.mktemp("failed-git-bin")
+    real_git = shutil.which("git")
+    assert real_git, "drill needs the real git to delegate to"
+    _stub(stubs, "git",
+          "#!/bin/sh\n"
+          "# check 17 lists tracked markdown; fail only on that shape.\n"
+          'for a in "$@"; do case "$a" in *.md) echo "fatal: not a git repository" >&2; exit 128 ;; esac; done\n'
+          f'exec {real_git} "$@"\n')
+    return sp.run(
+        [sys.executable, str(REPO_ROOT / "core/scripts/validate.py")],
+        capture_output=True, text=True, cwd=REPO_ROOT, timeout=240,
+        env={**os.environ, "PATH": f"{stubs}{os.pathsep}{os.environ['PATH']}"},
+    )
+
+
+def test_failed_git_listing_fails_check_17_without_a_green_link_scan(failed_git_validator):
+    out = failed_git_validator.stdout
+    assert failed_git_validator.returncode != 0
+    assert "`git ls-files` exited 128" in out
     assert "broken link" not in out
 
 

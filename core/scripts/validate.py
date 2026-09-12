@@ -405,16 +405,25 @@ for sub in ["library/prompts", "library/systems", "library/skills", "library/age
 # ─── 17. Broken markdown links in tracked docs ────────────────────
 # The listing feeds checks 17-19. A timeout leaves it unknown, not empty:
 # iterating zero files would report three clean sweeps that never happened.
+tracked = None
 try:
-    tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "*.md"],
-                             capture_output=True, text=True,
-                             timeout=SUBPROCESS_TIMEOUT).stdout.splitlines()
+    _ls = subprocess.run(["git", "-C", str(ROOT), "ls-files", "*.md"],
+                         capture_output=True, text=True,
+                         timeout=SUBPROCESS_TIMEOUT)
 except subprocess.TimeoutExpired:
     fail("md-link", f"`git ls-files` timed out after {SUBPROCESS_TIMEOUT}s — "
                     f"the markdown-link, TODO-marker and tracked-noise scans "
                     f"(checks 17-19) did not run; re-run, or check for a "
                     f"stalled `git`")
-    tracked = None
+except OSError as exc:
+    fail("md-link", f"`git ls-files` could not run ({type(exc).__name__}) — "
+                    f"checks 17-19 did not run; is `git` installed?")
+else:
+    if _ls.returncode != 0:
+        fail("md-link", f"`git ls-files` exited {_ls.returncode} — checks 17-19 "
+                        f"did not run; is the repository root a git checkout?")
+    else:
+        tracked = _ls.stdout.splitlines()
 
 if tracked is None:
     tracked = []  # checks 18-19 have no input either; the failure above says so
