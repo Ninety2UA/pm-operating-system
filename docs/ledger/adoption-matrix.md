@@ -5,7 +5,9 @@ The single gateable decision artifact merging the capability manifest
 (`2026-07-20-ecosystem-mining.md`, U2). Implementation waves execute from
 this file only; every wave-C/D/E/F change traces back to a row here, and
 so does every wave-G change (the 2026-09-11 currency wave, recorded in
-the dated ledger `2026-09-11-currency-wave.md`).
+the dated ledger `2026-09-11-currency-wave.md`) and every wave-H change
+(the 2026-09-12 recovered-windows wave, recorded in
+`2026-09-12-recovered-windows-wave.md`).
 
 **Gate record:** wave approvals in this run are executed under the owner's
 standing instruction of 2026-07-20 ("complete the plan end-to-end,
@@ -25,6 +27,39 @@ RW-26 to `document`, RW-34 and RW-40 to `adopt-partial`) carries its
 reason on its row here and on the dated ledger. The report snapshots,
 ticked decision lines, cli baseline, and cursor advance happen after the
 commit (U13) and are gitignored side effects the PR description lists. Exception recorded after review: three intermediate commits on the wave branch (`854a44b`, `61ded4e`, `9d7fa15`) carry a stale adapter manifest that `075fedd` caught up, so `build_adapters.py --check` is red inside the wave and green at its head; the branch is merged with a merge commit rather than squashed so every `Adopted-in` SHA in the dated ledger stays resolvable, and the "adapters regenerate in the same commit" rule holds from the next wave on (the standard now names this exception). The three compare windows the run could not see (compound-engineering 51, gsd-core 890, gbrain 403 oldest commits after each seed) were paged and classified on 2026-09-11 after the wave landed; their 31 adopt/adapt candidates carry provisional IDs and await the owner's marks in the 2026-09-11 repo report, so their matrix rows belong to the wave that adopts them.
+
+**Gate record (2026-09-12):** the owner reviewed the recovered-window
+recommendation and marked 30 of the 31 candidate lines in the 2026-09-11
+repo report for adoption, delegating the apply step through the pipeline
+rather than leaving them for a later owner-marked full run (wave-plan KTD1).
+The thirty-first, the opt-in pre-commit gate hook (GSD-U-21), is marked
+`document` by owner decision: interactive sessions stay hook-free (July
+KTD-5) and a validator run on every commit reverses that, so the hashed
+adapter manifest and the same-commit regeneration rule stay the mechanism.
+GB-U-20 (non-Latin slugs beyond Latin diacritics) is carried as `document`
+from its report row. Every marked row landed with an adjustment and none was
+downgraded; the adjustments are on the rows of the dated ledger
+`2026-09-12-recovered-windows-wave.md`, which mints `RW-2026-09-12-N` ids and
+keeps each provisional report id on the row as `(was GSD-U-3)` so both stay
+searchable. The wave lands on `feat/recovered-windows-2026-09` across nine
+implementation commits (each carrying its own tests and regenerated
+adapters), this record-only commit, and a close-out commit that fills
+`Adopted-in`; the pull request is the owner's merge gate and flags the
+heightened-review rows for explicit owner eyes. As in wave G the branch is
+merged with a merge commit rather than squashed, so every `Adopted-in` sha in
+the dated ledger stays resolvable on `main`. One repo-hygiene decision is
+recorded here because it is not reversible by editing a file: three tracked
+files that the ignore rules already covered (`knowledge/voice-guide.md` and
+two personal `idea.md` files) were removed from the index in U1. They stay on
+disk, and the removal is forward-only — history and every existing fork keep
+them, so untracking stops future exposure and does not undo past exposure,
+and a history rewrite remains the owner's separate decision (KTD8). If the
+two project ideas were meant as shipped examples rather than personal notes,
+the alternative is a per-file negation in `.gitignore` plus an allow-list
+entry in the new `privacy-placement` check; the pull-request description
+names that choice. No registry cursor moves and no baseline is written: all
+six cursors already sit at their 2026-09-11 heads and every commit this wave
+classifies is older than the cursor of its repo.
 
 **Row contract:** decision rows are markdown table rows keyed by a
 manifest `id` or ledger ID in the first cell. Columns: source | verdict |
@@ -179,6 +214,36 @@ ops; **judgment** (inherit + high/xhigh) — synthesis, strategy, voice.
 | RW-2026-09-11-43 | adopt | G | `.claude/agents/batch-evaluator.md`, `.claude/agents/deep-research.md` (Dispatch discipline paragraph); `AGENTS.md` §Working Conventions foreground-dispatch bullet | no — host-neutral prose, no Claude-only tokens | no | — |
 | CE-10 | adopt | G | resolved by RW-2026-09-11-32/-41 — `core/scripts/build_adapters.py`, `.agents/skills.lock.json` (moved from §D on 2026-09-11) | no — generator code | no | heightened-review (generator) |
 | GB-04 | adopt | G | resolved by RW-2026-09-11-7 — `.claude/skills/session-review/SKILL.md` `## Skill gaps` section, the friction-log half (moved from §D on 2026-09-11; CE-07 and GS-03 remain deferred there) | no — portable prose | no | — |
+| RW-2026-09-12-1 | adapt | H | `core/scripts/workspace.py` (new loader plus the nine result builders), `core/mcp/server.py`, `core/scripts/tests/test_workspace.py`, `core/README.md`, `AGENTS.md` `list_tasks` bullet; consumer lines in `.claude/agents/system-health.md`, `.claude/skills/process-backlog/SKILL.md`, `.claude/skills/morning/SKILL.md` — every read tool carries `unreadable`, never a silent drop | n/a — MCP code; the consumer lines are portable prose | no | heightened-review (MCP handlers), (was GSD-U-3) |
+| RW-2026-09-12-2 | adapt | H | `core/scripts/workspace.py`, `core/mcp/server.py` (`body_truncated` + `body_limit` per row), `core/scripts/tests/test_workspace.py`, `AGENTS.md`; consumer `.claude/agents/system-health.md` (reads the file when a row is clipped) | n/a — MCP code | no | heightened-review (MCP handlers), (was GB-U-9) |
+| RW-2026-09-12-3 | adapt | H | `core/scripts/workspace.py`, `core/mcp/server.py` (`prune_completed_tasks` preview-by-default, strict `confirm`, `consent_given`), `core/scripts/tests/test_workspace.py`, `AGENTS.md` prune bullet; `.claude/skills/quarterly/SKILL.md` Step 3b consent beat | n/a — MCP code; the `/quarterly` step is portable prose | no | heightened-review (MCP handlers, destructive verb), (was GSD-U-24) |
+| RW-2026-09-12-4 | adapt | H | as RW-2026-09-12-1..3 — the preview path writes nothing at all (no archive mkdir) and `/quarterly` Step 3b calls it first, recording a declined run | n/a — MCP code | no | heightened-review (MCP handlers), (was GB-U-2) |
+| RW-2026-09-12-5 | adopt | H | `.gitignore` plus the index removal of the three tracked-but-ignored files (U1); `core/scripts/validate_checks.py` (`check_privacy_placement`), `core/scripts/validate.py` wiring, `core/scripts/tests/test_validate_checks.py` — warn class `privacy-placement` | n/a — validator code | no | heightened-review (validator, repo hygiene), (was GSD-U-20) |
+| RW-2026-09-12-6 | adopt | H | `core/scripts/validate_checks.py` (`check_tracked_tree_hygiene`), `core/scripts/validate.py` wiring, `core/scripts/tests/test_validate_checks.py` — warn class `tree-hygiene`; `.gitignore` `node_modules` trailing slash (U1) | n/a — validator code | no | (was GB-U-13) |
+| RW-2026-09-12-7 | adapt | H | `core/scripts/validate_checks.py` (`check_backup_coverage` three-state probe), `core/scripts/tests/test_validate_checks.py` (the silence test renamed and flipped) | n/a — validator code | no | (was GB-U-6) |
+| RW-2026-09-12-8 | adapt | H | `core/scripts/validate.py` (five spawn sites, `SUBPROCESS_TIMEOUT` / `MCP_IMPORT_TIMEOUT`), `core/scripts/tests/test_validate_checks.py` (three stall drills), `core/scripts/tests/test_source_lints.py` (AST spawn lint), `core/CODING_STANDARDS.md` | n/a — validator code | no | heightened-review (validator), (was GSD-U-11) |
+| RW-2026-09-12-9 | adapt | H | `core/scripts/validate_checks.py` (`mask_code`, `check_template_tokens`, `staleness_sections`), `core/scripts/tests/test_validate_checks.py`, `CLAUDE.md` local-report-mode bullet | n/a — validator code, local report mode | no | heightened-review (validator), (was CE-U-11) |
+| RW-2026-09-12-10 | adapt | H | `core/scripts/validate_checks.py` (`check_source_pointers`), `core/scripts/tests/test_validate_checks.py`; writer stamps in `.claude/skills/weekly/SKILL.md`, `.claude/skills/quarterly/SKILL.md`, `.claude/skills/session-review/SKILL.md` | n/a — validator code, local report mode; the writer stamps are portable prose | no | (was GB-U-16) |
+| RW-2026-09-12-11 | adapt | H | `core/scripts/tests/conftest.py` (session-start `HOME` / `XDG_CONFIG_HOME` sandbox, uv cache and memory dir forwarded), `core/scripts/tests/test_source_lints.py`, `core/CODING_STANDARDS.md` | n/a — test harness | no | heightened-review (test harness over live config), (was GSD-U-12) |
+| RW-2026-09-12-12 | adapt | H | `core/scripts/tests/conftest.py` (autouse watch over four config files and the forwarded memory dir), `core/scripts/tests/test_source_lints.py` | n/a — test harness | no | (was GB-U-1) |
+| RW-2026-09-12-13 | adapt | H | `core/scripts/tests/test_source_lints.py` (source-grep AST lint, allow-list with ceiling and stale-entry report), `core/CODING_STANDARDS.md` | n/a — test harness | no | heightened-review (test enforcement), (was GSD-U-18) |
+| RW-2026-09-12-14 | adopt | H | `.gitignore` — `CLAUDE.local.md` and `AGENTS.local.md` beside the existing `.claude/settings.local.json` line | no — never generated | no | (was GB-U-14) |
+| RW-2026-09-12-15 | adapt | H | `.claude/skills/spec/SKILL.md` Step 8 and `references/spec-template.md` §25, `.claude/skills/launch/SKILL.md` (gate before Stage 7 and before writing `active`), `.claude/skills/pre-mortem/SKILL.md` and its templates | no — portable prose | no | (was GSD-U-1) |
+| RW-2026-09-12-16 | adapt | H | `.claude/skills/spec/SKILL.md` §19/§25 with `references/spec-template.md` and `references/tdd-guide.md`, `.claude/skills/user-stories/SKILL.md` and its two templates | no — portable prose | no | (was GSD-U-22) |
+| RW-2026-09-12-17 | adapt | H | `.claude/skills/spec/SKILL.md` Step 9.5, `.claude/skills/pre-mortem/SKILL.md`, `.claude/skills/decision/SKILL.md` — glossed identifiers on first mention | no — portable prose | no | (was CE-U-1) |
+| RW-2026-09-12-18 | adapt | H | `.claude/skills/spec/SKILL.md` Step 9.5 (decision-first issues), `.claude/skills/morning/SKILL.md` Step 6 (the Slack rendering keeps the decision lines) | no — portable prose | no | (was CE-U-2) |
+| RW-2026-09-12-19 | adapt | H | `.claude/skills/decision/SKILL.md`, `.claude/skills/session-review/SKILL.md` — self-contained opening summary | no — portable prose | no | (was GB-U-4) |
+| RW-2026-09-12-20 | adapt | H | `.claude/skills/refresh-goals/SKILL.md` Step 4, `.claude/skills/process-backlog/SKILL.md` Step 7 plus a rationalization-guard bullet, `.claude/skills/quarterly/SKILL.md` Step 3 pointer — 40% / 40-line shrink refusal, prose only (July KTD-5) | no — portable prose | no | heightened-review (curated-file writes), (was GSD-U-7) |
+| RW-2026-09-12-21 | adapt | H | `.claude/skills/weekly/SKILL.md` (Steps 1b, 1c, 9), `.claude/skills/sprint-plan/SKILL.md` (Steps 3-4), `.claude/skills/morning/SKILL.md` Step 0, `.claude/skills/user-stories/references/task-from-story-template.md`, `AGENTS.md` task template | no — portable prose | no | (was GSD-U-2) |
+| RW-2026-09-12-22 | adapt | H | `.claude/skills/process-backlog/SKILL.md` Step 3 (the slug rule), `.claude/skills/research-topic/SKILL.md` Step 2 (cites it; the old 50-character clause removed) | no — portable prose | no | (was GSD-U-6) |
+| RW-2026-09-12-23 | adapt | H | `.claude/skills/validate-project/references/research-brief-template.md`, `.claude/skills/research-topic/references/research-brief-template.md`, `.claude/agents/deep-research.md`, `.claude/agents/batch-evaluator.md` — supported / refuted / insufficient dispositions | no — portable prose | no | (was GSD-U-15) |
+| RW-2026-09-12-24 | adapt | H | `.claude/skills/meeting-sync/references/people-enrichment.md` steps 2-3, `.claude/skills/log-meeting/SKILL.md` Step 8 — attribution gate plus the untrusted-input block | no — portable prose | no | (was GB-U-11) |
+| RW-2026-09-12-25 | adapt | H | `.claude/skills/meeting-sync/SKILL.md` and `references/people-enrichment.md`, `.claude/skills/meeting-prep/SKILL.md`, `.claude/skills/log-meeting/SKILL.md`, `.claude/skills/write/SKILL.md`, `.claude/skills/morning/SKILL.md`, `.claude/skills/quarterly/SKILL.md` Step 7b; `AGENTS.md` and `README.md` name the new verbs | no — portable prose | no | (was GB-U-19) |
+| RW-2026-09-12-26 | adapt | H | `.claude/skills/cli-watch/SKILL.md` step 4, `.claude/skills/cli-watch/references/report-template.md` (`- Model roster:` line) — stop-and-note on a roster change | no — portable prose (no raw model id in a body, KTD10) | report-only | (was CE-U-16) |
+| RW-2026-09-12-27 | adapt | H | `.claude/agents/batch-evaluator.md` (roster discipline, "Covered N of M"), `.claude/agents/system-health.md` (coverage graded off the two summary calls) | no — portable prose | no | (was GSD-U-25) |
+| RW-2026-09-12-28 | adapt | H | `SECURITY.md` (new) §Instruction surfaces, `.claude/commands/analyze.md` (§2 bullet, §4 `Surface` column), `docs/data-handling.md` | no — portable prose; the command body cites `SECURITY.md` in backticks so no unresolvable link reaches the generated tree | no | (was GSD-U-13) |
+| RW-2026-09-12-29 | adapt | H | `SECURITY.md` (new — reporting path, seven-row check table, no-CI sentence), `CONTRIBUTING.md` (PR-side note, ground-rules reporting bullet) | no — never generated | no | (was GB-U-18) |
+| RW-2026-09-12-30 | adapt | H | `.github/pull_request_template.md` (new), `CONTRIBUTING.md` item 4 — intent, gate output, screenshot rule, security and agent disclosure | no — never generated | no | (was CE-U-14) |
 
 ## D. Deferred (recorded, post-initiative backlog — not silent skips)
 
@@ -220,6 +285,8 @@ ops; **judgment** (inherit + high/xhigh) — synthesis, strategy, voice.
 | FW-2026-09-06 | Full SKILL.md restructure of `spec`, `prd`, `make-slides` with before/after routing evals — the RW-2026-09-11-9 first pass found nothing verbatim to move; SP-01 / AS-11 remain the owning deferrals and the `/weekly` before-measurement habit (RW-2026-09-11-18) is the prerequisite now in place. |
 | FW-2026-09-07 | Wrapper `--allowed-tools` still lists `WebSearch` while the guard denies it — remove it from the plist and crontab templates in a setup-focused wave. |
 | FW-2026-09-08 | `check_guard_wiring` reads only `type` and `command` — a full schema check of the hook entry (the 2026-09-11 wave added only the below-600 `timeout` notice). |
+| RW-2026-09-12-31 (was GSD-U-21) | Opt-in pre-commit hook running `build_adapters.py --check` and the validator, offered by `setup.sh` — marked `document` by owner decision on 2026-09-12: interactive sessions stay hook-free (July KTD-5), and a validator run on every commit reverses that. The hashed adapter manifest (RW-2026-09-11-32) plus the same-commit regeneration rule in `core/CODING_STANDARDS.md` stay the mechanism; the residual gap is that between waves nothing mechanical stops a commit with stale adapters. Revisit only if a wave again lands with a stale manifest. |
+| RW-2026-09-12-32 (was GB-U-20) | Non-Latin scripts preserved in slugs — the rule that landed (RW-2026-09-12-22) transliterates Latin diacritics and falls back to a dated slug otherwise, so a Cyrillic, Greek, or CJK title yields a dated filename rather than a broken or empty one. Preserving those scripts needs a transliteration table and a Unicode-aware tokenizer with no second consumer here; revisit if people pages carry non-Latin names in practice. |
 
 ## E. Not-applicable (ledger skips — reasoning lives on the ledger rows)
 
