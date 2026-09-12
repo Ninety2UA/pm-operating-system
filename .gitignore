@@ -44,6 +44,9 @@ projects/*
 .claude/plans/
 .claude/*.lock
 .claude/hooks/*.log
+# Per-clone instruction overrides stay local (never committed).
+CLAUDE.local.md
+AGENTS.local.md
 
 # ── Personal/scratch files ────────────────────────────
 docs/brainstorms/
@@ -54,7 +57,8 @@ docs/plans/
 /*.pdf
 
 # ── Node (make-slides / playwright deps) ──────────────
-node_modules/
+# No trailing slash: a same-named symlink is ignored too.
+node_modules
 package-lock.json
 
 # ── Personal local-only scripts (never committed) ────
