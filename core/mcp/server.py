@@ -56,16 +56,14 @@ if _env_base and _env_base != '.':
     BASE_DIR = Path(_env_base).resolve()
 else:
     BASE_DIR = Path(__file__).resolve().parents[2]
-TASKS_DIR = BASE_DIR / 'tasks'
-PROJECTS_DIR = BASE_DIR / 'projects'
 KNOWLEDGE_DIR = BASE_DIR / 'knowledge'
-
-# Ensure directories exist
-TASKS_DIR.mkdir(exist_ok=True, parents=True)
-PROJECTS_DIR.mkdir(exist_ok=True, parents=True)
 
 # The workspace every builder reads
 WS = workspace.Workspace.from_base(BASE_DIR)
+
+# Ensure directories exist
+WS.tasks.mkdir(exist_ok=True, parents=True)
+WS.projects.mkdir(exist_ok=True, parents=True)
 
 # Pipeline stage definitions. The canonical copy is workspace.PIPELINE_STAGES;
 # the literal stays here because the validator's parity check reads it from
@@ -90,7 +88,7 @@ def get_project_artifacts_data(project: str) -> Dict[str, Any]:
     """`get_project_artifacts` keeps its own handler: it only tests for the
     existence of files, so it parses no frontmatter and has no `unreadable`
     list to report."""
-    if not (PROJECTS_DIR / project).exists():
+    if not (WS.projects / project).exists():
         return {"success": False, "error": f"Project not found: {project}"}
     artifacts = workspace.project_artifact_status(WS, project)
     next_skill = workspace.determine_next_skill(artifacts)
@@ -311,7 +309,7 @@ async def main():
     """Main entry point for the MCP server"""
     logger.info(f"Starting PM Operating System MCP Server")
     logger.info(f"Base directory: {BASE_DIR}")
-    logger.info(f"Tasks: {TASKS_DIR} | Projects: {PROJECTS_DIR}")
+    logger.info(f"Tasks: {WS.tasks} | Projects: {WS.projects}")
 
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
         await app.run(

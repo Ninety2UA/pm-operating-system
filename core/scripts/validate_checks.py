@@ -112,13 +112,41 @@ def check_model_roster(root: Path | str) -> list[str]:
 
 
 # ── tiering presence (R2 enforcement) ────────────────────────────────────────
-def _top_level_key(text: str, key: str):
+def _frontmatter_block(text: str) -> str | None:
+    """The frontmatter block: the opening `---` line through the line before
+    the first later line that is exactly `---` (a `---` inside a value or a
+    horizontal rule in the body is not a fence). None without an opening
+    fence; the whole text when the block is never closed."""
     if not text.startswith("---"):
         return None
-    end = text.find("\n---", 3)
-    fm = text[:end] if end != -1 else text
+    lines = text.splitlines()
+    for i, line in enumerate(lines[1:], start=1):
+        if line.rstrip("\r") == "---":
+            return "\n".join(lines[:i])
+    return text
+
+
+def _top_level_key(text: str, key: str):
+    fm = _frontmatter_block(text)
+    if fm is None:
+        return None
     m = re.search(rf"(?m)^{re.escape(key)}:\s*(.+)$", fm)
     return m.group(1).strip() if m else None
+
+
+def _undetermined(subject: str) -> list[str]:
+    """The one line a git-backed check emits when git cannot answer at all,
+    so silence is never mistaken for a clean result."""
+    return [f"could not determine {subject}: git is unavailable or the root "
+            f"is not a git repository"]
+
+
+def home_tilde(path: str, home: str) -> str:
+    """`~/...` form for a path under the home directory, so no username
+    reaches output a PR may quote; any other path is returned unchanged."""
+    if path == home or path.startswith(home + "/"):
+        return "~" + path[len(home):]
+    return path
 
 
 def check_tiering_presence(root: Path | str) -> list[str]:
@@ -599,8 +627,7 @@ def check_backup_coverage(root: Path | str) -> list[str]:
     """
     root = Path(root)
     if _git_stdout(root, "rev-parse", "--is-inside-work-tree") is None:
-        return ["could not determine backup coverage: git is unavailable or "
-                "the root is not a git repository"]
+        return _undetermined("backup coverage")
     remotes = _git_stdout(root, "remote") or ""
     warns = []
     if "origin" not in remotes.split():
@@ -651,8 +678,7 @@ def check_privacy_placement(root: Path | str) -> list[str]:
         root, *_REPO_IGNORE_RULES_ONLY,
         "ls-files", "-i", "-c", "--exclude-standard", "-z"))
     if listed is None:
-        return ["could not determine tracked-but-ignored files: git is "
-                "unavailable or the root is not a git repository"]
+        return _undetermined("tracked-but-ignored files")
     return [f"{rel}: tracked but ignored by {_ignore_rule(root, rel)} — an "
             f"ignore rule has no effect on an already-tracked file; "
             f"`git rm --cached {rel}` untracks it and keeps it on disk, or "
@@ -668,9 +694,9 @@ def _symlink_target_label(root: Path, rel: str) -> str:
     target = _git_stdout(root, "cat-file", "blob", f":{rel}")
     if not target:
         return "an unreadable target"
-    home = str(Path.home())
-    if target == home or target.startswith(home + "/"):
-        return "~" + target[len(home):]
+    label = home_tilde(target, str(Path.home()))
+    if label != target:
+        return label
     return ("an absolute target outside the repository"
             if target.startswith("/") else target)
 
@@ -685,8 +711,7 @@ def check_tracked_tree_hygiene(root: Path | str) -> list[str]:
     root = Path(root)
     listed = _nul_fields(_git_stdout(root, "ls-files", "-s", "-z"))
     if listed is None:
-        return ["could not determine tracked-tree hygiene: git is unavailable "
-                "or the root is not a git repository"]
+        return _undetermined("tracked-tree hygiene")
     warns: list[str] = []
     groups: dict[str, list[str]] = {}
     for entry in listed:
@@ -874,10 +899,8 @@ _SOURCE_ENTRY_RE = re.compile(r"^\s*-\s+(.+?)\s*$")
 
 
 def _frontmatter_lines(text: str) -> list[str]:
-    if not text.startswith("---"):
-        return []
-    end = text.find("\n---", 3)
-    return (text[:end] if end != -1 else text).splitlines()
+    block = _frontmatter_block(text)
+    return block.splitlines() if block is not None else []
 
 
 def _sources_entries(fm_lines: list[str]):
@@ -926,22 +949,20 @@ def check_source_pointers(root: Path | str) -> list[str]:
                 continue
             rel = f.relative_to(root)
             entries = _sources_entries(_frontmatter_lines(text))
-            if entries is None:
-                exempt = _top_level_key(text, "sources_exempt") or ""
-                if exempt.split("#")[0].strip().lower() == "true":
-                    if exempt.partition("#")[2].strip():
-                        continue
-                    flags.append(f"{rel}:1: `sources_exempt: true` carries no "
-                                 f"reason — add it as a trailing `# <reason>`")
-                    continue
+            if entries is not None:
+                flags += [f"{rel}:{line_no}: `sources:` entry `{src}` no longer "
+                          f"exists" for line_no, src in entries
+                          if not (root / src).exists()]
+                continue
+            exempt = _top_level_key(text, "sources_exempt") or ""
+            if exempt.split("#")[0].strip().lower() != "true":
                 flags.append(f"{rel}:1: no `sources:` pointer — stamp the "
                              f"journals, reviews, and notes it was "
                              f"synthesized from, or mark "
                              f"`sources_exempt: true  # <reason>`")
-                continue
-            flags += [f"{rel}:{line_no}: `sources:` entry `{src}` no longer "
-                      f"exists" for line_no, src in entries
-                      if not (root / src).exists()]
+            elif not exempt.partition("#")[2].strip():
+                flags.append(f"{rel}:1: `sources_exempt: true` carries no "
+                             f"reason — add it as a trailing `# <reason>`")
     return flags
 
 

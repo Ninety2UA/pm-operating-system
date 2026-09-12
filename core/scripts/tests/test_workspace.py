@@ -403,3 +403,19 @@ def test_update_frontmatter_writes_when_the_frontmatter_parsed(tmp_path):
 
     assert ws.update_frontmatter(path, {"status": "d"}) is True
     assert ws.parse_frontmatter(path.read_text(encoding="utf-8")).meta["status"] == "d"
+
+
+def test_reason_tokens_come_from_the_closed_sets(tmp_path):
+    """The reason vocabulary is a contract consumers switch on (KTD5, KTD6):
+    every `unreadable` reason the loader emits and every `skipped` reason the
+    prune apply emits must be a member of the exported closed set."""
+    w = _mkws(tmp_path)
+    _task(w, "bad.md", "---\n- a list, not a mapping\n---\nb\n")
+    _task(w, "done-old.md", "---\ntitle: Old\nstatus: d\n---\nb\n", days_old=60)
+    _, unreadable = ws.load_tasks(w)
+    assert unreadable and {e["reason"] for e in unreadable} <= ws.UNREADABLE_REASONS
+    now = datetime.now()
+    plan = ws.plan_prune(w, 30, now)
+    (w.tasks / "done-old.md").unlink()
+    result = ws.apply_prune(w, plan, now)
+    assert result["skipped"] and {e["reason"] for e in result["skipped"]} <= ws.SKIP_REASONS

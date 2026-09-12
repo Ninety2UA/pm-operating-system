@@ -28,6 +28,8 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 SCRIPTS = REPO_ROOT / "core" / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
+from validate_checks import home_tilde  # noqa: E402  (the one `~` rule, shared with the validator)
+
 # ── Hermetic HOME (KTD9 / R11) ───────────────────────────────────────────────
 # The four config files any host of this framework writes. `install_for.py`
 # targets the first three; the fourth is the Claude Code settings file. The
@@ -174,10 +176,7 @@ def snapshot_state(home: Path, memory: Path | None) -> dict[str, object]:
 
 def tilde(path: str, home: Path) -> str:
     """`~/...` form: no username reaches a failure message or a PR quoting it."""
-    home_s = str(home)
-    if path == home_s or path.startswith(home_s + os.sep):
-        return "~" + path[len(home_s):]
-    return path
+    return home_tilde(path, str(home))
 
 
 def diff_states(before: dict, after: dict, home: Path) -> list[str]:

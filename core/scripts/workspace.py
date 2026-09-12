@@ -62,7 +62,10 @@ UNREADABLE_REASONS = frozenset({
     REASON_NO_FRONTMATTER, REASON_UNTERMINATED, REASON_UNPARSEABLE,
     REASON_IO_ERROR, REASON_MISSING,
 })
-SKIP_REASONS = frozenset({"vanished", "collision", "unreadable"})
+SKIP_VANISHED = "vanished"
+SKIP_COLLISION = "collision"
+SKIP_UNREADABLE = "unreadable"
+SKIP_REASONS = frozenset({SKIP_VANISHED, SKIP_COLLISION, SKIP_UNREADABLE})
 
 PIPELINE_STAGES = ["idea", "evaluating", "ready", "active", "paused", "archived"]
 
@@ -240,8 +243,8 @@ def _iso(value: Any) -> Any:
 
 
 def _dated_name(filename: str, when: datetime) -> str:
-    stem, _, suffix = filename.rpartition(".")
-    return f"{stem}_{when.strftime('%Y-%m-%d')}.{suffix}" if stem else filename
+    name = Path(filename)
+    return f"{name.stem}_{when.strftime('%Y-%m-%d')}{name.suffix}"
 
 
 def plan_prune(ws: Workspace, days: int, now: datetime) -> dict:
@@ -297,18 +300,21 @@ def apply_prune(ws: Workspace, plan: dict, now: datetime) -> dict:
     for row in candidates:
         source = ws.tasks / row["filename"]
         if not source.is_file():
-            skipped.append({"path": _rel(ws, source), "reason": "vanished"})
+            skipped.append({"path": _rel(ws, source), "reason": SKIP_VANISHED})
             continue
         dest = ws.archive / row["filename"]
         if dest.exists():
             dest = ws.archive / _dated_name(row["filename"], now)
             if dest.exists():
-                skipped.append({"path": _rel(ws, source), "reason": "collision"})
+                skipped.append({"path": _rel(ws, source), "reason": SKIP_COLLISION})
                 continue
         try:
             shutil.move(str(source), str(dest))
+        except FileNotFoundError:  # vanished between the check above and the move
+            skipped.append({"path": _rel(ws, source), "reason": SKIP_VANISHED})
+            continue
         except OSError:
-            skipped.append({"path": _rel(ws, source), "reason": "unreadable"})
+            skipped.append({"path": _rel(ws, source), "reason": SKIP_UNREADABLE})
             continue
         archived.append(row["filename"])
     return {
