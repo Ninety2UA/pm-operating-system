@@ -243,7 +243,7 @@ mkdir -p tasks projects knowledge/{research/projects,research/topics,meetings,jo
 |---------|-------------|-------|
 | `/morning` | Daily standup with meeting sync, top tasks, pipeline, OKRs, and journal save | `/morning` or `/morning quick` |
 | `/weekly` | Weekly review with plan-vs-actual analysis, session patterns, and learning extraction | `/weekly` or `/weekly quick` |
-| `/quarterly` | Quarterly review: OKR scoring, project purge, goals refresh, system audit | `/quarterly` or `/quarterly quick` |
+| `/quarterly` | Quarterly review: OKR scoring, project purge, done-task archive (previewed, applied on your confirmation), people-page review, goals refresh, system audit | `/quarterly` or `/quarterly quick` |
 | `/process-backlog` | Process BACKLOG.md with duplicate detection against existing tasks and projects | `/process-backlog` |
 | `/launch` | Full evaluation pipeline with Go/No-Go gates at each stage | `/launch my-project` or `/launch my-project --from gtm-plan` |
 | `/write` | Generate content (blog posts, emails, social) in your authentic voice | `/write blog-post AI trends` |
@@ -643,6 +643,7 @@ Contributions are welcome. Please:
 - After editing anything under `.claude/skills`, `.claude/agents`, or `.claude/commands`, run `uv run core/scripts/build_adapters.py` and commit the regenerated `.agents/`, `.codex/`, `.cursor/` trees and `.agents/skills.lock.json` in the same commit
 - Include documentation for new features
 - Test that `setup.sh` still works after your changes
+- Give every PR its two disclosure lines — whether the change touches a security-relevant surface, and whether an AI agent wrote any of it (named as the identity the agent can actually report). Report a vulnerability privately through the Security tab instead of a public issue; the reporting path, the checks that run, and the trust model behind installed skills are in [SECURITY.md](SECURITY.md)
 - **Run all three gates before opening a PR:** `uv run core/scripts/validate.py` must end `✓ ALL CHECKS PASS`, `uv run core/scripts/build_adapters.py --check` must exit 0, and `uv run --with pytest --with pyyaml pytest core/scripts/tests/ -q` must pass — quote their output in the PR. The full gate list, and the intent-paragraph plus screenshot rule for `docs/`-facing PRs, is in [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---

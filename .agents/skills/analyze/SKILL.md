@@ -4,7 +4,7 @@ description: |-
   Deep compatibility analysis of an external repo/resource against our system.
 argument-hint: "<github-url or local-path>"
 generated_from: .claude/commands/analyze.md
-source_sha256: 2a2e7a05b1d6924a60eb6768e608576c71ebd5a3c6c2da4e62b17ecc79c4a3b5
+source_sha256: 5a98943d28d4508bb27a09f81034ee3ae7d6919c3ed4be994d7d6f22a441e011
 x_generated_note: "do not edit — regenerate with: uv run core/scripts/build_adapters.py"
 ---
 
@@ -43,6 +43,7 @@ For each notable prompt, pattern, or mechanism found:
 - **Relevance to our system**: direct mapping to our existing architecture
 - **Adoption effort**: trivial / moderate / significant refactor
 - **Risk/tradeoff**: what we gain vs. what could break or add complexity
+- **Instruction surface**: what adopting this would become in our system — `executable` (a script or hook that runs as a process with the user's rights), `instruction` (a skill, agent, or command body, which is prose the session's model follows with the session's permissions), or `inert` (a template or data file read as content) — plus the files or sources it would instruct the agent to read. This is disclosure only: name the surface, install nothing. The trust model behind the three classes is in `SECURITY.md`. (RW-2026-09-12-28)
 
 ### 3. Prompt Engineering Insights
 - System prompt structures, role definitions, guardrails
@@ -52,8 +53,8 @@ For each notable prompt, pattern, or mechanism found:
 
 ### 4. Verdict Matrix
 Summarize as a table:
-| Pattern/Mechanism | Usefulness (1-5) | Effort (1-5) | Priority | Notes |
-Each row = one concrete extractable element.
+| Pattern/Mechanism | Surface | Usefulness (1-5) | Effort (1-5) | Priority | Notes |
+Each row = one concrete extractable element. `Surface` carries that row's instruction surface from section 2 — `executable`, `instruction`, or `inert` — so the verdict list states what each adoption would install, not only what it would be worth. (RW-2026-09-12-28)
 
 ### 5. Recommended Actions
 - Ranked list of what to adopt, adapt, or ignore

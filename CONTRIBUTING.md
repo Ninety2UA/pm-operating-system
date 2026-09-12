@@ -21,9 +21,26 @@ pass.
    must pass. A behavior-bearing change ships its test in the same commit, and
    every test must be able to fail (name the production change that would
    break it). Doc-only changes earn no tests and say so.
+4. **Disclosure.** Two lines in the PR description, both required, both
+   answerable in one sentence:
+   - **Security.** Whether the change touches a security-relevant surface —
+     the validator's security checks, the report-only guard, `.gitignore`, the
+     MCP server's writes, or anything that fetches — and what you checked if
+     it does. "No security-relevant change" is a complete answer when true.
+     (RW-2026-09-12-30)
+   - **Agent.** Whether an AI agent wrote any part of the change, and which
+     one, stated as the identity the agent can actually report: the model name
+     it was told verbatim when it was told one, the family alone otherwise.
+     Never read the identity out of a config file and never invent a version.
+     "Written by hand" is the other valid answer. (RW-2026-09-12-30)
 
 Quote the actual output of the three gates in the PR description. "Should
 pass" is not evidence.
+
+**PR-side checks.** There is no CI here: the gates run only where you run them,
+and a failure means the validator exited non-zero on your machine. Which checks
+exist, what each one scans, whether it fails or warns, and what none of them
+cover are in [SECURITY.md](SECURITY.md). (RW-2026-09-12-29)
 
 ## Changes under `core/`
 
@@ -46,6 +63,10 @@ A PR missing either is sent back for them before review starts.
 
 ## Ground rules
 
+- Report a vulnerability privately through the repository's Security tab,
+  never in a public issue or pull request; the reporting path, the trust model
+  behind installed skills, and the limits of the automated checks are in
+  [SECURITY.md](SECURITY.md). (RW-2026-09-12-29)
 - No personal data in commits. `knowledge/`, `tasks/`, and `projects/` are
   gitignored by design, and the host's memory directory lives outside the
   repo; see [docs/data-handling.md](docs/data-handling.md).

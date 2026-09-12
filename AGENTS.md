@@ -89,6 +89,7 @@ status: n  # n=not_started, s=started, b=blocked, d=done, r=recurring
 created_date: [YYYY-MM-DD]
 due_date: [YYYY-MM-DD]  # optional
 estimated_time: [minutes]  # optional
+actual_time: [minutes]  # optional, same scale as estimated_time
 blocked_by: [person or thing]  # optional, use when status=b
 blocked_since: [YYYY-MM-DD]  # optional, use when status=b
 resource_refs:
@@ -107,6 +108,11 @@ Tie to goals and reference material.
 ## Progress Log
 - YYYY-MM-DD: Notes, blockers, decisions.
 ```
+
+`actual_time` is never written automatically: `/weekly` asks for it beside its
+impact question for each task finished that week, `/morning` offers it for
+yesterday's finished tasks, and `/weekly` derives the estimate-calibration
+factor from the tasks that carry both fields. (RW-2026-09-12-21)
 
 ## Project Template
 
@@ -303,7 +309,7 @@ The system learns through three loops:
 
 - **Daily:** `/morning` saves plans to journals. Next morning reads yesterday's actuals. Memories persist across sessions.
 - **Weekly:** `/weekly` compiles a shipping summary from completed/archived tasks, then reads journals for plan-vs-actual patterns. Reads session reviews for recurring prompts and workflow chains. Proposes new commands/skills and AGENTS.md improvements.
-- **Quarterly:** `/quarterly` scores OKRs, archives stale projects, refreshes GOALS.md, cleans stale memories, audits AGENTS.md.
+- **Quarterly:** `/quarterly` scores OKRs, archives stale projects, previews and archives done tasks on your confirmation, reviews auto-created people pages and clears the unreviewed flag on your say-so, refreshes GOALS.md, cleans stale memories, audits AGENTS.md. (RW-2026-09-12-25)
 
 When generating session reviews (`/session-review`), always capture **user prompts verbatim** — these feed the weekly pattern analysis that suggests new commands and skills.
 
